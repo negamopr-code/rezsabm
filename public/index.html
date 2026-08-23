@@ -41,7 +41,12 @@
   <div class="sub" id="rule">loading…</div>
 </header>
 <div class="wrap">
-  <div class="filters">
+  <div class="filters" style="position:relative">
+    <label>Instrument <input id="symq" placeholder="search any symbol…" autocomplete="off"
+      style="width:180px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:5px 8px"></label>
+    <div id="symres" style="position:absolute;top:36px;left:0;z-index:9;background:#101724;border:1px solid #223148;border-radius:8px;max-height:260px;overflow:auto;display:none;min-width:340px"></div>
+    <button id="runsuite" disabled>▶ run all lines</button>
+    <span class="sub" id="suitestat"></span>
     <label>Variant <select id="variant"></select></label>
     <button data-f="all" class="on">all</button>
     <button data-f="win">wins</button>
@@ -184,6 +189,47 @@ document.querySelectorAll('button[data-f]').forEach(b => b.onclick = () => {
   renderTable();
 });
 el('tbl').onclick = e => { const tr = e.target.closest('tr.t'); if (tr) show(tr.dataset.n); };
+let pickedSym = '';
+let symTimer = null;
+el('symq').oninput = () => {
+  clearTimeout(symTimer);
+  const q = el('symq').value.trim();
+  if (q.length < 1) { el('symres').style.display = 'none'; return; }
+  symTimer = setTimeout(async () => {
+    const r = await (await fetch(`/api/ticker-search?q=${encodeURIComponent(q)}`)).json();
+    const rows = (r.results || []).slice(0, 14);
+    el('symres').innerHTML = rows.map(x =>
+      `<div class="symrow" data-s="${x.symbol}" style="padding:6px 10px;cursor:pointer">
+         <b>${x.symbol}</b> <span class="sub">${x.name} · ${x.exch} ${x.type}</span></div>`).join('') ||
+      '<div style="padding:6px 10px" class="sub">no matches</div>';
+    el('symres').style.display = 'block';
+  }, 250);
+};
+el('symres').onclick = async e => {
+  const row = e.target.closest('.symrow');
+  if (!row) return;
+  pickedSym = row.dataset.s;
+  el('symq').value = pickedSym;
+  el('symres').style.display = 'none';
+  el('suitestat').textContent = `fetching ${pickedSym} history…`;
+  const r = await (await fetch(`/api/fetch-ohlc?symbol=${encodeURIComponent(pickedSym)}`, { method: 'POST' })).json();
+  if (r.error) { el('suitestat').textContent = r.error; return; }
+  el('suitestat').textContent = `${r.symbol}: ${r.rows} bars ${r.from} → ${r.to} — ready`;
+  el('runsuite').disabled = false;
+};
+el('runsuite').onclick = async () => {
+  if (!pickedSym) return;
+  const r = await (await fetch(`/api/run-suite?symbol=${encodeURIComponent(pickedSym)}`, { method: 'POST' })).json();
+  if (r.error) { el('suitestat').textContent = r.error; return; }
+  el('suitestat').textContent = `running suite for ${r.symbol}…`;
+  const timer = setInterval(async () => {
+    const st = await (await fetch('/api/run-suite-status')).json();
+    el('suitestat').textContent = st.running ? `suite ${st.symbol}: ${st.tail}` : `suite done`;
+    VARIANTS = await (await fetch('/api/variants')).json();
+    el('variant').innerHTML = VARIANTS.map(v => `<option>${v}</option>`).join('');
+    if (!st.running) { clearInterval(timer); renderOverview(); }
+  }, 8000);
+};
 el('runopen').onclick = async () => {
   const sl = el('opensl').value;
   const r = await (await fetch(`/api/run-open?sl=${sl}`, { method: 'POST' })).json();

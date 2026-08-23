@@ -65,6 +65,83 @@ const server = http.createServer((req, res) => {
     return send(res, 200, { running: fs.existsSync(lock), tail: log.trim().split('\n').pop() || '' });
   }
 
+  if (url.pathname === '/api/ticker-search' && req.method === 'GET') {
+    const q = (url.searchParams.get('q') || '').trim();
+    if (!q) return send(res, 400, { error: 'q required' });
+    const local = [];
+    try {
+      const u = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'universe.json')));
+      const Q = q.toUpperCase();
+      for (const x of u.symbols || []) {
+        if (x.s.startsWith(Q) || x.n.toUpperCase().includes(Q)) {
+          local.push({ symbol: x.s, name: x.n, exch: 'US', type: 'local' });
+          if (local.length >= 8) break;
+        }
+      }
+    } catch {}
+    fetch(`https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(q)}&quotesCount=10&newsCount=0`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } })
+      .then(r => r.json())
+      .then(j => send(res, 200, { results: local.concat((j.quotes || []).filter(x => x.symbol)
+        .map(x => ({ symbol: x.symbol, name: x.shortname || x.longname || '', exch: x.exchDisp || '', type: x.typeDisp || '' }))) }))
+      .catch(() => send(res, 200, { results: local }));
+    return;
+  }
+
+  if (url.pathname === '/api/fetch-ohlc' && req.method === 'POST') {
+    const sym = (url.searchParams.get('symbol') || '').trim();
+    if (!sym) return send(res, 400, { error: 'symbol required' });
+    fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?period1=0&period2=9999999999&interval=1d`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } })
+      .then(r => r.json())
+      .then(j => {
+        const result = j.chart && j.chart.result && j.chart.result[0];
+        if (!result || !result.timestamp) throw new Error((j.chart && j.chart.error && j.chart.error.description) || 'no data for ' + sym);
+        const q = result.indicators.quote[0];
+        const lines = ['Date,Open,High,Low,Close'];
+        result.timestamp.forEach((t, i) => {
+          const o = q.open[i], h = q.high[i], l = q.low[i], c = q.close[i];
+          if (o == null || h == null || l == null || c == null) return;
+          lines.push(`${new Date(t * 1000).toISOString().slice(0, 10)},${o.toFixed(4)},${h.toFixed(4)},${l.toFixed(4)},${c.toFixed(4)}`);
+        });
+        if (lines.length < 100) throw new Error('too few rows for ' + sym);
+        const name = sym.toUpperCase().replace(/[^A-Z0-9^.\-]/g, '') + '_daily_OHLC_yahoo.csv';
+        fs.writeFileSync(path.join(ROOT, 'uploads', name), lines.join('\n') + '\n');
+        send(res, 200, { ok: true, symbol: sym.toUpperCase(), rows: lines.length - 1,
+          from: lines[1].slice(0, 10), to: lines[lines.length - 1].slice(0, 10) });
+      })
+      .catch(e => send(res, 502, { error: e.message }));
+    return;
+  }
+
+  if (url.pathname === '/api/run-suite' && req.method === 'POST') {
+    const sym = (url.searchParams.get('symbol') || '').trim().toUpperCase();
+    if (!sym) return send(res, 400, { error: 'symbol required' });
+    if (!fs.existsSync(path.join(ROOT, 'uploads', `${sym}_daily_OHLC_yahoo.csv`))) {
+      return send(res, 400, { error: `no history for ${sym} — fetch it first` });
+    }
+    const { exec } = require('child_process');
+    const lock = path.join(ROOT, 'data', 'run_suite.lock');
+    if (fs.existsSync(lock) && Date.now() - fs.statSync(lock).mtimeMs < 7200e3) {
+      return send(res, 409, { error: 'a suite run is already in progress' });
+    }
+    fs.writeFileSync(lock, sym);
+    const P = `python3 scripts/sabm_r1_spy.py --symbol ${sym}`;
+    const cmd = `{ ${P} --videos && ${P} --rk 2 --videos && ${P} --rk 3 --videos && ` +
+      `${P} --exit disc --videos && ${P} --entry open --videos && ${P} --options --videos; } ` +
+      `> data/run_suite.log 2>&1; rm -f data/run_suite.lock`;
+    exec(cmd, { cwd: ROOT });
+    return send(res, 200, { started: true, symbol: sym,
+      lines: [`${sym}_R1`, `${sym}_R2`, `${sym}_R3`, `${sym}_disc`, `${sym}_open`, `${sym}_R1_optbs`] });
+  }
+
+  if (url.pathname === '/api/run-suite-status' && req.method === 'GET') {
+    const lock = path.join(ROOT, 'data', 'run_suite.lock');
+    let tail = '';
+    try { tail = fs.readFileSync(path.join(ROOT, 'data', 'run_suite.log'), 'utf8').trim().split('\n').pop() || ''; } catch {}
+    return send(res, 200, { running: fs.existsSync(lock), symbol: fs.existsSync(lock) ? fs.readFileSync(lock, 'utf8') : '', tail });
+  }
+
   if (url.pathname === '/api/variants') {
     let dirs = [];
     try {
