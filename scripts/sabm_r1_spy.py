@@ -40,9 +40,15 @@ RK = float(arg('--rk', '1'))  # target = entry + RK * R  (1 -> R1, 2 -> R2, 3 ->
 # which produce +-100R denominator artifacts; see the audit).
 MINR = float(arg('--minr-pct', '0.3'))
 SIGR = float(arg('--sig-r', '0.2'))  # |r| below this = "trade non significatif" (SABM p.12/p.16 proxy)
+# --- rough weekly-call OPTION overlay (user 2026-08-23: "it is not like this in reality",
+# deliberately simplified to test for edge vs the linear market; all knobs editable) ---
+OPT = '--options' in sys.argv
+OPT_DELTA = float(arg('--opt-delta', '0.5'))        # static delta: collect delta*move (R1 -> 0.5R)
+OPT_PREM = float(arg('--opt-premium-pct', '1.0'))   # premium as % of underlying price per option
+OPT_DAYS = int(arg('--opt-days', '5'))              # trading days to expiry ("weekly")
 CSV = os.path.join(ROOT, 'uploads', f'{SYM}_daily_OHLC_yahoo.csv')
 _SUFFIX = '' if MINR == 0.3 else ('_raw' if MINR == 0 else f'_minR{MINR:g}')
-OUT = os.path.join(ROOT, 'data', 'results', f"{SYM}_R{RK:g}{_SUFFIX}")
+OUT = os.path.join(ROOT, 'data', 'results', f"{SYM}_R{RK:g}{_SUFFIX}" + ('_opt' if OPT else ''))
 VID = os.path.join(OUT, 'videos')
 
 # --- palette (same family as the dashboard sim_chart renderer) ---
@@ -184,6 +190,129 @@ def backtest(bars: list[dict]) -> tuple[list[dict], dict]:
     return trades, {'stats': stats, 'fixed': fixed, 'comp_pct': comp_pct}
 
 
+def backtest_options(bars: list[dict]) -> tuple[list[dict], dict]:
+    """Rough long weekly call on the SAME breakout signals: premium is the whole risk
+    (no stop, Korovin/`resim` locked doctrine), static delta capture, settle at expiry.
+    Deliberate simplifications (user-acknowledged): delta does not grow ITM (understates
+    wins), theta path ignored (premium is a flat cost), IV regime constant."""
+    trades: list[dict] = []
+    pos = None
+    skipped_body = 0
+    for i in range(1, len(bars)):
+        b = bars[i]
+        if pos is not None:
+            e, tgt = pos['entry_price'], pos['target']
+            R = pos['R_abs']
+            move = None
+            reason = None
+            if b['open'] >= tgt:
+                move, reason = b['open'] - e, 'gap-target'
+            elif b['high'] >= tgt:
+                move, reason = tgt - e, 'target'
+            elif i >= pos['expiry_i']:
+                move, reason = b['close'] - e, 'expiry'
+            if reason is not None:
+                payoff = OPT_DELTA * max(0.0, move)
+                prem = pos['premium']
+                pos.update(exit_i=i, exit_date=b['date'],
+                           exit_price=round(e + move, 4), reason=reason,
+                           r_gross=round(payoff / R, 4), premium_R=round(prem / R, 4),
+                           r=round((payoff - prem) / R, 4),
+                           opt_multiple=round(payoff / prem - 1, 4),
+                           days=i - pos['entry_i'])
+                trades.append(pos)
+                pos = None
+        if pos is None:
+            prev = bars[i - 1]
+            if b['close'] > prev['high']:
+                body_bottom = min(b['open'], b['close'])
+                R = b['close'] - body_bottom
+                if R <= 0 or R < b['close'] * MINR / 100:
+                    skipped_body += 1
+                    continue
+                pos = {'n': len(trades) + 1, 'entry_i': i, 'entry_date': b['date'],
+                       'entry_price': round(b['close'], 4), 'stop': round(body_bottom, 4),
+                       'target': round(b['close'] + RK * R, 4), 'R_abs': round(R, 4),
+                       'opt': True, 'premium': round(b['close'] * OPT_PREM / 100, 4),
+                       'delta': OPT_DELTA, 'expiry_i': i + OPT_DAYS,
+                       'be': round(b['close'] + b['close'] * OPT_PREM / 100 / OPT_DELTA, 4)}
+    if pos is not None:
+        last = bars[-1]
+        e, R = pos['entry_price'], pos['R_abs']
+        move = last['close'] - e
+        payoff = OPT_DELTA * max(0.0, move)
+        pos.update(exit_i=len(bars) - 1, exit_date=last['date'], exit_price=round(last['close'], 4),
+                   reason='open', r_gross=round(payoff / R, 4), premium_R=round(pos['premium'] / R, 4),
+                   r=round((payoff - pos['premium']) / R, 4),
+                   opt_multiple=round(payoff / pos['premium'] - 1, 4),
+                   days=len(bars) - 1 - pos['entry_i'])
+        trades.append(pos)
+
+    rs = [t['r'] for t in trades]
+    wins = [r for r in rs if r > 0]
+    losses = [r for r in rs if r < 0]
+    sig = [r for r in rs if abs(r) >= SIGR]
+    wins_sig = [r for r in sig if r > 0]
+    losses_sig = [r for r in sig if r < 0]
+    gross_w, gross_l = sum(wins), -sum(losses)
+    # equity curves: spend 1% of equity on premium per trade (premium IS the whole risk)
+    fixed, comp = [0.0], [100.0]
+    for t in trades:
+        m = t['opt_multiple']
+        fixed.append(fixed[-1] + m * 1.0)
+        comp.append(comp[-1] * (1 + 0.01 * m))
+    comp_pct = [c - 100.0 for c in comp]
+
+    def maxdd(curve):
+        peak, dd = -1e18, 0.0
+        for v in curve:
+            peak = max(peak, v)
+            dd = min(dd, v - peak)
+        return dd
+
+    def maxdd_rel(curve):
+        peak, dd = 1e-18, 0.0
+        for v in curve:
+            peak = max(peak, v)
+            dd = min(dd, (v / peak - 1) * 100)
+        return dd
+
+    bh = (bars[-1]['close'] / bars[0]['close'] - 1) * 100
+    stats = {
+        'symbol': SYM, 'target': f'R{RK:g}', 'mode': 'weekly-call-rough',
+        'bars': len(bars), 'from': bars[0]['date'], 'to': bars[-1]['date'],
+        'rule': (f"same breakout signals; LONG CALL delta {OPT_DELTA:g}, premium {OPT_PREM:g}% of price, "
+                 f"{OPT_DAYS} trading days to expiry; NO stop (premium = whole risk); exit at target touch "
+                 f"(collect delta*{RK:g}R, gaps collect delta*gap) or settle delta*max(0,move) at expiry"),
+        'min_R_filter_pct_of_price': MINR,
+        'trades': len(trades), 'skipped_signals': skipped_body,
+        'win_rate_pct_all_trades': round(100 * len(wins) / len(trades), 2),
+        'significant_trades': len(sig), 'non_significant_trades': len(trades) - len(sig),
+        'significance_threshold_R': SIGR,
+        'win_rate_pct_significant': round(100 * len(wins_sig) / len(sig), 2) if sig else None,
+        'profit_factor': round(gross_w / gross_l, 3) if gross_l else None,
+        'profit_factor_significant': round(sum(wins_sig) / -sum(losses_sig), 3) if losses_sig else None,
+        'avg_r': round(sum(rs) / len(rs), 4), 'sum_r': round(sum(rs), 2),
+        'avg_premium_R': round(sum(t['premium_R'] for t in trades) / len(trades), 3),
+        'positive_accidents_beyond_target': sum(1 for t in trades if t['r_gross'] > OPT_DELTA * RK + 0.0001),
+        'expiry_settlements': sum(1 for t in trades if t['reason'] == 'expiry'),
+        'target_exits': sum(1 for t in trades if t['reason'] in ('target', 'gap-target')),
+        'expired_worthless': sum(1 for t in trades if t['reason'] == 'expiry' and t['r_gross'] == 0),
+        'still_open': sum(1 for t in trades if t['reason'] == 'open'),
+        'median_hold_days': sorted(t['days'] for t in trades)[len(trades) // 2],
+        'final_fixed_pct': round(fixed[-1], 2), 'final_compounded_pct': round(comp_pct[-1], 2),
+        'maxdd_fixed_pct_of_T0': round(maxdd(fixed), 2),
+        'maxdd_compounded_pct_points_SABM': round(maxdd(comp_pct), 2),
+        'maxdd_compounded_pct_relative': round(maxdd_rel(comp), 2),
+        'buy_hold_pct': round(bh, 2),
+        'note': (f"ROUGH option model (user-acknowledged): static delta understates ITM wins, theta path "
+                 f"ignored, IV constant; premium {OPT_PREM:g}%/wk is realistic-ish for ATM SPY (0.4*sigma*sqrt(T)); "
+                 f"weeklies sit in the FASTEST-theta zone (Korovin rolls a week before expiry to dodge it). "
+                 f"1% of equity spent on premium per trade; r values are NET of premium in R units."),
+    }
+    return trades, {'stats': stats, 'fixed': fixed, 'comp_pct': comp_pct}
+
+
 # ---------- rendering ----------
 from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 
@@ -234,13 +363,19 @@ def graph_portfolio(trades, fixed, comp_pct, stats, path, w=1920, h=1080):
     for series, col, label in ((fixed, (80, 140, 255), 'fixed'), (comp_pct, UP, 'compounded')):
         pts = [(x(i), y(v)) for i, v in enumerate(series)]
         d.line(pts, fill=col, width=3)
-    d.text((pl, 16), f"{stats['symbol']} daily {stats['from']} -> {stats['to']}  |  SABM {stats['target']} exit, entry: close > prev high, stop: body bottom  |  "
+    opt_mode = stats.get('mode') == 'weekly-call-rough'
+    what = ("rough weekly CALL, no stop (premium = risk)" if opt_mode else "SABM " + stats['target'] + " exit, entry: close > prev high, stop: body bottom")
+    d.text((pl, 16), f"{stats['symbol']} daily {stats['from']} -> {stats['to']}  |  {what}  |  "
                      f"{stats['trades']} trades, win(sig) {stats['win_rate_pct_significant']}%, PF(sig) {stats['profit_factor_significant']}", fill=HEAD, font=f)
+    lit = '' if opt_mode else f"; SABM-literal fixed {stats.get('final_fixed_pct_sabm_literal', 0):+.1f}R"
+    basis = "1% of equity spent on premium per trade" if opt_mode else "risk min(1%, R%) of equity (no leverage), gross"
     d.text((pl, 46), f"fixed {stats['final_fixed_pct']:+.1f}% (maxDD {stats['maxdd_fixed_pct_of_T0']}% of T0)   "
                      f"compounded {stats['final_compounded_pct']:+.1f}% (maxDD SABM-style {stats['maxdd_compounded_pct_points_SABM']} pts / rel {stats['maxdd_compounded_pct_relative']}%)   "
-                     f"buy&hold {stats['buy_hold_pct']:+.1f}%   risk min(1%, R%) of equity (no leverage), gross; SABM-literal fixed {stats['final_fixed_pct_sabm_literal']:+.1f}R", fill=TXT, font=fs)
-    d.text((pl, 66), "pure R-target system: no TPG cut, no trailing, no trade-plan exit (SABM p.11) - not comparable to the SABM 2013 track record",
-           fill=(200, 150, 60), font=fs)
+                     f"buy&hold {stats['buy_hold_pct']:+.1f}%   {basis}{lit}", fill=TXT, font=fs)
+    warn = ("ROUGH option model: static delta, flat premium, no theta path (user-acknowledged) - r values NET of premium"
+            if opt_mode else
+            "pure R-target system: no TPG cut, no trailing, no trade-plan exit (SABM p.11) - not comparable to the SABM 2013 track record")
+    d.text((pl, 66), warn, fill=(200, 150, 60), font=fs)
     d.line([(pl, 112), (pl + 40, 112)], fill=(80, 140, 255), width=3)
     d.text((pl + 48, 104), 'fixed min(1%,R%) (T0)', fill=(80, 140, 255), font=fs)
     d.line([(pl + 260, 112), (pl + 300, 112)], fill=UP, width=3)
@@ -323,7 +458,10 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
     # SABM p.58 ladder: entry green, stop red, R1..R3 blue, R4+ grey; ladder lines are
     # drawn only where they fall inside the visible price range (keeps the candles readable).
     R_abs = t['entry_price'] - t['stop']
-    levels = [(t['entry_price'], LVL_ENTRY, 'entry'), (t['stop'], LVL_STOP, 'stop')]
+    if t.get('opt'):
+        levels = [(t['entry_price'], LVL_ENTRY, 'entry'), (t['be'], TGT, 'BE')]
+    else:
+        levels = [(t['entry_price'], LVL_ENTRY, 'entry'), (t['stop'], LVL_STOP, 'stop')]
     for k in range(1, 7):
         p = t['entry_price'] + k * R_abs
         if p <= hi:
@@ -417,9 +555,15 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
         d.text((pl + 2, round(2 * s) + size + round(2 * s)), l2, fill=HEAD, font=fh)
 
     win_col = UP if t['r'] > 0 else DN
-    head_live = f"{SYM} 1d  #{t['n']:04d}  LONG {t['entry_date']} @ {t['entry_price']}  stop {t['stop']}  tgt {t['target']}  forming..."
-    head_done = (f"{SYM} 1d  #{t['n']:04d}  LONG {t['entry_date']} @ {t['entry_price']}  stop {t['stop']}  tgt {t['target']}  "
-                 f"-> {t['exit_date']} @ {t['exit_price']}  {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
+    if t.get('opt'):
+        head_live = (f"{SYM} 1d  #{t['n']:04d}  CALL d{t['delta']:g} prem {t['premium']} {t['entry_date']} @ {t['entry_price']}  "
+                     f"tgt {t['target']}  no stop, premium = risk  forming...")
+        head_done = (f"{SYM} 1d  #{t['n']:04d}  CALL d{t['delta']:g} prem {t['premium']} {t['entry_date']} @ {t['entry_price']}  tgt {t['target']}  "
+                     f"-> {t['exit_date']}  gross {t['r_gross']:+.2f}R - prem {t['premium_R']:.2f}R = {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
+    else:
+        head_live = f"{SYM} 1d  #{t['n']:04d}  LONG {t['entry_date']} @ {t['entry_price']}  stop {t['stop']}  tgt {t['target']}  forming..."
+        head_done = (f"{SYM} 1d  #{t['n']:04d}  LONG {t['entry_date']} @ {t['entry_price']}  stop {t['stop']}  tgt {t['target']}  "
+                     f"-> {t['exit_date']} @ {t['exit_price']}  {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
 
     # frame schedule: context+signal first, then each held day, exit last (interior sampled to cap)
     reveal_idx = list(range(ie, ix + 1))
@@ -430,9 +574,22 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
     tail_idx = list(range(ix + 1, n))
 
     img, d = base_img()
-    for i in range(0, ie):
-        candle(d, i)
     frames, durs = [], []
+    # pre-entry build-up: reveal the context candle-by-candle (grouped into ~8 steps)
+    # so the formation of the setup is VISIBLE before the entry appears
+    if ie > 0:
+        group = max(1, math.ceil(ie / 8))
+        i = 0
+        while i < ie:
+            for j in range(i, min(i + group, ie)):
+                candle(d, j)
+            i += group
+            fr = img.copy()
+            ImageDraw.Draw(fr).text((pl + 2, round(10 * s)),
+                                    f"{SYM} 1d  waiting for a signal... ({win[min(i, ie) - 1]['date']})",
+                                    fill=TXT, font=f)
+            frames.append(fr)
+            durs.append(160)
     prev_k = ie - 1
     for k in reveal_idx:
         for i in range(prev_k + 1, k + 1):
@@ -450,29 +607,21 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
                    clear_y=y(win[ix]['high']))
         header(dd, head_done if done else head_live)
         frames.append(fr)
-        durs.append(900 if k == ie else 180)
+        durs.append(1400 if k == ie else 400)
     # tail context after exit on the final frame
     fr = frames[-1]
     dd = ImageDraw.Draw(fr)
     for i in tail_idx:
         candle(dd, i)
-    durs[-1] = 2000
+    durs[-1] = 2600
     frames[0].save(path, format='WEBP', save_all=True, append_images=frames[1:],
                    duration=durs, loop=0, quality=80, method=4)
 
 
-def graph_compare(base_dir, sym, path, w=1920, h=1080):
-    """SABM p.27: 'Comparaison des 3 strategies de sorties capitalisees' - one overlay of
-    the COMPOUNDED curves of R1/R2/R3 (reads <SYM>_R<k>/curves.json written by prior runs)."""
-    series = []
-    for k, col in ((1, (70, 140, 255)), (2, UP), (3, (255, 176, 32))):
-        p = os.path.join(base_dir, f'{sym}_R{k}', 'curves.json')
-        if os.path.exists(p):
-            with open(p) as fh:
-                c = json.load(fh)
-                series.append((f'R{k}', col, c['comp_pct'], c.get('dates')))
+def graph_overlay(series, title, path, w=1920, h=1080):
+    """Date-aligned overlay of compounded curves: series = [(name, color, values, dates)]."""
     if len(series) < 2 or any(s0[3] is None or len(s0[3]) != len(s0[2]) for s0 in series):
-        print('graph_compare: need >=2 of R1/R2/R3 runs with dated curves.json - skipped')
+        print('graph_overlay: need >=2 dated series - skipped')
         return
     import datetime as _dt
     def _ord(d):
@@ -498,15 +647,47 @@ def graph_compare(base_dir, sym, path, w=1920, h=1080):
         d.line(pts, fill=col, width=3)
         d.text((lx, 52), f'{name} {ser[-1]:+.1f}%', fill=col, font=fs)
         lx += 220
-    d.text((pl, 16), f'{sym} - comparison of the 3 exit strategies, COMPOUNDED 1% risk (SABM p.27)', fill=HEAD, font=f)
+    d.text((pl, 16), title, fill=HEAD, font=f)
     img.save(path)
-    print('compare graph ->', path)
+    print('overlay graph ->', path)
+
+
+def _load_curve(base_dir, name):
+    p = os.path.join(base_dir, name, 'curves.json')
+    if os.path.exists(p):
+        with open(p) as fh:
+            c = json.load(fh)
+            return c['comp_pct'], c.get('dates')
+    return None, None
+
+
+def graph_compare(base_dir, sym, path, w=1920, h=1080):
+    """SABM p.27: overlay of the COMPOUNDED curves of R1/R2/R3."""
+    series = []
+    for k, col in ((1, (70, 140, 255)), (2, UP), (3, (255, 176, 32))):
+        vals, dates = _load_curve(base_dir, f'{sym}_R{k}')
+        if vals:
+            series.append((f'R{k}', col, vals, dates))
+    graph_overlay(series, f'{sym} - comparison of the 3 exit strategies, COMPOUNDED 1% risk (SABM p.27)', path, w, h)
 
 
 def main():
     bars = load_bars(CSV)
-    trades, port = backtest(bars)
+    trades, port = (backtest_options(bars) if OPT else backtest(bars))
     os.makedirs(OUT, exist_ok=True)
+    if OPT:
+        # honesty battery (resim options doctrine): result must not be an artifact of the
+        # premium guess -> sweep premium; exits don't depend on premium, so this is exact.
+        sweep = {}
+        for pp in (0.5, 0.75, 1.0, 1.25, 1.5):
+            net, eq = 0.0, 100.0
+            for t in trades:
+                prem = t['entry_price'] * pp / 100
+                payoff = (t['r_gross']) * t['R_abs']
+                net += (payoff - prem) / t['R_abs']
+                eq *= 1 + 0.01 * (payoff / prem - 1)
+            sweep[f'{pp:g}%'] = {'sum_net_R': round(net, 1), 'final_compounded_pct': round(eq - 100, 1)}
+        port['stats']['premium_sweep'] = sweep
     with open(os.path.join(OUT, 'trades.json'), 'w') as f:
         json.dump(trades, f)
     with open(os.path.join(OUT, 'stats.json'), 'w') as f:
@@ -514,6 +695,14 @@ def main():
     with open(os.path.join(OUT, 'curves.json'), 'w') as f:
         json.dump({'fixed': port['fixed'], 'comp_pct': port['comp_pct'],
                    'dates': [bars[0]['date']] + [t['exit_date'] for t in trades]}, f)
+    if OPT:
+        lin_vals, lin_dates = _load_curve(os.path.dirname(OUT), f"{SYM}_R{RK:g}{_SUFFIX}")
+        if lin_vals:
+            graph_overlay([(f'linear R{RK:g}', (70, 140, 255), lin_vals, lin_dates),
+                           (f'call d{OPT_DELTA:g} p{OPT_PREM:g}%', TGT, port['comp_pct'],
+                            [bars[0]['date']] + [t['exit_date'] for t in trades])],
+                          f'{SYM} R{RK:g} - rough weekly call vs linear, COMPOUNDED (1% risk / 1% premium budget)',
+                          os.path.join(OUT, 'graph_vs_linear.png'))
     if '--compare' in sys.argv:
         graph_compare(os.path.dirname(OUT), SYM, os.path.join(os.path.dirname(OUT), f'{SYM}_graph_compare.png'))
     graph_portfolio(trades, port['fixed'], port['comp_pct'], port['stats'], os.path.join(OUT, 'graph_portfolio.png'))

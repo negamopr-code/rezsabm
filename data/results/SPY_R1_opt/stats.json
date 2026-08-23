@@ -1,0 +1,57 @@
+{
+  "symbol": "SPY",
+  "target": "R1",
+  "mode": "weekly-call-rough",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "same breakout signals; LONG CALL delta 0.5, premium 1% of price, 5 trading days to expiry; NO stop (premium = whole risk); exit at target touch (collect delta*1R, gaps collect delta*gap) or settle delta*max(0,move) at expiry",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 1364,
+  "skipped_signals": 576,
+  "win_rate_pct_all_trades": 3.15,
+  "significant_trades": 1261,
+  "non_significant_trades": 103,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 0.95,
+  "profit_factor": 0.004,
+  "profit_factor_significant": 0.002,
+  "avg_r": -1.101,
+  "sum_r": -1501.79,
+  "avg_premium_R": 1.453,
+  "positive_accidents_beyond_target": 162,
+  "expiry_settlements": 518,
+  "target_exits": 846,
+  "expired_worthless": 416,
+  "still_open": 0,
+  "median_hold_days": 4,
+  "final_fixed_pct": -956.61,
+  "final_compounded_pct": -99.99,
+  "maxdd_fixed_pct_of_T0": -956.61,
+  "maxdd_compounded_pct_points_SABM": -99.99,
+  "maxdd_compounded_pct_relative": -99.99,
+  "buy_hold_pct": 1642.75,
+  "note": "ROUGH option model (user-acknowledged): static delta understates ITM wins, theta path ignored, IV constant; premium 1%/wk is realistic-ish for ATM SPY (0.4*sigma*sqrt(T)); weeklies sit in the FASTEST-theta zone (Korovin rolls a week before expiry to dodge it). 1% of equity spent on premium per trade; r values are NET of premium in R units.",
+  "premium_sweep": {
+    "0.5%": {
+      "sum_net_R": -510.5,
+      "final_compounded_pct": -99.6
+    },
+    "0.75%": {
+      "sum_net_R": -1006.2,
+      "final_compounded_pct": -100.0
+    },
+    "1%": {
+      "sum_net_R": -1501.8,
+      "final_compounded_pct": -100.0
+    },
+    "1.25%": {
+      "sum_net_R": -1997.4,
+      "final_compounded_pct": -100.0
+    },
+    "1.5%": {
+      "sum_net_R": -2493.0,
+      "final_compounded_pct": -100.0
+    }
+  }
+}
