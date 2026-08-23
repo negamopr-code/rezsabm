@@ -51,6 +51,10 @@
     <button data-f="amb">ambiguous</button>
     <span class="sub" id="count"></span>
   </div>
+  <div id="overview" class="tablebox" style="max-height:none;margin-bottom:14px"><table id="ovtbl">
+    <thead><tr><th>strategy line</th><th>what it is</th><th>trades</th><th>win%</th><th>PF</th><th>compounded</th><th>buy&amp;hold</th></tr></thead>
+    <tbody></tbody></table></div>
+  <div id="desc" style="background:#101724;border:1px solid #1a2535;border-radius:8px;padding:10px 14px;margin-bottom:14px;color:#a8c2d0;font-size:13px;line-height:1.5"></div>
   <div class="stats" id="stats"></div>
   <img class="graph" id="g1" alt="portfolio">
   <img class="graph" id="g2" alt="distribution">
@@ -82,7 +86,33 @@ function match(t) {
   return true;
 }
 
+function shortDesc(st) {
+  const d = st.description || st.rule || '';
+  return d.length > 110 ? d.slice(0, 107) + '…' : d;
+}
+
+async function renderOverview() {
+  const rows = await Promise.all(VARIANTS.map(async v => {
+    try { return [v, await (await fetch(`results/${v}/stats.json`)).json()]; } catch { return [v, null]; }
+  }));
+  document.querySelector('#ovtbl tbody').innerHTML = rows.map(([v, st]) => st ? `
+    <tr class="t" data-v="${v}" title="${(st.description || st.rule || '').replace(/"/g, '&quot;')}">
+      <td><b>${v}</b></td>
+      <td style="text-align:left;white-space:normal;min-width:320px">${shortDesc(st)}</td>
+      <td>${st.trades}</td><td>${st.win_rate_pct_all_trades ?? st.win_rate_pct_significant}</td>
+      <td>${st.profit_factor_significant ?? st.profit_factor}</td>
+      <td class="${(st.final_compounded_pct ?? 0) >= 0 ? 'pos' : 'neg'}">${fmt(st.final_compounded_pct, 1)}%</td>
+      <td>${fmt(st.buy_hold_pct, 0)}%</td></tr>` : '').join('');
+  document.querySelector('#ovtbl tbody').onclick = e => {
+    const tr = e.target.closest('tr[data-v]');
+    if (tr) { dir = tr.dataset.v; el('variant').value = dir; load(); }
+  };
+}
+
 function renderStats() {
+  el('desc').innerHTML = `<b style="color:#ddeef6">${dir}</b> — ${stats.description || stats.rule || ''}` +
+    (stats.note ? `<br><span style="color:#7090a0;font-size:12px">${stats.note}</span>` : '') +
+    `<br><span style="color:#00c8f0">Performance: ${stats.trades} trades · win ${stats.win_rate_pct_all_trades ?? stats.win_rate_pct_significant}% · PF ${stats.profit_factor_significant ?? stats.profit_factor} · compounded ${fmt(stats.final_compounded_pct, 1)}% vs buy&hold ${fmt(stats.buy_hold_pct, 0)}%</span>`;
   el('rule').textContent = `${stats.symbol} ${stats.from} → ${stats.to} (${stats.bars} bars) · ${stats.rule} · gross, risk min(1%, R%) per trade, no leverage`;
   const items = [
     [stats.trades, 'trades'], [stats.win_rate_pct_significant + '%', 'win rate (significant)'], [stats.profit_factor_significant, 'profit factor (sig)'],
@@ -138,6 +168,7 @@ el('variant').onchange = e => { dir = e.target.value; load(); };
   VARIANTS = await (await fetch('/api/variants')).json();
   el('variant').innerHTML = VARIANTS.map(v => `<option>${v}</option>`).join('');
   dir = VARIANTS[0] || '';
+  renderOverview();
   if (dir) load();
 })();
 document.querySelectorAll('button[data-f]').forEach(b => b.onclick = () => {

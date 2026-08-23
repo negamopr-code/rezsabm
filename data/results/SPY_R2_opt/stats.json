@@ -31,6 +31,7 @@
   "maxdd_compounded_pct_points_SABM": -99.92,
   "maxdd_compounded_pct_relative": -99.92,
   "buy_hold_pct": 1642.75,
+  "description": "ROUGH option overlay on the same breakout signals: instead of the linear position, buy a weekly call with static delta 0.5 for a flat premium of 1% of the price; no stop - the premium is the whole risk; collect delta*move at the R2 target or settle delta*max(0, move) at expiry.",
   "note": "ROUGH option model (user-acknowledged): static delta understates ITM wins, theta path ignored, IV constant; premium 1%/wk is realistic-ish for ATM SPY (0.4*sigma*sqrt(T)); weeklies sit in the FASTEST-theta zone (Korovin rolls a week before expiry to dodge it). 1% of equity spent on premium per trade; r values are NET of premium in R units.",
   "premium_sweep": {
     "0.5%": {

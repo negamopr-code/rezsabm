@@ -38,5 +38,6 @@
   "maxdd_compounded_pct_points_SABM": -74.18,
   "maxdd_compounded_pct_relative": -65.8,
   "buy_hold_pct": 1642.75,
+  "description": "Linear breakout with the SABM Part-I R-target exit: enter long at the daily close when the candle closes above the previous day's high (stop = bottom of the signal candle's body, defining R); a resting limit sells at entry + 1R; the resting stop exits at -1R; gaps fill at the open (accidents beyond the target, losses beyond -1R); a day touching both counts pessimistically as a stop.",
   "note": "gross of commissions/slippage; risk 1% per trade like the SABM study, position capped at 100% equity (no leverage). NO TPG breakeven/cut layer: unlike the SABM track record (p.11, p.15) losers are not neutralised, so the -1R bucket is the mode rather than the exception - win rate and profit factor are NOT comparable to SABM 62% / 2.74. SABM-style maxDD = percentage-point spread on the compounded curve (p.20)."
 }

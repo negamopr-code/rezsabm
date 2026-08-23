@@ -1,0 +1,44 @@
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at close when close > previous day's high; initial stop = body bottom; EXIT = part-II cocktail proxy (Dow/deep trail, >=2R unvalidated pivots, >=3R prev-day-low hug); no target",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 863,
+  "skipped_signals": 290,
+  "win_rate_pct_all_trades": 30.13,
+  "significant_trades": 835,
+  "non_significant_trades": 28,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 29.46,
+  "profit_factor": 1.034,
+  "profit_factor_significant": 1.033,
+  "avg_r": 0.0246,
+  "sum_r": 21.2,
+  "median_hold_days": 3,
+  "max_hold_days": 58,
+  "still_open": 0,
+  "final_fixed_pct": 14.27,
+  "final_compounded_pct": 5.35,
+  "maxdd_fixed_pct_of_T0": -46.04,
+  "maxdd_compounded_pct_points_SABM": -40.77,
+  "maxdd_compounded_pct_relative": -38.3,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-linear",
+  "final_fixed_pct_sabm_literal": 21.2,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 545,
+  "reached_2R_pct": 31.3,
+  "reached_3R_pct": 20.9,
+  "best_trade_R": 16.0571,
+  "avg_win_R": 2.51,
+  "note": "SABM part-II DISCRETIONARY PROXY: Dow pivot-low trailing + deep wicks + R-zone mode switches (>=2R fresh pivots, >=3R hug prev low); trendlines proxied by pivots, not drawn literally; stop moves effective next day; no profit target. Gross."
+}
+videos: 100/863
+videos: 200/863
+videos: 300/863
+videos: 400/863
+videos: 500/863
+videos: 600/863
