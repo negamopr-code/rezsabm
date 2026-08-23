@@ -42,9 +42,13 @@ MINR = float(arg('--minr-pct', '0.3'))
 SIGR = float(arg('--sig-r', '0.2'))  # |r| below this = "trade non significatif" (SABM p.12/p.16 proxy)
 # --- rough weekly-call OPTION overlay (user 2026-08-23: "it is not like this in reality",
 # deliberately simplified to test for edge vs the linear market; all knobs editable) ---
-EXIT_MODE = arg('--exit', 'target')  # 'target' = SABM part I (R objective) | 'disc' = part II cocktail proxy
-ENTRY = arg('--entry', 'breakout')   # 'breakout' = close > prev high | 'open' = resim daily-open strategy
-OPEN_SL = float(arg('--open-sl-pct', '0.2'))  # resim: resting SL X% below the entry-day open (editable)
+ENTRY = arg('--entry', 'breakout')   # 'breakout' = close > prev high | 'open' = daily-open entry
+# exits: 'target' = SABM part I (R objective) | 'disc' = part II cocktail proxy | 'e2' = resim
+# hold-after-survive trail (only for --entry open; the historical SPY_open line)
+EXIT_MODE = arg('--exit', 'e2' if ENTRY == 'open' else 'target')
+# SL below the entry-day open, defining R for the SABM exits (user 2026-08-23: 0.25% default
+# for the open+SABM combos, editable); the resim e2 line keeps its 0.2% default
+OPEN_SL = float(arg('--open-sl-pct', '0.2' if EXIT_MODE == 'e2' else '0.25'))
 OPT = '--options' in sys.argv
 OPT_DELTA = float(arg('--opt-delta', '0.5'))        # static delta: collect delta*move (R1 -> 0.5R)
 OPT_PREM = float(arg('--opt-premium-pct', '1.0'))   # premium as % of underlying price per option
@@ -64,8 +68,12 @@ HUG_TOL = float(arg('--hug-tol', '1.0'))            # >=3R hug only within this 
 STOP_BUF = float(arg('--stop-buf', '0.05'))         # stop sits UNDER the low by this many R (pp.45/52/57)
 CSV = os.path.join(ROOT, 'uploads', f'{SYM}_daily_OHLC_yahoo.csv')
 _SUFFIX = '' if MINR == 0.3 else ('_raw' if MINR == 0 else f'_minR{MINR:g}')
-if ENTRY == 'open':
+if ENTRY == 'open' and EXIT_MODE == 'e2':
     _BASE = f"{SYM}_open" + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.2 else '')
+elif ENTRY == 'open' and EXIT_MODE == 'disc':
+    _BASE = f"{SYM}_opendisc" + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.25 else '')
+elif ENTRY == 'open':
+    _BASE = f"{SYM}_openR{RK:g}" + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.25 else '')
 elif EXIT_MODE == 'disc':
     _BASE = f"{SYM}_disc"
 else:
@@ -437,6 +445,21 @@ def _disc_signals_and_trail(bars):
                 pos['stops'].append([i, pos['trail']])
             pos['peak_before'] = pos['peak']
         if pos is None:
+            if ENTRY == 'open':
+                e = b['open']
+                R = e * OPEN_SL / 100
+                stop0 = e - R
+                pos = {'n': len(out) + 1, 'entry_i': i, 'entry_date': b['date'],
+                       'entry_price': round(e, 4), 'stop': round(stop0, 4),
+                       'R_abs': round(R, 4), 'trail': round(stop0, 4),
+                       'stops': [[i, round(stop0, 4)]], 'peak': b['high'],
+                       'peak_before': b['high'], 'pivot': None, 'tl_pts': [(i, b['low'])],
+                       'disc': True, 'open_entry': True}
+                if b['low'] <= pos['trail']:  # entry-day stop touch (entry IS the open)
+                    pos.update(exit_i=i, exit_date=b['date'], exit_price=pos['trail'], reason='trail-stop')
+                    out.append(pos)
+                    pos = None
+                continue
             prev = bars[i - 1]
             if b['close'] > prev['high']:
                 body_bottom = min(b['open'], b['close'])
@@ -528,8 +551,10 @@ def backtest_disc(bars):
         'reached_2R_pct': round(100 * sum(1 for t in trades if t['max_r'] >= 2) / len(trades), 1),
         'reached_3R_pct': round(100 * sum(1 for t in trades if t['max_r'] >= 3) / len(trades), 1),
         'best_trade_R': max(rs), 'avg_win_R': round(sum(r for r in rs if r > 0) / max(1, sum(1 for r in rs if r > 0)), 2),
-        'description': ("SABM Part-II discretionary exit, mechanized ('the cocktail'): same breakout "
-                        "entry, then NO profit target - the stop trails the trend: under validated swing "
+        'description': ((f"Daily-open entry (R = defined SL {OPEN_SL:g}% below the open, editable) x " if ENTRY == 'open'
+                         else "Same breakout entry, then ") +
+                        "SABM Part-II discretionary exit, mechanized ('the cocktail'): NO profit target - "
+                        "the stop trails the trend: under validated swing "
                         "lows (Dow), under REAL long-wick 'deep' days, after 2R behind fresh lows once the "
                         "tempo line breaks, and above 3R hugging every low near the trendline (climax "
                         "mode). Exits when the trailed stop is hit. Audited against the course PDF by the "
@@ -539,8 +564,9 @@ def backtest_disc(bars):
                  'rule (on break) and the >=3R hug (proximity); stops buffered under lows; effective '
                  'next day; no profit target. Gross.'),
     }
-    rule = ("long at close when close > previous day's high; initial stop = body bottom; EXIT = part-II "
-            "cocktail proxy (real-deep/Dow trail, tempo-line-gated >=2R lows and >=3R hug); no target")
+    rule = ((f"long at EVERY open when flat; R = defined SL {OPEN_SL:g}% below the open; " if ENTRY == 'open'
+             else "long at close when close > previous day's high; initial stop = body bottom; ") +
+            "EXIT = part-II cocktail proxy (real-deep/Dow trail, tempo-line-gated >=2R lows and >=3R hug); no target")
     return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, skipped, rule, extra),
                     'fixed': fixed, 'comp_pct': comp_pct}
 
@@ -823,6 +849,99 @@ def backtest_disc_options_bsm(bars, markup=None):
     rule = (f"part-II cocktail-proxy trail exits; ATM CALL chain priced by BSM (RV({RV_WIN})*{markup:g}), "
             f"re-struck ATM every {OPT_DAYS}d while the trade lives")
     return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, skipped, rule, extra),
+                    'fixed': fixed, 'comp_pct': comp_pct}
+
+
+def backtest_open_target(bars):
+    """Daily-open entry x SABM Part-I R-target exit: enter long at EVERY open when flat;
+    R = OPEN_SL% of the open (the defined stop-loss); resting stop at -1R and resting
+    limit at +RK*R; entry day checks intraday (entry IS the open, so no entry-day gap);
+    later days: gap fills at the open; both-touched day = pessimistic stop."""
+    trades = []
+    pos = None
+    for i in range(1, len(bars)):
+        b = bars[i]
+        if pos is not None:
+            e, stop, tgt = pos['entry_price'], pos['stop'], pos['target']
+            R = e - stop
+            exit_price = None
+            reason = None
+            if b['open'] <= stop:
+                exit_price, reason = b['open'], 'gap-stop'
+            elif b['open'] >= tgt:
+                exit_price, reason = b['open'], 'gap-target'
+            elif b['low'] <= stop and b['high'] >= tgt:
+                exit_price, reason = stop, 'ambiguous-stop'
+            elif b['low'] <= stop:
+                exit_price, reason = stop, 'stop'
+            elif b['high'] >= tgt:
+                exit_price, reason = tgt, 'target'
+            if exit_price is not None:
+                pos.update(exit_i=i, exit_date=b['date'], exit_price=round(exit_price, 4),
+                           reason=reason, r=round((exit_price - e) / R, 4), days=i - pos['entry_i'])
+                trades.append(pos)
+                pos = None
+                continue  # re-entry only from the NEXT day's open
+        if pos is None:
+            e = b['open']
+            stop = e * (1 - OPEN_SL / 100)
+            R = e - stop
+            pos = {'n': len(trades) + 1, 'entry_i': i, 'entry_date': b['date'],
+                   'entry_price': round(e, 4), 'stop': round(stop, 4),
+                   'target': round(e + RK * R, 4), 'R_abs': round(R, 4), 'open_entry': True}
+            # entry-day intraday checks (entry at the open; order unknowable -> pessimistic)
+            exit_price = None
+            reason = None
+            if b['low'] <= pos['stop'] and b['high'] >= pos['target']:
+                exit_price, reason = pos['stop'], 'ambiguous-stop'
+            elif b['low'] <= pos['stop']:
+                exit_price, reason = pos['stop'], 'stop'
+            elif b['high'] >= pos['target']:
+                exit_price, reason = pos['target'], 'target'
+            if exit_price is not None:
+                pos.update(exit_i=i, exit_date=b['date'], exit_price=round(exit_price, 4),
+                           reason=reason, r=round((exit_price - e) / R, 4), days=0)
+                trades.append(pos)
+                pos = None
+    if pos is not None:
+        last = bars[-1]
+        e, R = pos['entry_price'], pos['R_abs']
+        pos.update(exit_i=len(bars) - 1, exit_date=last['date'], exit_price=round(last['close'], 4),
+                   reason='open', r=round((last['close'] - e) / R, 4), days=len(bars) - 1 - pos['entry_i'])
+        trades.append(pos)
+    rs = [t['r'] for t in trades]
+    fixed, comp = [0.0], [100.0]
+    capped = 0
+    for t in trades:
+        f_i = min(0.01, t['R_abs'] / t['entry_price'])
+        capped += f_i < 0.01
+        fixed.append(fixed[-1] + t['r'] * f_i * 100)
+        comp.append(comp[-1] * (1 + t['r'] * f_i))
+    comp_pct = [c - 100.0 for c in comp]
+    extra = {
+        'target': f'R{RK:g}', 'mode': 'daily-open-sabm-target', 'open_sl_pct': OPEN_SL,
+        'final_fixed_pct_sabm_literal': round(sum(rs), 2),
+        'leverage_capped_curve': True, 'trades_hitting_notional_cap': capped,
+        'positive_accidents_beyond_target': sum(1 for r in rs if r > RK + 0.0001),
+        'gap_losses_worse_than_minus1R': sum(1 for r in rs if r < -1.0001),
+        'ambiguous_days_pessimistic': sum(1 for t in trades if t['reason'] == 'ambiguous-stop'),
+        'ambiguous_share_pct': round(100 * sum(1 for t in trades if t['reason'] == 'ambiguous-stop') / len(trades), 1),
+        'sum_r_optimistic_ambiguous': round(sum(rs) + (RK + 1) * sum(1 for t in trades if t['reason'] == 'ambiguous-stop'), 2),
+        'best_trade_R': max(rs),
+        'description': (f"Daily-open entry x SABM Part-I target exit: enter long at EVERY market open "
+                        f"when flat; R = the defined stop-loss of {OPEN_SL:g}% below the open (editable "
+                        f"--open-sl-pct); resting stop at -1R, resting limit sells at +{RK:g}R; gaps fill "
+                        f"at the open; a day touching both counts pessimistically as a stop."),
+        'note': ('R is DEFINED by the chosen SL (not by candle structure); gross; 1% risk capped at 100% '
+                 'equity. ⚠ HONESTY LIMIT: with a tight SL both stop AND target often sit inside ONE '
+                 'daily bar; the intraday order is unknowable from OHLC, so both-touch days count '
+                 'pessimistically as stops. When ambiguous_share_pct is large the pessimistic and '
+                 'optimistic bounds diverge so far that DAILY DATA CANNOT SETTLE THIS LINE - it needs '
+                 'intraday bars.'),
+    }
+    rule = (f"long at EVERY open when flat; R = {OPEN_SL:g}% of the open (defined SL); "
+            f"resting stop -1R / resting limit +{RK:g}R; both-touched day = pessimistic stop")
+    return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, 0, rule, extra),
                     'fixed': fixed, 'comp_pct': comp_pct}
 
 
@@ -1154,8 +1273,9 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
         head_done = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
                      f"-> {t['exit_date']}  gross {t['r_gross']:+.2f}R - prem {t['premium_R']:.2f}R ({t['weeks_rolled']}wk) = {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
     elif t.get('open_entry'):
-        head_live = f"{SYM} 1d  #{t['n']:04d}  LONG daily-open {t['entry_date']} @ {t['entry_price']}  SL {t['stop']}  forming..."
-        head_done = (f"{SYM} 1d  #{t['n']:04d}  LONG daily-open {t['entry_date']} @ {t['entry_price']}  SL {t['stop']}  "
+        _tgt = f"  tgt {t['target']}" if t.get('target') and EXIT_MODE == 'target' else ''
+        head_live = f"{SYM} 1d  #{t['n']:04d}  LONG daily-open {t['entry_date']} @ {t['entry_price']}  SL {t['stop']}{_tgt}  forming..."
+        head_done = (f"{SYM} 1d  #{t['n']:04d}  LONG daily-open {t['entry_date']} @ {t['entry_price']}  SL {t['stop']}{_tgt}  "
                      f"-> {t['exit_date']} @ {t['exit_price']}  {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
     elif t.get('stops'):
         head_live = f"{SYM} 1d  #{t['n']:04d}  LONG SABM-II trail {t['entry_date']} @ {t['entry_price']}  init stop {t['stop']}  forming..."
@@ -1293,7 +1413,12 @@ def graph_compare(base_dir, sym, path, w=1920, h=1080):
 def main():
     bars = load_bars(CSV)
     if ENTRY == 'open':
-        trades, port = backtest_open(bars)
+        if EXIT_MODE == 'disc':
+            trades, port = backtest_disc(bars)
+        elif EXIT_MODE == 'e2':
+            trades, port = backtest_open(bars)
+        else:
+            trades, port = backtest_open_target(bars)
     elif EXIT_MODE == 'disc':
         if OPT:
             trades, port = (backtest_disc_options_bsm(bars) if PRICING == 'bsm' else backtest_disc_options(bars))
