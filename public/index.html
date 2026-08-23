@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REZSABM — breakout entry × SABM R-exits</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0b0f15; color: #ddeef6; font: 14px/1.45 system-ui, sans-serif; }
+  header { padding: 14px 18px; border-bottom: 1px solid #1a2535; }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  .sub { color: #7090a0; font-size: 12.5px; }
+  .wrap { padding: 14px 18px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .stat { background: #101724; border: 1px solid #1a2535; border-radius: 8px; padding: 8px 12px; }
+  .stat b { display: block; font-size: 16px; }
+  .stat span { color: #7090a0; font-size: 11.5px; }
+  img.graph { max-width: 100%; border: 1px solid #1a2535; border-radius: 8px; margin-bottom: 14px; display: block; }
+  .row { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+  .tablebox { flex: 1 1 460px; max-height: 72vh; overflow: auto; border: 1px solid #1a2535; border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { padding: 4px 8px; text-align: right; border-bottom: 1px solid #141d2c; white-space: nowrap; }
+  th { position: sticky; top: 0; background: #101724; color: #7090a0; cursor: default; }
+  td:first-child, th:first-child { text-align: left; }
+  tr.t { cursor: pointer; }
+  tr.t:hover { background: #14203280; }
+  tr.sel { background: #14283f; }
+  .pos { color: #00d97e; } .neg { color: #f0364a; }
+  .viewer { flex: 1 1 640px; position: sticky; top: 10px; }
+  .viewer img { width: 100%; border: 1px solid #1a2535; border-radius: 8px; background: #0b0f15; }
+  .viewer .cap { color: #7090a0; font-size: 12px; margin-top: 6px; }
+  .filters { margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  select, button { background: #101724; color: #ddeef6; border: 1px solid #223148; border-radius: 6px; padding: 5px 10px; font: inherit; cursor: pointer; }
+  button.on { border-color: #00c8f0; color: #00c8f0; }
+  a { color: #00c8f0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>REZSABM — entry: daily close above previous high (Rezvyakov breakout) · stop: body bottom · exit: stop or R-target</h1>
+  <div class="sub" id="rule">loading…</div>
+</header>
+<div class="wrap">
+  <div class="filters">
+    <label>Variant <select id="variant"></select></label>
+    <button data-f="all" class="on">all</button>
+    <button data-f="win">wins</button>
+    <button data-f="loss">losses</button>
+    <button data-f="acc">&gt;+1R accidents</button>
+    <button data-f="gap">&lt;−1R gap losses</button>
+    <button data-f="amb">ambiguous</button>
+    <span class="sub" id="count"></span>
+  </div>
+  <div class="stats" id="stats"></div>
+  <img class="graph" id="g1" alt="portfolio">
+  <img class="graph" id="g2" alt="distribution">
+  <div class="row">
+    <div class="tablebox"><table id="tbl">
+      <thead><tr><th>entry</th><th>#</th><th>price</th><th>stop</th><th>target</th><th>exit</th><th>@</th><th>R</th><th>days</th><th>reason</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="viewer" id="viewer" hidden>
+      <img id="vid" alt="entry video">
+      <div class="cap" id="cap"></div>
+    </div>
+  </div>
+</div>
+<script>
+let VARIANTS = [];
+let trades = [], stats = {}, filter = 'all', dir = '';
+
+const fmt = (v, d = 2) => (v == null ? '—' : (+v).toFixed(d));
+const el = id => document.getElementById(id);
+
+function match(t) {
+  if (filter === 'win') return t.r > 0;
+  if (filter === 'loss') return t.r <= 0;
+  if (filter === 'acc') return t.r > 1.0001;
+  if (filter === 'gap') return t.r < -1.0001;
+  if (filter === 'amb') return t.reason === 'ambiguous-stop';
+  return true;
+}
+
+function renderStats() {
+  el('rule').textContent = `${stats.symbol} ${stats.from} → ${stats.to} (${stats.bars} bars) · ${stats.rule} · gross, 1% risk/trade`;
+  const items = [
+    [stats.trades, 'trades'], [stats.win_rate_pct + '%', 'win rate'], [stats.profit_factor, 'profit factor'],
+    [fmt(stats.avg_r, 3) + 'R', 'avg result'], [fmt(stats.sum_r, 1) + 'R', 'sum R'],
+    [stats.positive_accidents_gt1R, 'accidents >+1R'], [stats.gap_losses_worse_than_minus1R, 'gaps <−1R'],
+    [stats.ambiguous_days_pessimistic, 'ambiguous→stop'], [stats.median_hold_days + 'd', 'median hold'],
+    [fmt(stats.final_fixed_pct, 1) + '%', 'fixed 1% final'], [fmt(stats.final_compounded_pct, 1) + '%', 'compounded 1% final'],
+    [fmt(stats.maxdd_compounded_pct, 1) + '%', 'compounded maxDD'], [fmt(stats.buy_hold_pct, 0) + '%', 'buy & hold'],
+  ];
+  el('stats').innerHTML = items.map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
+}
+
+function renderTable() {
+  const rows = trades.filter(match);
+  el('count').textContent = `${rows.length} shown of ${trades.length}`;
+  el('tbl').tBodies[0].innerHTML = rows.map(t => `
+    <tr class="t" data-n="${t.n}"><td>${t.entry_date}</td><td>#${t.n}</td><td>${t.entry_price}</td>
+    <td>${t.stop}</td><td>${t.target}</td><td>${t.exit_date}</td><td>${t.exit_price}</td>
+    <td class="${t.r > 0 ? 'pos' : 'neg'}">${t.r > 0 ? '+' : ''}${fmt(t.r)}</td><td>${t.days}</td><td>${t.reason}</td></tr>`).join('');
+}
+
+function show(n) {
+  const t = trades.find(x => x.n === +n);
+  if (!t) return;
+  document.querySelectorAll('tr.sel').forEach(r => r.classList.remove('sel'));
+  const row = document.querySelector(`tr[data-n="${n}"]`);
+  if (row) row.classList.add('sel');
+  el('viewer').hidden = false;
+  if (t.video) {
+    el('vid').src = `results/${dir}/${t.video}`;
+    el('cap').textContent = `#${t.n} ${t.entry_date} @ ${t.entry_price} → ${t.exit_date} @ ${t.exit_price} (${t.r > 0 ? '+' : ''}${fmt(t.r)}R, ${t.reason}, ${t.days}d) — animation restarts on reopen`;
+  } else {
+    el('vid').removeAttribute('src');
+    el('cap').textContent = 'no video for this variant (videos exist only for variants that were rendered with --videos)';
+  }
+  el('viewer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function load() {
+  stats = await (await fetch(`results/${dir}/stats.json`)).json();
+  trades = await (await fetch(`results/${dir}/trades.json`)).json();
+  renderStats();
+  el('g1').src = `results/${dir}/graph_portfolio.png`;
+  el('g2').src = `results/${dir}/graph_distribution.png`;
+  renderTable();
+  el('viewer').hidden = true;
+}
+
+el('variant').onchange = e => { dir = e.target.value; load(); };
+(async () => {
+  VARIANTS = await (await fetch('/api/variants')).json();
+  el('variant').innerHTML = VARIANTS.map(v => `<option>${v}</option>`).join('');
+  dir = VARIANTS[0] || '';
+  if (dir) load();
+})();
+document.querySelectorAll('button[data-f]').forEach(b => b.onclick = () => {
+  filter = b.dataset.f;
+  document.querySelectorAll('button[data-f]').forEach(x => x.classList.toggle('on', x === b));
+  renderTable();
+});
+el('tbl').onclick = e => { const tr = e.target.closest('tr.t'); if (tr) show(tr.dataset.n); };
+</script>
+</body>
+</html>
