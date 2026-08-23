@@ -49,6 +49,7 @@ EXIT_MODE = arg('--exit', 'e2' if ENTRY == 'open' else 'target')
 # SL below the entry-day open, defining R for the SABM exits (user 2026-08-23: 0.25% default
 # for the open+SABM combos, editable); the resim e2 line keeps its 0.2% default
 OPEN_SL = float(arg('--open-sl-pct', '0.2' if EXIT_MODE == 'e2' else '0.25'))
+TRIG = float(arg('--transform-trigger-pct', '2'))  # 0DTE->weekly transform trigger (underlying move %)
 OPT = '--options' in sys.argv
 OPT_DELTA = float(arg('--opt-delta', '0.5'))        # static delta: collect delta*move (R1 -> 0.5R)
 OPT_PREM = float(arg('--opt-premium-pct', '1.0'))   # premium as % of underlying price per option
@@ -68,7 +69,9 @@ HUG_TOL = float(arg('--hug-tol', '1.0'))            # >=3R hug only within this 
 STOP_BUF = float(arg('--stop-buf', '0.05'))         # stop sits UNDER the low by this many R (pp.45/52/57)
 CSV = os.path.join(ROOT, 'uploads', f'{SYM}_daily_OHLC_yahoo.csv')
 _SUFFIX = '' if MINR == 0.3 else ('_raw' if MINR == 0 else f'_minR{MINR:g}')
-if ENTRY == 'open' and EXIT_MODE == 'e2':
+if ENTRY == 'open' and EXIT_MODE == 'transform':
+    _BASE = f"{SYM}_0dtew" + (f"_t{TRIG:g}" if TRIG != 2 else '') + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.25 else '')
+elif ENTRY == 'open' and EXIT_MODE == 'e2':
     _BASE = f"{SYM}_open" + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.2 else '')
 elif ENTRY == 'open' and EXIT_MODE == 'disc':
     _BASE = f"{SYM}_opendisc" + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.25 else '')
@@ -358,6 +361,60 @@ def backtest_options(bars: list[dict]) -> tuple[list[dict], dict]:
     return trades, {'stats': stats, 'fixed': fixed, 'comp_pct': comp_pct}
 
 
+def _trail_update(bars, i, pos):
+    """One audited part-II trail step for bar i (shared by the disc engine and the
+    0DTE-transform ride so the SABM exit rules exist in exactly one place)."""
+    b = bars[i]
+    e, R = pos['entry_price'], pos['R_abs']
+    pos['peak'] = max(pos['peak'], b['high'])
+    zone = (pos['peak'] - e) / R
+
+    def tl(j):  # tempo line: entry anchor + confirmed pivot lows, ascending only (p.47)
+        tp = pos['tl_pts']
+        if len(tp) < 2:
+            return None
+        (i1, l1), (i2, l2) = tp[-2], tp[-1]
+        if l2 <= l1:
+            return None
+        return l2 + (l2 - l1) / (i2 - i1) * (j - i2)
+
+    new_stop = pos['trail']
+    # deep (p.52/p.55): a REAL deep only - wick strongly > body, deep vs R and vs range
+    body = abs(b['close'] - b['open'])
+    wick = min(b['open'], b['close']) - b['low']
+    rng = b['high'] - b['low']
+    if (wick > DEEP_BODY_K * body and wick >= DEEP_MIN_R * R
+            and rng > 0 and wick >= DEEP_MIN_RANGE * rng and b['low'] - STOP_BUF * R > new_stop):
+        new_stop = b['low'] - STOP_BUF * R
+    # pivot low at i-1 (needs i-2 inside the trade window)
+    if i - 2 >= pos['entry_i']:
+        pl, pm, pr = bars[i - 2]['low'], bars[i - 1]['low'], b['low']
+        if pm < pl and pm < pr:
+            pos['pivot'] = (pm, pos['peak_before'])
+            pos['tl_pts'].append((i - 1, pm))
+    # after R2 AND trendline broken: stop under the LAST VISIBLE low, unvalidated
+    # (p.50 pt3/p.57), evaluated every bar
+    line = tl(i)
+    if (zone >= 2 and pos['pivot'] is not None and line is not None and b['close'] < line
+            and pos['pivot'][0] - STOP_BUF * R > new_stop):
+        new_stop = pos['pivot'][0] - STOP_BUF * R
+    # Dow validation (p.45): new high above the peak that preceded the last pivot
+    if pos['pivot'] is not None:
+        plow, ppeak = pos['pivot']
+        if b['high'] > ppeak and plow - STOP_BUF * R > new_stop:
+            new_stop = plow - STOP_BUF * R
+    # >=3R climax hug (p.57/p.64) ONLY for lows that hug the trendline (p.66 counter-example)
+    if zone >= 3:
+        lo1 = bars[i - 1]['low']
+        near = (line is not None) and (lo1 - tl(i - 1)) <= HUG_TOL * R
+        if near and lo1 - STOP_BUF * R > new_stop:
+            new_stop = lo1 - STOP_BUF * R
+    new_stop = round(new_stop, 4)
+    if new_stop > pos['trail']:
+        pos['trail'] = new_stop
+        pos['stops'].append([i, pos['trail']])
+    pos['peak_before'] = pos['peak']
+
 def _disc_signals_and_trail(bars):
     """Shared engine for the SABM part-II 'cocktail' exit, mechanized on daily OHLC.
 
@@ -395,55 +452,7 @@ def _disc_signals_and_trail(bars):
                 pos.update(exit_i=i, exit_date=b['date'], exit_price=round(stop, 4), reason='trail-stop')
                 out.append(pos); pos = None
         if pos is not None:
-            e, R = pos['entry_price'], pos['R_abs']
-            pos['peak'] = max(pos['peak'], b['high'])
-            zone = (pos['peak'] - e) / R
-
-            def tl(j):  # tempo line: entry anchor + confirmed pivot lows, ascending only (p.47)
-                tp = pos['tl_pts']
-                if len(tp) < 2:
-                    return None
-                (i1, l1), (i2, l2) = tp[-2], tp[-1]
-                if l2 <= l1:
-                    return None
-                return l2 + (l2 - l1) / (i2 - i1) * (j - i2)
-
-            new_stop = pos['trail']
-            # deep (p.52/p.55): a REAL deep only - wick strongly > body, deep vs R and vs range
-            body = abs(b['close'] - b['open'])
-            wick = min(b['open'], b['close']) - b['low']
-            rng = b['high'] - b['low']
-            if (wick > DEEP_BODY_K * body and wick >= DEEP_MIN_R * R
-                    and rng > 0 and wick >= DEEP_MIN_RANGE * rng and b['low'] - STOP_BUF * R > new_stop):
-                new_stop = b['low'] - STOP_BUF * R
-            # pivot low at i-1 (needs i-2 inside the trade window)
-            if i - 2 >= pos['entry_i']:
-                pl, pm, pr = bars[i - 2]['low'], bars[i - 1]['low'], b['low']
-                if pm < pl and pm < pr:
-                    pos['pivot'] = (pm, pos['peak_before'])
-                    pos['tl_pts'].append((i - 1, pm))
-            # after R2 AND trendline broken: stop under the LAST VISIBLE low, unvalidated
-            # (p.50 pt3/p.57), evaluated every bar
-            line = tl(i)
-            if (zone >= 2 and pos['pivot'] is not None and line is not None and b['close'] < line
-                    and pos['pivot'][0] - STOP_BUF * R > new_stop):
-                new_stop = pos['pivot'][0] - STOP_BUF * R
-            # Dow validation (p.45): new high above the peak that preceded the last pivot
-            if pos['pivot'] is not None:
-                plow, ppeak = pos['pivot']
-                if b['high'] > ppeak and plow - STOP_BUF * R > new_stop:
-                    new_stop = plow - STOP_BUF * R
-            # >=3R climax hug (p.57/p.64) ONLY for lows that hug the trendline (p.66 counter-example)
-            if zone >= 3:
-                lo1 = bars[i - 1]['low']
-                near = (line is not None) and (lo1 - tl(i - 1)) <= HUG_TOL * R
-                if near and lo1 - STOP_BUF * R > new_stop:
-                    new_stop = lo1 - STOP_BUF * R
-            new_stop = round(new_stop, 4)
-            if new_stop > pos['trail']:
-                pos['trail'] = new_stop
-                pos['stops'].append([i, pos['trail']])
-            pos['peak_before'] = pos['peak']
+            _trail_update(bars, i, pos)
         if pos is None:
             if ENTRY == 'open':
                 e = b['open']
@@ -849,6 +858,130 @@ def backtest_disc_options_bsm(bars, markup=None):
     rule = (f"part-II cocktail-proxy trail exits; ATM CALL chain priced by BSM (RV({RV_WIN})*{markup:g}), "
             f"re-struck ATM every {OPT_DAYS}d while the trade lives")
     return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, skipped, rule, extra),
+                    'fixed': fixed, 'comp_pct': comp_pct}
+
+
+def backtest_0dte_transform(bars, markup=None):
+    """0DTE proof -> weekly transform -> audited SABM part-II trail (resim H3 pipeline).
+    Every flat day: buy a 0DTE ATM call at the open (premium = the whole risk).
+    If the underlying rises TRIG% intraday: sell the 0DTE at model value at the trigger
+    price and put ALL proceeds into a weekly ATM call struck there; ride it under the
+    audited part-II trail (R = OPEN_SL% of the transform price), rolling ATM at each
+    expiry while the trail lives; the trail exit sells at model value.
+    No trigger -> the 0DTE settles intrinsic at the close. r is expressed in
+    PROOF-PREMIUM MULTIPLES (floor -1 = the proof premium, the whole risk)."""
+    markup = IV_MARKUP if markup is None else markup
+    rvs = _sigma_base(bars)
+    trades = []
+    skipped_rv = 0
+    i = 1
+    while i < len(bars):
+        b = bars[i]
+        if rvs[i] is None:
+            skipped_rv += 1
+            i += 1
+            continue
+        sigma = max(IV_FLOOR, rvs[i] * markup)
+        S0 = b['open']
+        prem0 = bs_call(S0, S0, 0.5 / 365, sigma) * (1 + HAIRCUT / 100)
+        t = {'n': len(trades) + 1, 'entry_i': i, 'entry_date': b['date'],
+             'entry_price': round(S0, 4), 'opt': True, 'bsm': True, 'open_entry': True,
+             'premium': round(prem0, 4), 'premium_R': 1.0, 'be': round(S0 + prem0, 4),
+             'R_abs': round(S0 * OPEN_SL / 100, 4), 'stop': round(S0 - S0 * OPEN_SL / 100, 4),
+             'delta': None, 'weeks_rolled': 0, 'proof_premium_pct_of_S': round(100 * prem0 / S0, 3)}
+        trig_price = S0 * (1 + TRIG / 100)
+        if b['high'] < trig_price:
+            settle = max(0.0, b['close'] - S0)
+            t.update(exit_i=i, exit_date=b['date'], exit_price=round(b['close'], 4),
+                     reason='proof-expiry', days=0,
+                     r_gross=round(settle / prem0, 4), r=round((settle - prem0) / prem0, 4),
+                     opt_multiple=round(settle / prem0 - 1, 4))
+            trades.append(t)
+            i += 1
+            continue
+        # transform at the trigger price (pessimistic: assume fill exactly at trigger)
+        S_t = trig_price
+        proceeds = bs_call(S_t, S0, 0.25 / 365, sigma) * (1 - HAIRCUT / 100)
+        K = S_t
+        prem_w = bs_call(S_t, K, _t_years(OPT_DAYS), sigma) * (1 + HAIRCUT / 100)
+        qty = proceeds / prem_w if prem_w > 0 else 0.0
+        R = S_t * OPEN_SL / 100
+        pos = {'entry_i': i, 'entry_price': S_t, 'R_abs': R, 'trail': round(S_t - R, 4),
+               'stops': [[i, round(S_t - R, 4)]], 'peak': b['high'], 'peak_before': b['high'],
+               'pivot': None, 'tl_pts': [(i, b['low'])]}
+        t.update(transform_date=b['date'], transform_price=round(S_t, 4), weeks_rolled=1)
+        expiry = i + OPT_DAYS
+        exit_j = exit_S = None
+        reason = 'trail-stop'
+        # the trail arms from the NEXT day: the transform-day low predates the trigger
+        # moment (daily OHLC can't order them), and SABM stop moves are next-day
+        # effective anyway - checking it same-day would misuse the pre-trigger low
+        j = i + 1
+        while exit_j is None and j < len(bars):
+            bj = bars[j]
+            if bj['open'] <= pos['trail']:
+                exit_j, exit_S, reason = j, bj['open'], 'gap-trail'
+                break
+            if bj['low'] <= pos['trail']:
+                exit_j, exit_S = j, pos['trail']
+                break
+            if j >= expiry:  # roll ATM while the trade lives
+                cash = qty * max(0.0, bj['close'] - K)
+                if cash <= 0:
+                    exit_j, exit_S, reason = j, bj['close'], 'ride-expired-worthless'
+                    qty = 0.0
+                    break
+                K = bj['close']
+                sig_j = max(IV_FLOOR, (rvs[j] or sigma / markup) * markup)
+                prem_j = bs_call(K, K, _t_years(OPT_DAYS), sig_j) * (1 + HAIRCUT / 100)
+                qty = cash / prem_j
+                sigma = sig_j
+                expiry = j + OPT_DAYS
+                t['weeks_rolled'] += 1
+            _trail_update(bars, j, pos)
+            j += 1
+        if exit_j is None:  # data end
+            exit_j, exit_S, reason = len(bars) - 1, bars[-1]['close'], 'open'
+        t_rem = _t_years(max(0, expiry - exit_j))
+        final = qty * bs_call(exit_S, K, t_rem, sigma) * (1 - HAIRCUT / 100) if qty > 0 else 0.0
+        t.update(exit_i=exit_j, exit_date=bars[exit_j]['date'], exit_price=round(exit_S, 4),
+                 reason=reason, days=exit_j - i, stops=pos['stops'],
+                 r_gross=round(final / prem0, 4), r=round((final - prem0) / prem0, 4),
+                 opt_multiple=round(final / prem0 - 1, 4))
+        trades.append(t)
+        i = exit_j + 1
+
+    rs = [t['r'] for t in trades]
+    fixed, comp = [0.0], [100.0]
+    for t in trades:
+        m = t['opt_multiple']
+        fixed.append(fixed[-1] + m * 1.0)
+        comp.append(comp[-1] * (1 + 0.01 * m))
+    comp_pct = [c - 100.0 for c in comp]
+    n_tr = sum(1 for t in trades if t.get('transform_date'))
+    extra = {
+        'target': 'transform', 'mode': '0dte-weekly-transform-sabm',
+        'pricing': f"BSM sigma={'VIX' if IV_SRC == 'vix' else f'RV({RV_WIN})'}*{IV_MARKUP:g} (floor {IV_FLOOR:g}), r={OPT_RATE:g}, haircut {HAIRCUT:g}%/side",
+        'transform_trigger_pct': TRIG, 'trail_R_pct': OPEN_SL,
+        'transforms': n_tr, 'transform_rate_pct': round(100 * n_tr / len(trades), 2),
+        'transform_day_trail_convention': 'trail arms next day (pre-trigger low unusable)',
+        'avg_proof_premium_pct_of_S': round(sum(t['proof_premium_pct_of_S'] for t in trades) / len(trades), 3),
+        'skipped_no_rv_history': skipped_rv,
+        'best_trade_multiple': max(rs),
+        'description': (f"0DTE proof -> weekly transform -> SABM trail (the H3 pipeline): every flat day "
+                        f"buy a 0DTE ATM call at the open (premium = the whole risk); if the underlying "
+                        f"rises {TRIG:g}% intraday (editable --transform-trigger-pct), all proceeds roll "
+                        f"into a weekly ATM call at the trigger price, ridden under the audited SABM "
+                        f"Part-II trail (R = {OPEN_SL:g}% of the transform price, editable) with ATM "
+                        f"re-strikes at each weekly expiry; the trail exit sells at model value. "
+                        f"r is in proof-premium multiples (-1 = the premium, the whole risk)."),
+        'note': ('BSM-priced both legs; transform fill pessimistically AT the trigger; a transform-day '
+                 'low below the trail counts pessimistically as a same-day trail exit (intraday order '
+                 'unknowable); daily proof spend = 1% of equity per attempt.'),
+    }
+    rule = (f"0DTE ATM call at every flat open; transform at +{TRIG:g}% into weekly ATM (all proceeds); "
+            f"audited part-II trail exit with R = {OPEN_SL:g}% of transform price")
+    return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, 0, rule, extra),
                     'fixed': fixed, 'comp_pct': comp_pct}
 
 
@@ -1413,7 +1546,9 @@ def graph_compare(base_dir, sym, path, w=1920, h=1080):
 def main():
     bars = load_bars(CSV)
     if ENTRY == 'open':
-        if EXIT_MODE == 'disc':
+        if EXIT_MODE == 'transform':
+            trades, port = backtest_0dte_transform(bars)
+        elif EXIT_MODE == 'disc':
             trades, port = backtest_disc(bars)
         elif EXIT_MODE == 'e2':
             trades, port = backtest_open(bars)
@@ -1436,9 +1571,13 @@ def main():
             name = f"{t['n']:04d}_{t['entry_date']}_{'win' if t['r'] > 0 else 'loss'}.webp"
             if os.path.exists(os.path.join(VID, name)):
                 t['video'] = 'videos/' + name
-    if OPT and PRICING == 'bsm':
-        # honesty battery: IV-markup sweep (exits don't depend on sigma -> exact re-pricing)
-        fn = backtest_disc_options_bsm if EXIT_MODE == 'disc' else backtest_options_bsm
+    if (OPT and PRICING == 'bsm') or (ENTRY == 'open' and EXIT_MODE == 'transform'):
+        # honesty battery: IV-markup sweep (for the transform line the SWEEP IS THE VERDICT:
+        # measured 2026-08-23 the sign flips between markup 1.2 and 1.5)
+        if ENTRY == 'open' and EXIT_MODE == 'transform':
+            fn = backtest_0dte_transform
+        else:
+            fn = backtest_disc_options_bsm if EXIT_MODE == 'disc' else backtest_options_bsm
         sweep = {}
         for mk in (1.0, 1.15, 1.2, 1.25, 1.5):
             _, pp_port = fn(bars, markup=mk)

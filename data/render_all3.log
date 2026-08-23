@@ -118,7 +118,7 @@ videos done: 4497
   "reached_3R_pct": 20.6,
   "best_trade_R": 14.871,
   "avg_win_R": 2.7,
-  "description": "SABM Part-II discretionary exit, mechanized ('the cocktail'): same breakout entry, then NO profit target - the stop trails the trend: under validated swing lows (Dow), under REAL long-wick 'deep' days, after 2R behind fresh lows once the tempo line breaks, and above 3R hugging every low near the trendline (climax mode). Exits when the trailed stop is hit. Audited against the course PDF by the exit-conformance agent.",
+  "description": "Same breakout entry, then SABM Part-II discretionary exit, mechanized ('the cocktail'): NO profit target - the stop trails the trend: under validated swing lows (Dow), under REAL long-wick 'deep' days, after 2R behind fresh lows once the tempo line breaks, and above 3R hugging every low near the trendline (climax mode). Exits when the trailed stop is hit. Audited against the course PDF by the exit-conformance agent.",
   "note": "SABM part-II DISCRETIONARY PROXY (exit-conformance audited): real-deep wicks, Dow validated pivots, entry-anchored ascending tempo line gating the >=2R unvalidated-low rule (on break) and the >=3R hug (proximity); stops buffered under lows; effective next day; no profit target. Gross."
 }
 videos: 100/835
@@ -1319,3 +1319,4 @@ videos: 200/1838
 videos: 300/1838
 videos: 400/1838
 videos: 500/1838
+videos: 600/1838

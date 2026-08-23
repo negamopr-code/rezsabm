@@ -1,0 +1,63 @@
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "0DTE ATM call at every flat open; transform at +2% into weekly ATM (all proceeds); audited part-II trail exit with R = 0.25% of transform price",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 7828,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 36.79,
+  "significant_trades": 7330,
+  "non_significant_trades": 498,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 36.0,
+  "profit_factor": 1.163,
+  "profit_factor_significant": 1.165,
+  "avg_r": 0.0897,
+  "sum_r": 702.51,
+  "median_hold_days": 0,
+  "max_hold_days": 15,
+  "still_open": 0,
+  "final_fixed_pct": 702.51,
+  "final_compounded_pct": 41163.03,
+  "maxdd_fixed_pct_of_T0": -68.27,
+  "maxdd_compounded_pct_points_SABM": -13508.73,
+  "maxdd_compounded_pct_relative": -53.88,
+  "buy_hold_pct": 1642.75,
+  "target": "transform",
+  "mode": "0dte-weekly-transform-sabm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side",
+  "transform_trigger_pct": 2.0,
+  "trail_R_pct": 0.25,
+  "transforms": 230,
+  "transform_rate_pct": 2.94,
+  "transform_day_trail_convention": "trail arms next day (pre-trigger low unusable)",
+  "avg_proof_premium_pct_of_S": 0.277,
+  "skipped_no_rv_history": 19,
+  "best_trade_multiple": 39.318,
+  "description": "0DTE proof -> weekly transform -> SABM trail (the H3 pipeline): every flat day buy a 0DTE ATM call at the open (premium = the whole risk); if the underlying rises 2% intraday (editable --transform-trigger-pct), all proceeds roll into a weekly ATM call at the trigger price, ridden under the audited SABM Part-II trail (R = 0.25% of the transform price, editable) with ATM re-strikes at each weekly expiry; the trail exit sells at model value. r is in proof-premium multiples (-1 = the premium, the whole risk).",
+  "note": "BSM-priced both legs; transform fill pessimistically AT the trigger; a transform-day low below the trail counts pessimistically as a same-day trail exit (intraday order unknowable); daily proof spend = 1% of equity per attempt.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": 2040.33,
+      "final_compounded_pct": 16298559146.7
+    },
+    "x1.15": {
+      "sum_net_R": 1013.03,
+      "final_compounded_pct": 837368.35
+    },
+    "x1.2": {
+      "sum_net_R": 702.51,
+      "final_compounded_pct": 41163.03
+    },
+    "x1.25": {
+      "sum_net_R": 407.27,
+      "final_compounded_pct": 2238.88
+    },
+    "x1.5": {
+      "sum_net_R": -844.92,
+      "final_compounded_pct": -99.99
+    }
+  }
+}

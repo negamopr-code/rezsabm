@@ -56,10 +56,19 @@
     <button data-f="amb">ambiguous</button>
     <span class="sub" id="count"></span>
     <span style="margin-left:auto;display:flex;gap:6px;align-items:center">
-      <label class="sub">daily-open SL %</label>
-      <input id="opensl" type="number" value="0.2" min="0.05" max="5" step="0.05"
+      <label class="sub"><b style="color:#00c8f0">daily-open:</b> SL %</label>
+      <input id="opensl" type="number" value="0.25" min="0.05" max="5" step="0.05"
              style="width:70px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:5px 8px">
-      <button id="runopen">▶ run daily-open</button>
+      <label class="sub">exit</label>
+      <select id="openexit">
+        <option value="e2">hold-trail (E2)</option>
+        <option value="R1">R1 target</option>
+        <option value="R2">R2 target</option>
+        <option value="R3">R3 target</option>
+        <option value="disc">SABM trail</option>
+        <option value="transform">0DTE→weekly</option>
+      </select>
+      <button id="runopen">▶ run</button>
       <span class="sub" id="runstat"></span>
     </span>
   </div>
@@ -232,7 +241,8 @@ el('runsuite').onclick = async () => {
 };
 el('runopen').onclick = async () => {
   const sl = el('opensl').value;
-  const r = await (await fetch(`/api/run-open?sl=${sl}`, { method: 'POST' })).json();
+  const mode = el('openexit').value;
+  const r = await (await fetch(`/api/run-open?sl=${sl}&exit=${mode}`, { method: 'POST' })).json();
   if (r.error) { el('runstat').textContent = r.error; return; }
   el('runstat').textContent = `running ${r.variant}…`;
   const timer = setInterval(async () => {

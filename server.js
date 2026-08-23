@@ -31,7 +31,10 @@ function serveFile(res, target) {
   if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
     return send(res, 404, 'not found', 'text/plain');
   }
-  res.writeHead(200, { 'Content-Type': MIME[path.extname(target).toLowerCase()] || 'application/octet-stream' });
+  const ext = path.extname(target).toLowerCase();
+  const head = { 'Content-Type': MIME[ext] || 'application/octet-stream' };
+  if (ext === '.html' || ext === '.js' || ext === '.json') head['Cache-Control'] = 'no-store';
+  res.writeHead(200, head);
   fs.createReadStream(target).pipe(res);
 }
 
@@ -43,19 +46,35 @@ const server = http.createServer((req, res) => {
   if (url.pathname === '/api/run-open' && req.method === 'POST') {
     const sl = parseFloat(url.searchParams.get('sl') || '0.2');
     if (!(sl >= 0.05 && sl <= 5)) return send(res, 400, { error: 'sl must be 0.05..5 (%)' });
+    const mode = url.searchParams.get('exit') || 'e2';   // e2 | R1 | R2 | R3 | disc | transform
+    const trig = parseFloat(url.searchParams.get('trigger') || '2');
     const { execFile } = require('child_process');
     const lock = path.join(ROOT, 'data', 'run_open.lock');
     if (fs.existsSync(lock) && Date.now() - fs.statSync(lock).mtimeMs < 3600e3) {
       return send(res, 409, { error: 'a run is already in progress' });
     }
-    fs.writeFileSync(lock, String(sl));
+    const args = ['scripts/sabm_r1_spy.py', '--entry', 'open', '--open-sl-pct', String(sl), '--videos'];
+    let variant;
+    if (mode === 'e2') {
+      args.push('--exit', 'e2');
+      variant = `SPY_open${sl === 0.2 ? '' : '_sl' + sl}`;
+    } else if (mode === 'disc') {
+      args.push('--exit', 'disc');
+      variant = `SPY_opendisc${sl === 0.25 ? '' : '_sl' + sl}`;
+    } else if (mode === 'transform') {
+      args.push('--exit', 'transform', '--transform-trigger-pct', String(trig));
+      variant = `SPY_0dtew${trig === 2 ? '' : '_t' + trig}${sl === 0.25 ? '' : '_sl' + sl}`;
+    } else {
+      const rk = mode.replace('R', '');
+      args.push('--exit', 'target', '--rk', rk);
+      variant = `SPY_openR${rk}${sl === 0.25 ? '' : '_sl' + sl}`;
+    }
+    fs.writeFileSync(lock, `${sl} ${mode}`);
     const log = fs.openSync(path.join(ROOT, 'data', 'run_open.log'), 'w');
-    const child = execFile('python3', ['scripts/sabm_r1_spy.py', '--entry', 'open',
-      '--open-sl-pct', String(sl), '--videos'], { cwd: ROOT });
+    const child = execFile('python3', args, { cwd: ROOT });
     child.stdout.pipe(fs.createWriteStream(null, { fd: log }));
     child.on('exit', () => { try { fs.unlinkSync(lock); } catch {} });
-    const variant = `SPY_open${sl === 0.2 ? '' : '_sl' + sl}`;
-    return send(res, 200, { started: true, sl, variant });
+    return send(res, 200, { started: true, sl, mode, variant });
   }
 
   if (url.pathname === '/api/run-open-status' && req.method === 'GET') {
