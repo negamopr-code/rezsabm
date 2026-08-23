@@ -7,29 +7,29 @@
   "min_R_filter_pct_of_price": 0.3,
   "trades": 477,
   "skipped_signals": 206,
-  "win_rate_pct_all_trades": 53.67,
+  "win_rate_pct_all_trades": 53.25,
   "significant_trades": 449,
   "non_significant_trades": 28,
   "significance_threshold_R": 0.2,
-  "win_rate_pct_significant": 53.23,
-  "profit_factor": 0.588,
-  "profit_factor_significant": 0.585,
-  "avg_r": -0.3856,
-  "sum_r": -183.93,
+  "win_rate_pct_significant": 52.56,
+  "profit_factor": 0.557,
+  "profit_factor_significant": 0.554,
+  "avg_r": -0.4215,
+  "sum_r": -201.05,
   "median_hold_days": 19,
   "max_hold_days": 21,
   "still_open": 1,
-  "final_fixed_pct": -57.96,
-  "final_compounded_pct": -44.7,
-  "maxdd_fixed_pct_of_T0": -58.4,
-  "maxdd_compounded_pct_points_SABM": -44.89,
-  "maxdd_compounded_pct_relative": -44.89,
+  "final_fixed_pct": -66.65,
+  "final_compounded_pct": -49.28,
+  "maxdd_fixed_pct_of_T0": -66.74,
+  "maxdd_compounded_pct_points_SABM": -49.31,
+  "maxdd_compounded_pct_relative": -49.31,
   "buy_hold_pct": 1642.75,
   "target": "R3",
   "mode": "weekly-call-bsm",
-  "pricing": "BSM sigma=RV(20)*1.2, r=0.04, haircut 3%/side, T=cal/365",
-  "avg_premium_pct_of_S": 2.421,
-  "avg_premium_R": 2.994,
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, T=cal/365",
+  "avg_premium_pct_of_S": 2.449,
+  "avg_premium_R": 3.05,
   "skipped_no_rv_history": 4,
   "target_exits": 259,
   "expiry_settlements": 217,
@@ -39,24 +39,24 @@
   "note": "MODEL-priced option (user request): premium & early-sale value from Black-Scholes with sigma = realized vol of our own quote history * markup (resim doctrine); gamma/time value now included in wins; expiry = intrinsic. Still simplified: RV-proxy IV (no vol smile/term structure), leg keeps entry sigma. 1% of equity spent on premium per trade.",
   "iv_markup_sweep": {
     "x1": {
-      "sum_net_R": -46.38,
-      "final_compounded_pct": -7.61
+      "sum_net_R": -85.9,
+      "final_compounded_pct": -25.8
     },
     "x1.15": {
-      "sum_net_R": -149.97,
-      "final_compounded_pct": -38.15
+      "sum_net_R": -171.22,
+      "final_compounded_pct": -44.65
     },
     "x1.2": {
-      "sum_net_R": -183.93,
-      "final_compounded_pct": -44.7
+      "sum_net_R": -201.05,
+      "final_compounded_pct": -49.28
     },
     "x1.25": {
-      "sum_net_R": -217.64,
-      "final_compounded_pct": -50.12
+      "sum_net_R": -231.33,
+      "final_compounded_pct": -53.33
     },
     "x1.5": {
-      "sum_net_R": -383.26,
-      "final_compounded_pct": -66.97
+      "sum_net_R": -387.33,
+      "final_compounded_pct": -67.56
     }
   }
 }
