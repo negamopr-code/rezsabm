@@ -50,6 +50,11 @@ EXIT_MODE = arg('--exit', 'e2' if ENTRY == 'open' else 'target')
 # for the open+SABM combos, editable); the resim e2 line keeps its 0.2% default
 OPEN_SL = float(arg('--open-sl-pct', '0.2' if EXIT_MODE == 'e2' else '0.25'))
 TRIG = float(arg('--transform-trigger-pct', '2'))  # 0DTE->weekly transform trigger (underlying move %)
+SMB = arg('--smb', '')                # SMB structure: cc|csp|pcs|ic|ib|cds|leap (see SMB_KINDS)
+SMB_DTE = arg('--smb-dte', '')        # override the structure's default DTE (trading days)
+SMB_DELTA = arg('--smb-delta', '')    # override the short-leg target delta
+SMB_WIDTH = arg('--smb-width-pct', '')  # override wing/spread width (% of spot)
+SMB_PT = arg('--smb-profit-take-pct', '')  # override profit-take (% of max profit; 0 = hold)
 OPT = '--options' in sys.argv
 OPT_DELTA = float(arg('--opt-delta', '0.5'))        # static delta: collect delta*move (R1 -> 0.5R)
 OPT_PREM = float(arg('--opt-premium-pct', '1.0'))   # premium as % of underlying price per option
@@ -69,7 +74,9 @@ HUG_TOL = float(arg('--hug-tol', '1.0'))            # >=3R hug only within this 
 STOP_BUF = float(arg('--stop-buf', '0.05'))         # stop sits UNDER the low by this many R (pp.45/52/57)
 CSV = os.path.join(ROOT, 'uploads', f'{SYM}_daily_OHLC_yahoo.csv')
 _SUFFIX = '' if MINR == 0.3 else ('_raw' if MINR == 0 else f'_minR{MINR:g}')
-if ENTRY == 'open' and EXIT_MODE == 'transform':
+if SMB:
+    _BASE = f"{SYM}_smb_{SMB}"
+elif ENTRY == 'open' and EXIT_MODE == 'transform':
     _BASE = f"{SYM}_0dtew" + (f"_t{TRIG:g}" if TRIG != 2 else '') + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.25 else '')
 elif ENTRY == 'open' and EXIT_MODE == 'e2':
     _BASE = f"{SYM}_open" + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.2 else '')
@@ -1155,6 +1162,226 @@ def backtest_open(bars):
                     'fixed': fixed, 'comp_pct': comp_pct}
 
 
+def bs_put(S, K, T, sigma, r=None):
+    r = OPT_RATE if r is None else r
+    return bs_call(S, K, T, sigma, r) - S + K * math.exp(-r * T)
+
+
+def _k_for_delta(S, T, sigma, target, put=False):
+    """Solve strike for |delta| target via bisection (call: N(d1); put: N(d1)-1)."""
+    lo, hi = S * 0.5, S * 2.0
+    for _ in range(60):
+        K = (lo + hi) / 2
+        sq = sigma * math.sqrt(T)
+        d1 = (math.log(S / K) + (OPT_RATE + 0.5 * sigma * sigma) * T) / sq
+        d = _norm_cdf(d1) if not put else _norm_cdf(d1) - 1
+        if not put:
+            if d > target:
+                lo = K
+            else:
+                hi = K
+        else:
+            if abs(d) > target:
+                hi = K
+            else:
+                lo = K
+    return (lo + hi) / 2
+
+
+# SMB structures (corpus "SMB Options vol. 1", notebook e2e327c6 on work4). Defaults cite
+# the registry; every knob editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct.
+SMB_KINDS = {
+    'cc': dict(dte=21, delta=0.30, width=15.0, pt=0, name='Synthetic covered call',
+               desc=("SMB covered-call keys [U8gFC00kZ58]: own the upside via a DEEP-ITM long call "
+                     "(~15% ITM, LEAP-style - key #2, the FNV synthetic that made >$30k on a quarter "
+                     "of the stock's capital) and sell a ~30-delta call against it each cycle; "
+                     "key #1: buy the short call back at ~10% of its sale price and RELOAD "
+                     "immediately (AAPL campaign: +64% more income). Cycle = the short call's life.")),
+    'csp': dict(dte=21, delta=0.30, width=0, pt=0, name='Cash-secured put',
+                desc=("SMB cash-secured puts / the wheel entry leg [batch-1 chapter]: sell a "
+                      "~30-delta put (bear-market ladders go as low as 10-delta), collect the "
+                      "premium, settle at expiry - assignment risk IS the trade; risk = strike "
+                      "minus credit (cash-secured).")),
+    'pcs': dict(dte=5, delta=0.30, width=2.0, pt=0, name='Put credit spread',
+                desc=("SMB put credit spreads [6VPPI-MNUDM, nvJ_43579z8]: sell a ~30-delta put, "
+                      "buy one ~2% lower, weekly cadence - the May-2024 controlled experiment "
+                      "(40-delta PCS 12/12 wins while call-buying went 3W/10L on the same days) "
+                      "is the corpus's sharpest evidence for this structure. Hold to expiry; "
+                      "defined risk = width - credit.")),
+    'ic': dict(dte=63, delta=0.05, width=1.0, pt=50, name='Iron condor (5-delta campaign)',
+               desc=("SMB SPX iron-condor year [m8R_564Kp6k]: 60-DTE condors with 5-delta short "
+                     "strikes, ~90% per-trade probability, credits ~6-7% of margin, profit-take "
+                     "at 50% of the credit then redeploy - six rolled trades made +39%/yr. "
+                     "Wings 1% wide here (defined risk).")),
+    'ib': dict(dte=63, delta=0.50, width=3.0, pt=50, name='Iron butterfly',
+               desc=("SMB iron butterfly [batch-0 worked example]: sell the ATM straddle, buy "
+                     "wings ~3% away; the case study collected $8,115 credit and kept $7,592 "
+                     "(>400% on margin in 8 weeks). Profit-take at 50% of max profit.")),
+    'cds': dict(dte=63, delta=0.50, width=8.0, pt=0, name='Call debit spread',
+                desc=("SMB call debit spread [hsPmj_6nl5E MSFT template]: buy the ATM call, sell "
+                      "one ~8% higher, long-dated (their example ran a year; quarterly here), "
+                      "debit ~38% of width; exit when the underlying reaches the short strike "
+                      "(sell at your price target - the covered-call key #3 doctrine) or settle "
+                      "at expiry. The SMB-verifier flagged this as the desk-approved expression "
+                      "of a bullish view.")),
+    'leap': dict(dte=252, delta=0.85, width=15.0, pt=0, name='Deep-ITM LEAP (synthetic stock)',
+                 desc=("SMB deep-ITM LEAPs [hsPmj_6nl5E HRB example: $690 -> +$1,600, beat the "
+                       "shares in absolute dollars]: buy a ~15% ITM one-year call as a stock "
+                       "substitute (delta ~0.85+, minimal extrinsic), roll with ~1 month left. "
+                       "Cycle = one option life to the 21-DTE roll point.")),
+}
+
+
+def backtest_smb(bars, kind):
+    """Continuous SMB-structure campaign on daily bars, BSM-priced (sigma from quote history,
+    haircut per side). Always-in when flat; each cycle = one structure life (expiry, roll
+    point, or profit-take). r = cycle P&L / max risk (floor -1); 1% of equity on max risk."""
+    cfg = SMB_KINDS[kind]
+    dte = int(SMB_DTE or cfg['dte'])
+    tdelta = float(SMB_DELTA or cfg['delta'])
+    width = float(SMB_WIDTH or cfg['width'])
+    pt = float(SMB_PT or cfg['pt'])
+    rvs = _sigma_base(bars)
+    trades = []
+    i = 1
+    while i < len(bars) - 1:
+        if rvs[i] is None:
+            i += 1
+            continue
+        b = bars[i]
+        S = b['close']  # open the cycle at the close (evening routine)
+        sigma = max(IV_FLOOR, rvs[i] * IV_MARKUP)
+        T = _t_years(dte)
+        h = HAIRCUT / 100
+        legs = []   # (qty, 'c'|'p', K)  qty>0 long
+
+        def px(put, K, S_, T_, sg):
+            return (bs_put if put else bs_call)(S_, K, T_, sg)
+
+        if kind == 'cc':
+            K_itm = S * (1 - width / 100)
+            K_short = _k_for_delta(S, T, sigma, tdelta)
+            legs = [(1, 'c', K_itm), (-1, 'c', K_short)]
+        elif kind == 'csp':
+            legs = [(-1, 'p', _k_for_delta(S, T, sigma, tdelta, put=True))]
+        elif kind == 'pcs':
+            Ks = _k_for_delta(S, T, sigma, tdelta, put=True)
+            legs = [(-1, 'p', Ks), (1, 'p', Ks * (1 - width / 100))]
+        elif kind == 'ic':
+            Kc = _k_for_delta(S, T, sigma, tdelta)
+            Kp = _k_for_delta(S, T, sigma, tdelta, put=True)
+            legs = [(-1, 'c', Kc), (1, 'c', Kc * (1 + width / 100)),
+                    (-1, 'p', Kp), (1, 'p', Kp * (1 - width / 100))]
+        elif kind == 'ib':
+            legs = [(-1, 'c', S), (1, 'c', S * (1 + width / 100)),
+                    (-1, 'p', S), (1, 'p', S * (1 - width / 100))]
+        elif kind == 'cds':
+            legs = [(1, 'c', S), (-1, 'c', S * (1 + width / 100))]
+        elif kind == 'leap':
+            legs = [(1, 'c', S * (1 - width / 100))]
+
+        def value(S_, T_, sg, closing):
+            v = 0.0
+            for q, cp, K in legs:
+                pv = px(cp == 'p', K, S_, max(T_, 0), sg)
+                v += q * pv * ((1 - h) if (q > 0) == closing else (1 + h))
+            return v
+
+        def intrinsic(S_):
+            return sum(q * max(0.0, (S_ - K) if cp == 'c' else (K - S_)) for q, cp, K in legs)
+
+        cost0 = value(S, T, sigma, closing=False)  # + = debit paid, - = credit received
+        if kind == 'csp':
+            K1 = legs[0][2]
+            max_risk = K1 + cost0  # cash-secured: strike minus credit
+        elif kind in ('ic', 'ib'):
+            wc = legs[1][2] - legs[0][2]   # call wing width
+            wp = legs[2][2] - legs[3][2]   # put wing width
+            max_risk = max(wc, wp) + cost0  # widest wing minus the credit
+        elif kind == 'pcs':
+            max_risk = (legs[0][2] - legs[1][2]) + cost0  # width minus credit
+        else:
+            max_risk = cost0  # debit structures: the debit is the whole risk
+        max_risk = max(max_risk, 1e-9)
+        max_profit = (-cost0) if cost0 < 0 else None  # credit structures
+
+        expiry = i + dte
+        roll_at = expiry - 21 if kind == 'leap' else None
+        exit_j = None
+        exit_val = None
+        reason = 'expiry'
+        cc_extra_income = 0.0
+        short_px0 = px(False, legs[1][2], S, T, sigma) if kind == 'cc' else None
+        for j in range(i + 1, min(expiry + 1, len(bars))):
+            bj = bars[j]
+            T_rem = _t_years(expiry - j)
+            if kind == 'cc' and short_px0 and j < expiry:
+                cur_short = px(False, legs[1][2], bj['close'], T_rem, sigma)
+                if cur_short <= 0.10 * short_px0:  # key #1: buy back at 10% and reload
+                    cc_extra_income += short_px0 - cur_short * (1 + h) - short_px0 * h
+                    Kn = _k_for_delta(bj['close'], T_rem, sigma, tdelta)
+                    legs[1] = (-1, 'c', Kn)
+                    short_px0 = px(False, Kn, bj['close'], T_rem, sigma)
+            if pt and max_profit and j < expiry:
+                cur = value(bj['close'], T_rem, sigma, closing=True)
+                # cur is SIGNED liquidation value (negative = pay to close a credit structure);
+                # locked profit so far = credit received + cur
+                if (-cost0) + cur >= pt / 100 * max_profit:
+                    exit_j, exit_val, reason = j, cur, f'profit-take-{pt:g}%'
+                    break
+            if kind == 'cds' and bj['high'] >= legs[1][2] and j < expiry:
+                exit_j, exit_val, reason = j, value(legs[1][2], T_rem, sigma, closing=True), 'target-strike'
+                break
+            if roll_at and j >= roll_at:
+                exit_j, exit_val, reason = j, value(bj['close'], T_rem, sigma, closing=True), 'roll-point'
+                break
+        if exit_j is None:
+            exit_j = min(expiry, len(bars) - 1)
+            exit_val = intrinsic(bars[exit_j]['close']) if exit_j == expiry else value(
+                bars[exit_j]['close'], _t_years(expiry - exit_j), sigma, closing=True)
+            reason = 'expiry' if exit_j == expiry else 'open'
+        pnl = exit_val - cost0 + cc_extra_income
+        r = max(-1.0, pnl / max_risk)
+        trades.append({'n': len(trades) + 1, 'entry_i': i, 'entry_date': b['date'],
+                       'entry_price': round(S, 4), 'opt': True, 'bsm': True, 'smb': kind,
+                       'stop': round(S * 0.99, 4), 'R_abs': round(S * 0.01, 4),
+                       'premium': round(abs(cost0), 4), 'premium_R': 1.0, 'delta': None,
+                       'be': round(S + cost0, 4), 'weeks_rolled': 1,
+                       'legs_view': [[round(K, 2), ('short ' if q < 0 else 'long ') + cp.upper()] for q, cp, K in legs],
+                       'credit_debit': round(-cost0, 4), 'max_risk': round(max_risk, 4),
+                       'exit_i': exit_j, 'exit_date': bars[exit_j]['date'],
+                       'exit_price': round(bars[exit_j]['close'], 4), 'reason': reason,
+                       'days': exit_j - i, 'r_gross': round((exit_val + cc_extra_income) / max_risk, 4),
+                       'r': round(r, 4), 'opt_multiple': round(r, 4)})
+        i = exit_j + 1
+
+    rs = [t['r'] for t in trades]
+    fixed, comp = [0.0], [100.0]
+    for t in trades:
+        fixed.append(fixed[-1] + t['r'] * 1.0)
+        comp.append(comp[-1] * (1 + 0.01 * t['r']))
+    comp_pct = [c - 100.0 for c in comp]
+    extra = {
+        'target': f'smb-{kind}', 'mode': f'smb-{kind}',
+        'structure': cfg['name'],
+        'params': {'dte': dte, 'short_delta': tdelta, 'width_pct': width, 'profit_take_pct': pt},
+        'pricing': f"BSM sigma={'VIX' if IV_SRC == 'vix' else f'RV({RV_WIN})'}*{IV_MARKUP:g} (floor {IV_FLOOR:g}), haircut {HAIRCUT:g}%/side",
+        'avg_credit_debit_pct_of_S': round(100 * sum(t['credit_debit'] for t in trades) / sum(t['entry_price'] for t in trades), 3),
+        'best_trade_r': max(rs),
+        'description': cfg['desc'] + (f" Parameters here: {dte} trading days, short-leg delta {tdelta:g}, "
+                                      f"width {width:g}%, profit-take {pt:g}% (all editable via "
+                                      f"--smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). "
+                                      f"Continuous campaign: a new cycle opens at the close whenever flat. "
+                                      f"r = cycle P&L / max risk; 1% of equity per cycle."),
+        'note': ('BSM-priced from our quote history; expiry settles intrinsic; NOT modeled: early '
+                 'assignment, dividends, vol smile, intraday management, earnings-date and 0DTE/'
+                 'intraday SMB strategies (need event/intraday data - disclosed out of scope).'),
+    }
+    rule = f"SMB {cfg['name']} campaign: {dte}d, delta {tdelta:g}, width {width:g}%, PT {pt:g}%"
+    return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, 0, rule, extra),
+                    'fixed': fixed, 'comp_pct': comp_pct}
+
+
 # ---------- rendering ----------
 from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 
@@ -1545,7 +1772,9 @@ def graph_compare(base_dir, sym, path, w=1920, h=1080):
 
 def main():
     bars = load_bars(CSV)
-    if ENTRY == 'open':
+    if SMB:
+        trades, port = backtest_smb(bars, SMB)
+    elif ENTRY == 'open':
         if EXIT_MODE == 'transform':
             trades, port = backtest_0dte_transform(bars)
         elif EXIT_MODE == 'disc':
@@ -1571,7 +1800,7 @@ def main():
             name = f"{t['n']:04d}_{t['entry_date']}_{'win' if t['r'] > 0 else 'loss'}.webp"
             if os.path.exists(os.path.join(VID, name)):
                 t['video'] = 'videos/' + name
-    if (OPT and PRICING == 'bsm') or (ENTRY == 'open' and EXIT_MODE == 'transform'):
+    if not SMB and ((OPT and PRICING == 'bsm') or (ENTRY == 'open' and EXIT_MODE == 'transform')):
         # honesty battery: IV-markup sweep (for the transform line the SWEEP IS THE VERDICT:
         # measured 2026-08-23 the sign flips between markup 1.2 and 1.5)
         if ENTRY == 'open' and EXIT_MODE == 'transform':

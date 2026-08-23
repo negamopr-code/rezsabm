@@ -5,53 +5,53 @@
   "to": "2026-08-21",
   "rule": "part-II cocktail-proxy trail exits; LONG CALL delta 0.5, premium 1%/5d rolled while the trade lives; no stop on the option (premium = risk)",
   "min_R_filter_pct_of_price": 0.3,
-  "trades": 863,
-  "skipped_signals": 290,
-  "win_rate_pct_all_trades": 2.9,
-  "significant_trades": 844,
-  "non_significant_trades": 19,
+  "trades": 835,
+  "skipped_signals": 270,
+  "win_rate_pct_all_trades": 1.8,
+  "significant_trades": 826,
+  "non_significant_trades": 9,
   "significance_threshold_R": 0.2,
-  "win_rate_pct_significant": 2.37,
-  "profit_factor": 0.011,
-  "profit_factor_significant": 0.011,
-  "avg_r": -1.5693,
-  "sum_r": -1354.27,
+  "win_rate_pct_significant": 1.69,
+  "profit_factor": 0.006,
+  "profit_factor_significant": 0.006,
+  "avg_r": -1.6475,
+  "sum_r": -1375.64,
   "median_hold_days": 3,
   "max_hold_days": 58,
   "still_open": 0,
-  "final_fixed_pct": -735.47,
-  "final_compounded_pct": -99.94,
-  "maxdd_fixed_pct_of_T0": -735.47,
-  "maxdd_compounded_pct_points_SABM": -99.94,
-  "maxdd_compounded_pct_relative": -99.94,
+  "final_fixed_pct": -726.04,
+  "final_compounded_pct": -99.93,
+  "maxdd_fixed_pct_of_T0": -726.04,
+  "maxdd_compounded_pct_points_SABM": -99.93,
+  "maxdd_compounded_pct_relative": -99.93,
   "buy_hold_pct": 1642.75,
   "target": "disc",
   "mode": "disc-option-rough",
-  "avg_premium_R": 1.947,
-  "avg_weeks_rolled": 1.57,
+  "avg_premium_R": 2.041,
+  "avg_weeks_rolled": 1.64,
   "reached_2R_pct": 31.3,
-  "reached_3R_pct": 20.9,
-  "best_trade_R": 3.9371,
+  "reached_3R_pct": 20.6,
+  "best_trade_R": 1.1692,
   "note": "ROUGH option on the part-II trail: same trail exits as linear; the call is ROLLED every OPT_DAYS held (premium re-paid), payoff = delta*max(0, exit move) - total premiums; static delta, no theta path (user-acknowledged). 1% equity premium budget.",
   "premium_sweep": {
     "0.5%": {
-      "sum_net_R": -514.0,
+      "sum_net_R": -523.4,
       "final_compounded_pct": -99.8
     },
     "0.75%": {
-      "sum_net_R": -934.1,
+      "sum_net_R": -949.5,
       "final_compounded_pct": -99.9
     },
     "1%": {
-      "sum_net_R": -1354.3,
+      "sum_net_R": -1375.6,
       "final_compounded_pct": -99.9
     },
     "1.25%": {
-      "sum_net_R": -1774.4,
-      "final_compounded_pct": -100.0
+      "sum_net_R": -1801.8,
+      "final_compounded_pct": -99.9
     },
     "1.5%": {
-      "sum_net_R": -2194.6,
+      "sum_net_R": -2227.9,
       "final_compounded_pct": -100.0
     }
   }
