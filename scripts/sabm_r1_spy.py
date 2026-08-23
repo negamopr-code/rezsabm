@@ -1191,40 +1191,45 @@ def _k_for_delta(S, T, sigma, target, put=False):
 # SMB structures (corpus "SMB Options vol. 1", notebook e2e327c6 on work4). Defaults cite
 # the registry; every knob editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct.
 SMB_KINDS = {
-    'cc': dict(dte=21, delta=0.30, width=15.0, pt=0, name='Synthetic covered call',
+    'cc': dict(dte=21, delta=0.30, width=15.0, pt=0, sl=0, name='Synthetic covered call',
                desc=("SMB covered-call keys [U8gFC00kZ58]: own the upside via a DEEP-ITM long call "
                      "(~15% ITM, LEAP-style - key #2, the FNV synthetic that made >$30k on a quarter "
                      "of the stock's capital) and sell a ~30-delta call against it each cycle; "
                      "key #1: buy the short call back at ~10% of its sale price and RELOAD "
                      "immediately (AAPL campaign: +64% more income). Cycle = the short call's life.")),
-    'csp': dict(dte=21, delta=0.30, width=0, pt=0, name='Cash-secured put',
+    'csp': dict(dte=21, delta=0.30, width=0, pt=0, sl=0, name='Cash-secured put',
                 desc=("SMB cash-secured puts / the wheel entry leg [batch-1 chapter]: sell a "
                       "~30-delta put (bear-market ladders go as low as 10-delta), collect the "
                       "premium, settle at expiry - assignment risk IS the trade; risk = strike "
                       "minus credit (cash-secured).")),
-    'pcs': dict(dte=5, delta=0.30, width=2.0, pt=0, name='Put credit spread',
+    'pcs': dict(dte=5, delta=0.30, width=1.0, pt=0, sl=0, name='Put credit spread',
                 desc=("SMB put credit spreads [6VPPI-MNUDM, nvJ_43579z8]: sell a ~30-delta put, "
                       "buy one ~2% lower, weekly cadence - the May-2024 controlled experiment "
                       "(40-delta PCS 12/12 wins while call-buying went 3W/10L on the same days) "
                       "is the corpus's sharpest evidence for this structure. Hold to expiry; "
                       "defined risk = width - credit.")),
-    'ic': dict(dte=63, delta=0.05, width=1.0, pt=50, name='Iron condor (5-delta campaign)',
-               desc=("SMB SPX iron-condor year [m8R_564Kp6k]: 60-DTE condors with 5-delta short "
-                     "strikes, ~90% per-trade probability, credits ~6-7% of margin, profit-take "
-                     "at 50% of the credit then redeploy - six rolled trades made +39%/yr. "
-                     "Wings 1% wide here (defined risk).")),
-    'ib': dict(dte=63, delta=0.50, width=3.0, pt=50, name='Iron butterfly',
+    'ic': dict(dte=44, delta=0.05, width=1.0, pt=90, sl=0, name='Iron condor (5-delta campaign)',
+               desc=("SMB SPX iron-condor year [m8R_564Kp6k]: ~60-CALENDAR-day condors with "
+                     "5-delta short strikes, ~90% per-trade probability, credits ~6-7% of margin; "
+                     "SMB's credit-structure management is capture ~75-90% of max profit and "
+                     "redeploy [TpAPTwLMb44] - modeled as a 90% profit-take. Wings 1% wide "
+                     "(defined risk). NOT modeled: the delta-doubling defensive roll.")),
+    'ib': dict(dte=40, delta=0.50, width=3.0, pt=50, sl=2.0, name='Iron butterfly (unmanaged illustration)',
                desc=("SMB iron butterfly [batch-0 worked example]: sell the ATM straddle, buy "
-                     "wings ~3% away; the case study collected $8,115 credit and kept $7,592 "
-                     "(>400% on margin in 8 weeks). Profit-take at 50% of max profit.")),
-    'cds': dict(dte=63, delta=0.50, width=8.0, pt=0, name='Call debit spread',
+                     "wings ~3% away; their >400%-in-8-weeks case study was ONE lucky close - "
+                     "run as a continuous campaign this structure needs |move| < ~2% per cycle "
+                     "and historically loses (the corpus itself warns backtests expose what "
+                     "single examples hide [Dl0O3z_5hB0]). Stop-loss at 2x credit modeled; "
+                     "SMB's actually-repeatable fly is 0-DTE with +10%/-20% rules - intraday, "
+                     "out of scope here.")),
+    'cds': dict(dte=63, delta=0.50, width=8.0, pt=0, sl=0, name='Call debit spread',
                 desc=("SMB call debit spread [hsPmj_6nl5E MSFT template]: buy the ATM call, sell "
                       "one ~8% higher, long-dated (their example ran a year; quarterly here), "
                       "debit ~38% of width; exit when the underlying reaches the short strike "
                       "(sell at your price target - the covered-call key #3 doctrine) or settle "
                       "at expiry. The SMB-verifier flagged this as the desk-approved expression "
                       "of a bullish view.")),
-    'leap': dict(dte=252, delta=0.85, width=15.0, pt=0, name='Deep-ITM LEAP (synthetic stock)',
+    'leap': dict(dte=252, delta=0.85, width=15.0, pt=0, sl=0, name='Deep-ITM LEAP (synthetic stock)',
                  desc=("SMB deep-ITM LEAPs [hsPmj_6nl5E HRB example: $690 -> +$1,600, beat the "
                        "shares in absolute dollars]: buy a ~15% ITM one-year call as a stock "
                        "substitute (delta ~0.85+, minimal extrinsic), roll with ~1 month left. "
@@ -1241,6 +1246,7 @@ def backtest_smb(bars, kind):
     tdelta = float(SMB_DELTA or cfg['delta'])
     width = float(SMB_WIDTH or cfg['width'])
     pt = float(SMB_PT or cfg['pt'])
+    slx = float(arg('--smb-stop-x', '') or cfg.get('sl', 0))  # stop at N x credit lost (credit structures)
     rvs = _sigma_base(bars)
     trades = []
     i = 1
@@ -1258,11 +1264,69 @@ def backtest_smb(bars, kind):
         def px(put, K, S_, T_, sg):
             return (bs_put if put else bs_call)(S_, K, T_, sg)
 
+        def hc(pv, S_):
+            # per-leg friction: 3% of the option price, capped at 0.3% of spot
+            return min(h * pv, 0.003 * S_)
+
         if kind == 'cc':
+            # LEAP-dated long (252td, sold at the 21-DTE roll point) + 21td short calls
+            # cycled against it, buyback-at-10%-and-reload inside each short cycle
+            long_T_td = 252
             K_itm = S * (1 - width / 100)
-            K_short = _k_for_delta(S, T, sigma, tdelta)
-            legs = [(1, 'c', K_itm), (-1, 'c', K_short)]
-        elif kind == 'csp':
+            long_pv = bs_call(S, K_itm, _t_years(long_T_td), sigma)
+            h_amt = min(h * long_pv, 0.003 * S)
+            cash = -(long_pv + h_amt)
+            K_s = _k_for_delta(S, _t_years(dte), sigma, tdelta)
+            s_px = bs_call(S, K_s, _t_years(dte), sigma)
+            cash += s_px - min(h * s_px, 0.003 * S)
+            cost0 = -cash
+            max_risk = max(cost0, 1e-9)
+            short_sale_px = s_px
+            short_exp = i + dte
+            legs_view = [[round(K_itm, 2), 'long LEAP C'], [round(K_s, 2), 'short C']]
+            cycle_end = min(i + long_T_td - 21, len(bars) - 1)
+            j = i + 1
+            while j <= cycle_end:
+                bj = bars[j]
+                T_srem = _t_years(max(short_exp - j, 0))
+                cur_s = bs_call(bj['close'], K_s, T_srem, sigma)
+                if j >= short_exp:  # short expires: settle intrinsic, sell a fresh 21td short
+                    cash -= max(0.0, bj['close'] - K_s)
+                    K_s = _k_for_delta(bj['close'], _t_years(dte), sigma, tdelta)
+                    s_px = bs_call(bj['close'], K_s, _t_years(dte), sigma)
+                    cash += s_px - min(h * s_px, 0.003 * bj['close'])
+                    short_sale_px = s_px
+                    short_exp = j + dte
+                elif cur_s <= 0.10 * short_sale_px:  # key #1: buy back at 10%, reload NOW
+                    cash -= cur_s + min(h * cur_s, 0.003 * bj['close'])
+                    K_s = _k_for_delta(bj['close'], _t_years(dte), sigma, tdelta)
+                    s_px = bs_call(bj['close'], K_s, _t_years(dte), sigma)
+                    cash += s_px - min(h * s_px, 0.003 * bj['close'])
+                    short_sale_px = s_px
+                    short_exp = j + dte
+                j += 1
+            jx = cycle_end
+            bx = bars[jx]
+            lv = bs_call(bx['close'], K_itm, _t_years(max(i + long_T_td - jx, 0)), sigma)
+            cash += lv - min(h * lv, 0.003 * bx['close'])
+            sv = bs_call(bx['close'], K_s, _t_years(max(short_exp - jx, 0)), sigma)
+            cash -= sv + min(h * sv, 0.003 * bx['close'])
+            pnl = cash
+            r = max(-1.0, pnl / max_risk)
+            trades.append({'n': len(trades) + 1, 'entry_i': i, 'entry_date': b['date'],
+                           'entry_price': round(S, 4), 'opt': True, 'bsm': True, 'smb': kind,
+                           'stop': round(S * 0.99, 4), 'R_abs': round(S * 0.01, 4),
+                           'premium': round(cost0, 4), 'premium_R': 1.0, 'delta': None,
+                           'be': round(K_itm + cost0, 4), 'weeks_rolled': 1,
+                           'legs_view': legs_view, 'credit_debit': round(-cost0, 4),
+                           'max_risk': round(max_risk, 4), 'exit_i': jx,
+                           'exit_date': bx['date'], 'exit_price': round(bx['close'], 4),
+                           'reason': 'roll-point', 'days': jx - i,
+                           'r_gross': round((pnl + cost0) / max_risk, 4),
+                           'r': round(r, 4), 'opt_multiple': round(r, 4)})
+            i = jx + 1
+            continue
+        if kind == 'csp':
             legs = [(-1, 'p', _k_for_delta(S, T, sigma, tdelta, put=True))]
         elif kind == 'pcs':
             Ks = _k_for_delta(S, T, sigma, tdelta, put=True)
@@ -1284,7 +1348,7 @@ def backtest_smb(bars, kind):
             v = 0.0
             for q, cp, K in legs:
                 pv = px(cp == 'p', K, S_, max(T_, 0), sg)
-                v += q * pv * ((1 - h) if (q > 0) == closing else (1 + h))
+                v += q * (pv - hc(pv, S_)) if (q > 0) == closing else q * (pv + hc(pv, S_))
             return v
 
         def intrinsic(S_):
@@ -1310,24 +1374,18 @@ def backtest_smb(bars, kind):
         exit_j = None
         exit_val = None
         reason = 'expiry'
-        cc_extra_income = 0.0
-        short_px0 = px(False, legs[1][2], S, T, sigma) if kind == 'cc' else None
         for j in range(i + 1, min(expiry + 1, len(bars))):
             bj = bars[j]
             T_rem = _t_years(expiry - j)
-            if kind == 'cc' and short_px0 and j < expiry:
-                cur_short = px(False, legs[1][2], bj['close'], T_rem, sigma)
-                if cur_short <= 0.10 * short_px0:  # key #1: buy back at 10% and reload
-                    cc_extra_income += short_px0 - cur_short * (1 + h) - short_px0 * h
-                    Kn = _k_for_delta(bj['close'], T_rem, sigma, tdelta)
-                    legs[1] = (-1, 'c', Kn)
-                    short_px0 = px(False, Kn, bj['close'], T_rem, sigma)
-            if pt and max_profit and j < expiry:
+            if (pt or slx) and max_profit and j < expiry:
                 cur = value(bj['close'], T_rem, sigma, closing=True)
                 # cur is SIGNED liquidation value (negative = pay to close a credit structure);
                 # locked profit so far = credit received + cur
-                if (-cost0) + cur >= pt / 100 * max_profit:
+                if pt and (-cost0) + cur >= pt / 100 * max_profit:
                     exit_j, exit_val, reason = j, cur, f'profit-take-{pt:g}%'
+                    break
+                if slx and -((-cost0) + cur) >= slx * max_profit:
+                    exit_j, exit_val, reason = j, cur, f'stop-loss-{slx:g}x'
                     break
             if kind == 'cds' and bj['high'] >= legs[1][2] and j < expiry:
                 exit_j, exit_val, reason = j, value(legs[1][2], T_rem, sigma, closing=True), 'target-strike'
@@ -1340,7 +1398,7 @@ def backtest_smb(bars, kind):
             exit_val = intrinsic(bars[exit_j]['close']) if exit_j == expiry else value(
                 bars[exit_j]['close'], _t_years(expiry - exit_j), sigma, closing=True)
             reason = 'expiry' if exit_j == expiry else 'open'
-        pnl = exit_val - cost0 + cc_extra_income
+        pnl = exit_val - cost0
         r = max(-1.0, pnl / max_risk)
         trades.append({'n': len(trades) + 1, 'entry_i': i, 'entry_date': b['date'],
                        'entry_price': round(S, 4), 'opt': True, 'bsm': True, 'smb': kind,
@@ -1351,7 +1409,7 @@ def backtest_smb(bars, kind):
                        'credit_debit': round(-cost0, 4), 'max_risk': round(max_risk, 4),
                        'exit_i': exit_j, 'exit_date': bars[exit_j]['date'],
                        'exit_price': round(bars[exit_j]['close'], 4), 'reason': reason,
-                       'days': exit_j - i, 'r_gross': round((exit_val + cc_extra_income) / max_risk, 4),
+                       'days': exit_j - i, 'r_gross': round((exit_val) / max_risk, 4),
                        'r': round(r, 4), 'opt_multiple': round(r, 4)})
         i = exit_j + 1
 
@@ -1373,9 +1431,11 @@ def backtest_smb(bars, kind):
                                       f"--smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). "
                                       f"Continuous campaign: a new cycle opens at the close whenever flat. "
                                       f"r = cycle P&L / max risk; 1% of equity per cycle."),
-        'note': ('BSM-priced from our quote history; expiry settles intrinsic; NOT modeled: early '
-                 'assignment, dividends, vol smile, intraday management, earnings-date and 0DTE/'
-                 'intraday SMB strategies (need event/intraday data - disclosed out of scope).'),
+        'note': ('BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of '
+                 'option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: '
+                 'early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel\'s '
+                 'post-assignment covered-call phase, trend filters on the PCS campaign, and the '
+                 'earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope).'),
     }
     rule = f"SMB {cfg['name']} campaign: {dte}d, delta {tdelta:g}, width {width:g}%, PT {pt:g}%"
     return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, 0, rule, extra),

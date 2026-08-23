@@ -38,5 +38,5 @@
   "avg_credit_debit_pct_of_S": 1.017,
   "best_trade_r": 0.0855,
   "description": "SMB cash-secured puts / the wheel entry leg [batch-1 chapter]: sell a ~30-delta put (bear-market ladders go as low as 10-delta), collect the premium, settle at expiry - assignment risk IS the trade; risk = strike minus credit (cash-secured). Parameters here: 21 trading days, short-leg delta 0.3, width 0%, profit-take 0% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
-  "note": "BSM-priced from our quote history; expiry settles intrinsic; NOT modeled: early assignment, dividends, vol smile, intraday management, earnings-date and 0DTE/intraday SMB strategies (need event/intraday data - disclosed out of scope)."
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
 }
