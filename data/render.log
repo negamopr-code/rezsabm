@@ -1,0 +1,161 @@
+{
+  "symbol": "SPY",
+  "target": "R1",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at close when close > previous day's high; stop = body bottom (min(open,close)); target = entry + 1*R; both-touched day = pessimistic stop",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 1457,
+  "skipped_signals": 583,
+  "micro_body_trades_R_lt_0.1pct_of_price": 0,
+  "win_rate_pct_all_trades": 48.39,
+  "significant_trades": 1457,
+  "non_significant_trades": 0,
+  "significance_threshold_R": 0.2,
+  "flat_trades_r_eq_0": 0,
+  "win_rate_pct_significant": 48.39,
+  "profit_factor": 0.889,
+  "profit_factor_significant": 0.889,
+  "avg_r": -0.0654,
+  "sum_r": -95.34,
+  "sum_r_excl_micro": -95.34,
+  "top10_trades_sum_r": 26.1,
+  "positive_accidents_beyond_target": 145,
+  "gap_losses_worse_than_minus1R": 146,
+  "ambiguous_days_pessimistic": 36,
+  "sum_r_optimistic_ambiguous": -23.34,
+  "still_open": 1,
+  "median_hold_days": 2,
+  "max_hold_days": 67,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 971,
+  "final_fixed_pct_sabm_literal": -95.34,
+  "avg_risk_fraction_pct": 0.742,
+  "final_fixed_pct": -67.63,
+  "final_compounded_pct": -51.93,
+  "maxdd_fixed_pct_of_T0": -91.63,
+  "maxdd_compounded_pct_points_SABM": -68.59,
+  "maxdd_compounded_pct_relative": -61.64,
+  "buy_hold_pct": 1642.75,
+  "note": "gross of commissions/slippage; risk 1% per trade like the SABM study, position capped at 100% equity (no leverage). NO TPG breakeven/cut layer: unlike the SABM track record (p.11, p.15) losers are not neutralised, so the -1R bucket is the mode rather than the exception - win rate and profit factor are NOT comparable to SABM 62% / 2.74. SABM-style maxDD = percentage-point spread on the compounded curve (p.20)."
+}
+videos: 100/1457
+videos: 200/1457
+videos: 300/1457
+videos: 400/1457
+videos: 500/1457
+videos: 600/1457
+videos: 700/1457
+videos: 800/1457
+videos: 900/1457
+videos: 1000/1457
+videos: 1100/1457
+videos: 1200/1457
+videos: 1300/1457
+videos: 1400/1457
+videos done: 1457
+{
+  "symbol": "SPY",
+  "target": "R2",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at close when close > previous day's high; stop = body bottom (min(open,close)); target = entry + 2*R; both-touched day = pessimistic stop",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 1071,
+  "skipped_signals": 379,
+  "micro_body_trades_R_lt_0.1pct_of_price": 0,
+  "win_rate_pct_all_trades": 36.79,
+  "significant_trades": 1071,
+  "non_significant_trades": 0,
+  "significance_threshold_R": 0.2,
+  "flat_trades_r_eq_0": 0,
+  "win_rate_pct_significant": 36.79,
+  "profit_factor": 1.047,
+  "profit_factor_significant": 1.047,
+  "avg_r": 0.034,
+  "sum_r": 36.38,
+  "sum_r_excl_micro": 36.38,
+  "top10_trades_sum_r": 31.63,
+  "positive_accidents_beyond_target": 69,
+  "gap_losses_worse_than_minus1R": 143,
+  "ambiguous_days_pessimistic": 9,
+  "sum_r_optimistic_ambiguous": 63.38,
+  "still_open": 0,
+  "median_hold_days": 2,
+  "max_hold_days": 107,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 692,
+  "final_fixed_pct_sabm_literal": 36.38,
+  "avg_risk_fraction_pct": 0.755,
+  "final_fixed_pct": 27.63,
+  "final_compounded_pct": 21.56,
+  "maxdd_fixed_pct_of_T0": -55.39,
+  "maxdd_compounded_pct_points_SABM": -58.99,
+  "maxdd_compounded_pct_relative": -44.01,
+  "buy_hold_pct": 1642.75,
+  "note": "gross of commissions/slippage; risk 1% per trade like the SABM study, position capped at 100% equity (no leverage). NO TPG breakeven/cut layer: unlike the SABM track record (p.11, p.15) losers are not neutralised, so the -1R bucket is the mode rather than the exception - win rate and profit factor are NOT comparable to SABM 62% / 2.74. SABM-style maxDD = percentage-point spread on the compounded curve (p.20)."
+}
+videos: 100/1071
+videos: 200/1071
+videos: 300/1071
+videos: 400/1071
+videos: 500/1071
+videos: 600/1071
+videos: 700/1071
+videos: 800/1071
+videos: 900/1071
+videos: 1000/1071
+videos done: 1071
+{
+  "symbol": "SPY",
+  "target": "R3",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at close when close > previous day's high; stop = body bottom (min(open,close)); target = entry + 3*R; both-touched day = pessimistic stop",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 824,
+  "skipped_signals": 311,
+  "micro_body_trades_R_lt_0.1pct_of_price": 0,
+  "win_rate_pct_all_trades": 27.18,
+  "significant_trades": 824,
+  "non_significant_trades": 0,
+  "significance_threshold_R": 0.2,
+  "flat_trades_r_eq_0": 0,
+  "win_rate_pct_significant": 27.18,
+  "profit_factor": 0.999,
+  "profit_factor_significant": 0.999,
+  "avg_r": -0.0006,
+  "sum_r": -0.51,
+  "sum_r_excl_micro": -0.51,
+  "top10_trades_sum_r": 38.11,
+  "positive_accidents_beyond_target": 41,
+  "gap_losses_worse_than_minus1R": 112,
+  "ambiguous_days_pessimistic": 2,
+  "sum_r_optimistic_ambiguous": 7.49,
+  "still_open": 1,
+  "median_hold_days": 2,
+  "max_hold_days": 261,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 512,
+  "final_fixed_pct_sabm_literal": -0.51,
+  "avg_risk_fraction_pct": 0.77,
+  "final_fixed_pct": 4.87,
+  "final_compounded_pct": -4.29,
+  "maxdd_fixed_pct_of_T0": -59.07,
+  "maxdd_compounded_pct_points_SABM": -56.49,
+  "maxdd_compounded_pct_relative": -46.37,
+  "buy_hold_pct": 1642.75,
+  "note": "gross of commissions/slippage; risk 1% per trade like the SABM study, position capped at 100% equity (no leverage). NO TPG breakeven/cut layer: unlike the SABM track record (p.11, p.15) losers are not neutralised, so the -1R bucket is the mode rather than the exception - win rate and profit factor are NOT comparable to SABM 62% / 2.74. SABM-style maxDD = percentage-point spread on the compounded curve (p.20)."
+}
+videos: 100/824
+videos: 200/824
+videos: 300/824
+videos: 400/824
+videos: 500/824
+videos: 600/824
+videos: 700/824
+videos: 800/824
+videos done: 824
