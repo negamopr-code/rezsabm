@@ -50,6 +50,13 @@
     <button data-f="gap">&lt;−1R gap losses</button>
     <button data-f="amb">ambiguous</button>
     <span class="sub" id="count"></span>
+    <span style="margin-left:auto;display:flex;gap:6px;align-items:center">
+      <label class="sub">daily-open SL %</label>
+      <input id="opensl" type="number" value="0.2" min="0.05" max="5" step="0.05"
+             style="width:70px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:5px 8px">
+      <button id="runopen">▶ run daily-open</button>
+      <span class="sub" id="runstat"></span>
+    </span>
   </div>
   <div id="overview" class="tablebox" style="max-height:none;margin-bottom:14px"><table id="ovtbl">
     <thead><tr><th>strategy line</th><th>what it is</th><th>trades</th><th>win%</th><th>PF</th><th>compounded</th><th>buy&amp;hold</th></tr></thead>
@@ -177,6 +184,24 @@ document.querySelectorAll('button[data-f]').forEach(b => b.onclick = () => {
   renderTable();
 });
 el('tbl').onclick = e => { const tr = e.target.closest('tr.t'); if (tr) show(tr.dataset.n); };
+el('runopen').onclick = async () => {
+  const sl = el('opensl').value;
+  const r = await (await fetch(`/api/run-open?sl=${sl}`, { method: 'POST' })).json();
+  if (r.error) { el('runstat').textContent = r.error; return; }
+  el('runstat').textContent = `running ${r.variant}…`;
+  const timer = setInterval(async () => {
+    const st = await (await fetch('/api/run-open-status')).json();
+    el('runstat').textContent = st.running ? `running: ${st.tail}` : 'done — refreshing';
+    if (!st.running) {
+      clearInterval(timer);
+      VARIANTS = await (await fetch('/api/variants')).json();
+      el('variant').innerHTML = VARIANTS.map(v => `<option>${v}</option>`).join('');
+      renderOverview();
+      if (VARIANTS.includes(r.variant)) { dir = r.variant; el('variant').value = dir; load(); }
+      el('runstat').textContent = `done: ${r.variant}`;
+    }
+  }, 5000);
+};
 </script>
 </body>
 </html>

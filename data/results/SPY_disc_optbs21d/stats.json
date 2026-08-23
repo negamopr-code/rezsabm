@@ -5,57 +5,57 @@
   "to": "2026-08-21",
   "rule": "part-II cocktail-proxy trail exits; ATM CALL chain priced by BSM (RV(20)*1.2), re-struck ATM every 21d while the trade lives",
   "min_R_filter_pct_of_price": 0.3,
-  "trades": 860,
-  "skipped_signals": 290,
-  "win_rate_pct_all_trades": 20.81,
-  "significant_trades": 818,
+  "trades": 832,
+  "skipped_signals": 270,
+  "win_rate_pct_all_trades": 19.95,
+  "significant_trades": 790,
   "non_significant_trades": 42,
   "significance_threshold_R": 0.2,
-  "win_rate_pct_significant": 19.44,
-  "profit_factor": 0.443,
-  "profit_factor_significant": 0.441,
-  "avg_r": -0.3612,
-  "sum_r": -310.6,
+  "win_rate_pct_significant": 18.48,
+  "profit_factor": 0.441,
+  "profit_factor_significant": 0.439,
+  "avg_r": -0.3737,
+  "sum_r": -310.91,
   "median_hold_days": 3,
   "max_hold_days": 58,
   "still_open": 0,
-  "final_fixed_pct": -114.16,
-  "final_compounded_pct": -68.33,
-  "maxdd_fixed_pct_of_T0": -116.43,
-  "maxdd_compounded_pct_points_SABM": -69.04,
-  "maxdd_compounded_pct_relative": -69.04,
+  "final_fixed_pct": -115.1,
+  "final_compounded_pct": -68.63,
+  "maxdd_fixed_pct_of_T0": -117.6,
+  "maxdd_compounded_pct_points_SABM": -69.4,
+  "maxdd_compounded_pct_relative": -69.4,
   "buy_hold_pct": 1642.75,
   "target": "disc",
   "mode": "disc-option-bsm",
-  "pricing": "BSM sigma=RV(20)*1.2, r=0.04, haircut 3%/side, ATM re-strike each roll",
-  "avg_premium_R": 3.048,
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, ATM re-strike each roll",
+  "avg_premium_R": 3.071,
   "avg_weeks_rolled": 1.02,
   "skipped_no_rv_history": 3,
-  "reached_2R_pct": 31.2,
-  "reached_3R_pct": 20.7,
-  "best_trade_R": 7.8276,
+  "reached_2R_pct": 31.1,
+  "reached_3R_pct": 20.4,
+  "best_trade_R": 10.6456,
   "description": "MODEL-priced option chain riding the Part-II discretionary trail: ATM call priced by Black-Scholes from the quote history, re-struck ATM at every monthly expiry while the trade lives (intrinsic collected each roll), model value at the trail exit; premiums = the whole risk.",
   "note": "MODEL-priced option chain on the part-II trail: BSM premiums from our quote history (RV*markup), intrinsic at each weekly roll (ATM re-strike), model value at trail exit. 1% equity premium budget per trade-chain.",
   "iv_markup_sweep": {
     "x1": {
-      "sum_net_R": -224.7,
-      "final_compounded_pct": -62.46
+      "sum_net_R": -234.38,
+      "final_compounded_pct": -63.58
     },
     "x1.15": {
-      "sum_net_R": -289.51,
-      "final_compounded_pct": -67.17
+      "sum_net_R": -291.39,
+      "final_compounded_pct": -67.59
     },
     "x1.2": {
-      "sum_net_R": -310.6,
-      "final_compounded_pct": -68.33
+      "sum_net_R": -310.91,
+      "final_compounded_pct": -68.63
     },
     "x1.25": {
-      "sum_net_R": -331.47,
-      "final_compounded_pct": -69.35
+      "sum_net_R": -330.47,
+      "final_compounded_pct": -69.52
     },
     "x1.5": {
-      "sum_net_R": -433.03,
-      "final_compounded_pct": -72.95
+      "sum_net_R": -429.4,
+      "final_compounded_pct": -72.84
     }
   }
 }

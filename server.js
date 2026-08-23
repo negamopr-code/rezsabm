@@ -40,6 +40,31 @@ const server = http.createServer((req, res) => {
 
   if (url.pathname === '/api/health') return send(res, 200, { ok: true, tool: 'REZSABM' });
 
+  if (url.pathname === '/api/run-open' && req.method === 'POST') {
+    const sl = parseFloat(url.searchParams.get('sl') || '0.2');
+    if (!(sl >= 0.05 && sl <= 5)) return send(res, 400, { error: 'sl must be 0.05..5 (%)' });
+    const { execFile } = require('child_process');
+    const lock = path.join(ROOT, 'data', 'run_open.lock');
+    if (fs.existsSync(lock) && Date.now() - fs.statSync(lock).mtimeMs < 3600e3) {
+      return send(res, 409, { error: 'a run is already in progress' });
+    }
+    fs.writeFileSync(lock, String(sl));
+    const log = fs.openSync(path.join(ROOT, 'data', 'run_open.log'), 'w');
+    const child = execFile('python3', ['scripts/sabm_r1_spy.py', '--entry', 'open',
+      '--open-sl-pct', String(sl), '--videos'], { cwd: ROOT });
+    child.stdout.pipe(fs.createWriteStream(null, { fd: log }));
+    child.on('exit', () => { try { fs.unlinkSync(lock); } catch {} });
+    const variant = `SPY_open${sl === 0.2 ? '' : '_sl' + sl}`;
+    return send(res, 200, { started: true, sl, variant });
+  }
+
+  if (url.pathname === '/api/run-open-status' && req.method === 'GET') {
+    const lock = path.join(ROOT, 'data', 'run_open.lock');
+    let log = '';
+    try { const t = fs.readFileSync(path.join(ROOT, 'data', 'run_open.log'), 'utf8'); log = t.slice(-200); } catch {}
+    return send(res, 200, { running: fs.existsSync(lock), tail: log.trim().split('\n').pop() || '' });
+  }
+
   if (url.pathname === '/api/variants') {
     let dirs = [];
     try {

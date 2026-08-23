@@ -1,0 +1,481 @@
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at close when close > previous day's high; initial stop = body bottom; EXIT = part-II cocktail proxy (real-deep/Dow trail, tempo-line-gated >=2R lows and >=3R hug); no target",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 835,
+  "skipped_signals": 270,
+  "win_rate_pct_all_trades": 29.22,
+  "significant_trades": 803,
+  "non_significant_trades": 32,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 28.39,
+  "profit_factor": 1.057,
+  "profit_factor_significant": 1.057,
+  "avg_r": 0.0426,
+  "sum_r": 35.56,
+  "median_hold_days": 3,
+  "max_hold_days": 58,
+  "still_open": 0,
+  "final_fixed_pct": 21.52,
+  "final_compounded_pct": 12.71,
+  "maxdd_fixed_pct_of_T0": -53.52,
+  "maxdd_compounded_pct_points_SABM": -45.99,
+  "maxdd_compounded_pct_relative": -42.69,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-linear",
+  "final_fixed_pct_sabm_literal": 35.56,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 521,
+  "reached_2R_pct": 31.3,
+  "reached_3R_pct": 20.6,
+  "best_trade_R": 14.871,
+  "avg_win_R": 2.7,
+  "description": "SABM Part-II discretionary exit, mechanized ('the cocktail'): same breakout entry, then NO profit target - the stop trails the trend: under validated swing lows (Dow), under REAL long-wick 'deep' days, after 2R behind fresh lows once the tempo line breaks, and above 3R hugging every low near the trendline (climax mode). Exits when the trailed stop is hit. Audited against the course PDF by the exit-conformance agent.",
+  "note": "SABM part-II DISCRETIONARY PROXY (exit-conformance audited): real-deep wicks, Dow validated pivots, entry-anchored ascending tempo line gating the >=2R unvalidated-low rule (on break) and the >=3R hug (proximity); stops buffered under lows; effective next day; no profit target. Gross."
+}
+videos: 100/835
+videos: 200/835
+videos: 300/835
+videos: 400/835
+videos: 500/835
+videos: 600/835
+videos: 700/835
+videos: 800/835
+videos done: 835
+overlay graph -> /app/data/results/SPY_disc_optbs/graph_vs_linear.png
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "part-II cocktail-proxy trail exits; ATM CALL chain priced by BSM (RV(20)*1.2), re-struck ATM every 5d while the trade lives",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 832,
+  "skipped_signals": 270,
+  "win_rate_pct_all_trades": 16.95,
+  "significant_trades": 789,
+  "non_significant_trades": 43,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 15.08,
+  "profit_factor": 0.343,
+  "profit_factor_significant": 0.34,
+  "avg_r": -0.4858,
+  "sum_r": -404.15,
+  "median_hold_days": 3,
+  "max_hold_days": 58,
+  "still_open": 0,
+  "final_fixed_pct": -328.59,
+  "final_compounded_pct": -96.32,
+  "maxdd_fixed_pct_of_T0": -329.2,
+  "maxdd_compounded_pct_points_SABM": -96.34,
+  "maxdd_compounded_pct_relative": -96.34,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-option-bsm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, ATM re-strike each roll",
+  "avg_premium_R": 2.085,
+  "avg_weeks_rolled": 1.64,
+  "skipped_no_rv_history": 3,
+  "reached_2R_pct": 31.1,
+  "reached_3R_pct": 20.4,
+  "best_trade_R": 8.7322,
+  "description": "MODEL-priced option chain riding the Part-II discretionary trail: ATM call priced by Black-Scholes from the quote history, re-struck ATM at every weekly expiry while the trade lives (intrinsic collected each roll), model value at the trail exit; premiums = the whole risk.",
+  "note": "MODEL-priced option chain on the part-II trail: BSM premiums from our quote history (RV*markup), intrinsic at each weekly roll (ATM re-strike), model value at trail exit. 1% equity premium budget per trade-chain.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -265.29,
+      "final_compounded_pct": -95.47
+    },
+    "x1.15": {
+      "sum_net_R": -368.27,
+      "final_compounded_pct": -96.14
+    },
+    "x1.2": {
+      "sum_net_R": -404.15,
+      "final_compounded_pct": -96.32
+    },
+    "x1.25": {
+      "sum_net_R": -440.66,
+      "final_compounded_pct": -96.47
+    },
+    "x1.5": {
+      "sum_net_R": -628.59,
+      "final_compounded_pct": -97.02
+    }
+  }
+}
+videos: 100/832
+videos: 200/832
+videos: 300/832
+videos: 400/832
+videos: 500/832
+videos: 600/832
+videos: 700/832
+videos: 800/832
+videos done: 832
+overlay graph -> /app/data/results/SPY_disc_optbs21d/graph_vs_linear.png
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "part-II cocktail-proxy trail exits; ATM CALL chain priced by BSM (RV(20)*1.2), re-struck ATM every 21d while the trade lives",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 832,
+  "skipped_signals": 270,
+  "win_rate_pct_all_trades": 19.95,
+  "significant_trades": 790,
+  "non_significant_trades": 42,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 18.48,
+  "profit_factor": 0.441,
+  "profit_factor_significant": 0.439,
+  "avg_r": -0.3737,
+  "sum_r": -310.91,
+  "median_hold_days": 3,
+  "max_hold_days": 58,
+  "still_open": 0,
+  "final_fixed_pct": -115.1,
+  "final_compounded_pct": -68.63,
+  "maxdd_fixed_pct_of_T0": -117.6,
+  "maxdd_compounded_pct_points_SABM": -69.4,
+  "maxdd_compounded_pct_relative": -69.4,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-option-bsm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, ATM re-strike each roll",
+  "avg_premium_R": 3.071,
+  "avg_weeks_rolled": 1.02,
+  "skipped_no_rv_history": 3,
+  "reached_2R_pct": 31.1,
+  "reached_3R_pct": 20.4,
+  "best_trade_R": 10.6456,
+  "description": "MODEL-priced option chain riding the Part-II discretionary trail: ATM call priced by Black-Scholes from the quote history, re-struck ATM at every monthly expiry while the trade lives (intrinsic collected each roll), model value at the trail exit; premiums = the whole risk.",
+  "note": "MODEL-priced option chain on the part-II trail: BSM premiums from our quote history (RV*markup), intrinsic at each weekly roll (ATM re-strike), model value at trail exit. 1% equity premium budget per trade-chain.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -234.38,
+      "final_compounded_pct": -63.58
+    },
+    "x1.15": {
+      "sum_net_R": -291.39,
+      "final_compounded_pct": -67.59
+    },
+    "x1.2": {
+      "sum_net_R": -310.91,
+      "final_compounded_pct": -68.63
+    },
+    "x1.25": {
+      "sum_net_R": -330.47,
+      "final_compounded_pct": -69.52
+    },
+    "x1.5": {
+      "sum_net_R": -429.4,
+      "final_compounded_pct": -72.84
+    }
+  }
+}
+videos: 100/832
+videos: 200/832
+videos: 300/832
+videos: 400/832
+videos: 500/832
+videos: 600/832
+videos: 700/832
+videos: 800/832
+videos done: 832
+overlay graph -> /app/data/results/SPY_disc_optbs63d/graph_vs_linear.png
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "part-II cocktail-proxy trail exits; ATM CALL chain priced by BSM (RV(20)*1.2), re-struck ATM every 63d while the trade lives",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 832,
+  "skipped_signals": 270,
+  "win_rate_pct_all_trades": 21.03,
+  "significant_trades": 794,
+  "non_significant_trades": 38,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 19.4,
+  "profit_factor": 0.394,
+  "profit_factor_significant": 0.392,
+  "avg_r": -0.4511,
+  "sum_r": -375.29,
+  "median_hold_days": 3,
+  "max_hold_days": 58,
+  "still_open": 0,
+  "final_fixed_pct": -70.68,
+  "final_compounded_pct": -50.81,
+  "maxdd_fixed_pct_of_T0": -71.86,
+  "maxdd_compounded_pct_points_SABM": -51.38,
+  "maxdd_compounded_pct_relative": -51.38,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-option-bsm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, ATM re-strike each roll",
+  "avg_premium_R": 5.564,
+  "avg_weeks_rolled": 1.0,
+  "skipped_no_rv_history": 3,
+  "reached_2R_pct": 31.1,
+  "reached_3R_pct": 20.4,
+  "best_trade_R": 9.4036,
+  "description": "MODEL-priced option chain riding the Part-II discretionary trail: ATM call priced by Black-Scholes from the quote history, re-struck ATM at every quarterly expiry while the trade lives (intrinsic collected each roll), model value at the trail exit; premiums = the whole risk.",
+  "note": "MODEL-priced option chain on the part-II trail: BSM premiums from our quote history (RV*markup), intrinsic at each weekly roll (ATM re-strike), model value at trail exit. 1% equity premium budget per trade-chain.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -311.14,
+      "final_compounded_pct": -48.4
+    },
+    "x1.15": {
+      "sum_net_R": -358.97,
+      "final_compounded_pct": -50.32
+    },
+    "x1.2": {
+      "sum_net_R": -375.29,
+      "final_compounded_pct": -50.81
+    },
+    "x1.25": {
+      "sum_net_R": -391.65,
+      "final_compounded_pct": -51.21
+    },
+    "x1.5": {
+      "sum_net_R": -474.5,
+      "final_compounded_pct": -52.8
+    }
+  }
+}
+videos: 100/832
+videos: 200/832
+videos: 300/832
+videos: 400/832
+videos: 500/832
+videos: 600/832
+videos: 700/832
+videos: 800/832
+videos done: 832
+overlay graph -> /app/data/results/SPY_R1_optbs/graph_vs_linear.png
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "same breakout signals; LONG weekly ATM CALL priced by BSM (RV(20)*1.2), 5d expiry; target-touch sells at model value, expiry settles intrinsic; premium = whole risk",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 1360,
+  "skipped_signals": 580,
+  "win_rate_pct_all_trades": 48.24,
+  "significant_trades": 1060,
+  "non_significant_trades": 300,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 42.17,
+  "profit_factor": 0.285,
+  "profit_factor_significant": 0.256,
+  "avg_r": -0.37,
+  "sum_r": -503.23,
+  "median_hold_days": 4,
+  "max_hold_days": 5,
+  "still_open": 0,
+  "final_fixed_pct": -325.87,
+  "final_compounded_pct": -96.26,
+  "maxdd_fixed_pct_of_T0": -326.35,
+  "maxdd_compounded_pct_points_SABM": -96.74,
+  "maxdd_compounded_pct_relative": -96.28,
+  "buy_hold_pct": 1642.75,
+  "target": "R1",
+  "mode": "weekly-call-bsm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, T=cal/365",
+  "avg_premium_pct_of_S": 1.184,
+  "avg_premium_R": 1.52,
+  "skipped_no_rv_history": 4,
+  "target_exits": 844,
+  "expiry_settlements": 516,
+  "expired_worthless": 414,
+  "best_trade_R": 1.573,
+  "description": "MODEL-priced option on the breakout signals: a weekly ATM call priced by Black-Scholes from our own quote history (sigma = 20-day realized vol x 1.2 markup, 3%/side costs); sells at model value on the R1 target touch, settles intrinsic at expiry; premium = the whole risk.",
+  "note": "MODEL-priced option (user request): premium & early-sale value from Black-Scholes with sigma = realized vol of our own quote history * markup (resim doctrine); gamma/time value now included in wins; expiry = intrinsic. Still simplified: RV-proxy IV (no vol smile/term structure), leg keeps entry sigma. 1% of equity spent on premium per trade.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -338.9,
+      "final_compounded_pct": -91.27
+    },
+    "x1.15": {
+      "sum_net_R": -461.19,
+      "final_compounded_pct": -95.46
+    },
+    "x1.2": {
+      "sum_net_R": -503.23,
+      "final_compounded_pct": -96.26
+    },
+    "x1.25": {
+      "sum_net_R": -545.74,
+      "final_compounded_pct": -96.89
+    },
+    "x1.5": {
+      "sum_net_R": -764.02,
+      "final_compounded_pct": -98.55
+    }
+  }
+}
+videos: 100/1360
+videos: 200/1360
+videos: 300/1360
+videos: 400/1360
+videos: 500/1360
+videos: 600/1360
+videos: 700/1360
+videos: 800/1360
+videos: 900/1360
+videos: 1000/1360
+videos: 1100/1360
+videos: 1200/1360
+videos: 1300/1360
+videos done: 1360
+overlay graph -> /app/data/results/SPY_R2_optbs/graph_vs_linear.png
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "same breakout signals; LONG weekly ATM CALL priced by BSM (RV(20)*1.2), 5d expiry; target-touch sells at model value, expiry settles intrinsic; premium = whole risk",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 1124,
+  "skipped_signals": 460,
+  "win_rate_pct_all_trades": 39.95,
+  "significant_trades": 1026,
+  "non_significant_trades": 98,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 38.21,
+  "profit_factor": 0.386,
+  "profit_factor_significant": 0.38,
+  "avg_r": -0.4251,
+  "sum_r": -477.81,
+  "median_hold_days": 5,
+  "max_hold_days": 5,
+  "still_open": 0,
+  "final_fixed_pct": -313.04,
+  "final_compounded_pct": -95.79,
+  "maxdd_fixed_pct_of_T0": -314.38,
+  "maxdd_compounded_pct_points_SABM": -96.37,
+  "maxdd_compounded_pct_relative": -95.85,
+  "buy_hold_pct": 1642.75,
+  "target": "R2",
+  "mode": "weekly-call-bsm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, T=cal/365",
+  "avg_premium_pct_of_S": 1.189,
+  "avg_premium_R": 1.49,
+  "skipped_no_rv_history": 4,
+  "target_exits": 370,
+  "expiry_settlements": 754,
+  "expired_worthless": 453,
+  "best_trade_R": 1.6877,
+  "description": "MODEL-priced option on the breakout signals: a weekly ATM call priced by Black-Scholes from our own quote history (sigma = 20-day realized vol x 1.2 markup, 3%/side costs); sells at model value on the R2 target touch, settles intrinsic at expiry; premium = the whole risk.",
+  "note": "MODEL-priced option (user request): premium & early-sale value from Black-Scholes with sigma = realized vol of our own quote history * markup (resim doctrine); gamma/time value now included in wins; expiry = intrinsic. Still simplified: RV-proxy IV (no vol smile/term structure), leg keeps entry sigma. 1% of equity spent on premium per trade.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -295.05,
+      "final_compounded_pct": -88.54
+    },
+    "x1.15": {
+      "sum_net_R": -430.83,
+      "final_compounded_pct": -94.7
+    },
+    "x1.2": {
+      "sum_net_R": -477.81,
+      "final_compounded_pct": -95.79
+    },
+    "x1.25": {
+      "sum_net_R": -525.4,
+      "final_compounded_pct": -96.61
+    },
+    "x1.5": {
+      "sum_net_R": -769.72,
+      "final_compounded_pct": -98.64
+    }
+  }
+}
+videos: 100/1124
+videos: 200/1124
+videos: 300/1124
+videos: 400/1124
+videos: 500/1124
+videos: 600/1124
+videos: 700/1124
+videos: 800/1124
+videos: 900/1124
+videos: 1000/1124
+videos: 1100/1124
+videos done: 1124
+overlay graph -> /app/data/results/SPY_R3_optbs/graph_vs_linear.png
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "same breakout signals; LONG weekly ATM CALL priced by BSM (RV(20)*1.2), 5d expiry; target-touch sells at model value, expiry settles intrinsic; premium = whole risk",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 1038,
+  "skipped_signals": 414,
+  "win_rate_pct_all_trades": 34.39,
+  "significant_trades": 952,
+  "non_significant_trades": 86,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 32.04,
+  "profit_factor": 0.405,
+  "profit_factor_significant": 0.401,
+  "avg_r": -0.4674,
+  "sum_r": -485.21,
+  "median_hold_days": 5,
+  "max_hold_days": 5,
+  "still_open": 0,
+  "final_fixed_pct": -303.79,
+  "final_compounded_pct": -95.41,
+  "maxdd_fixed_pct_of_T0": -305.78,
+  "maxdd_compounded_pct_points_SABM": -96.01,
+  "maxdd_compounded_pct_relative": -95.5,
+  "buy_hold_pct": 1642.75,
+  "target": "R3",
+  "mode": "weekly-call-bsm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side, T=cal/365",
+  "avg_premium_pct_of_S": 1.188,
+  "avg_premium_R": 1.492,
+  "skipped_no_rv_history": 4,
+  "target_exits": 182,
+  "expiry_settlements": 856,
+  "expired_worthless": 446,
+  "best_trade_R": 3.013,
+  "description": "MODEL-priced option on the breakout signals: a weekly ATM call priced by Black-Scholes from our own quote history (sigma = 20-day realized vol x 1.2 markup, 3%/side costs); sells at model value on the R3 target touch, settles intrinsic at expiry; premium = the whole risk.",
+  "note": "MODEL-priced option (user request): premium & early-sale value from Black-Scholes with sigma = realized vol of our own quote history * markup (resim doctrine); gamma/time value now included in wins; expiry = intrinsic. Still simplified: RV-proxy IV (no vol smile/term structure), leg keeps entry sigma. 1% of equity spent on premium per trade.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -291.42,
+      "final_compounded_pct": -87.18
+    },
+    "x1.15": {
+      "sum_net_R": -435.39,
+      "final_compounded_pct": -94.18
+    },
+    "x1.2": {
+      "sum_net_R": -485.21,
+      "final_compounded_pct": -95.41
+    },
+    "x1.25": {
+      "sum_net_R": -535.81,
+      "final_compounded_pct": -96.33
+    },
+    "x1.5": {
+      "sum_net_R": -796.78,
+      "final_compounded_pct": -98.59
+    }
+  }
+}
+videos: 100/1038
+videos: 200/1038
+videos: 300/1038
+videos: 400/1038
+videos: 500/1038

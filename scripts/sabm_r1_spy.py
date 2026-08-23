@@ -1356,10 +1356,13 @@ def main():
     print(json.dumps(port['stats'], indent=2))
     if '--videos' in sys.argv:
         os.makedirs(VID, exist_ok=True)
+        force = '--force-render' in sys.argv
         for k, t in enumerate(trades):
             name = f"{t['n']:04d}_{t['entry_date']}_{'win' if t['r'] > 0 else 'loss'}.webp"
             t['video'] = 'videos/' + name
-            render_video(bars, t, os.path.join(VID, name))
+            path = os.path.join(VID, name)
+            if force or not os.path.exists(path) or os.path.getsize(path) == 0:
+                render_video(bars, t, path)
             if (k + 1) % 100 == 0:
                 print(f'videos: {k + 1}/{len(trades)}', flush=True)
         with open(os.path.join(OUT, 'trades.json'), 'w') as f:
