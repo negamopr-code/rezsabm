@@ -34,6 +34,7 @@
   "reached_2R_pct": 31.2,
   "reached_3R_pct": 20.7,
   "best_trade_R": 6.6336,
+  "description": "MODEL-priced option chain riding the Part-II discretionary trail: ATM call priced by Black-Scholes from the quote history, re-struck ATM at every weekly expiry while the trade lives (intrinsic collected each roll), model value at the trail exit; premiums = the whole risk.",
   "note": "MODEL-priced option chain on the part-II trail: BSM premiums from our quote history (RV*markup), intrinsic at each weekly roll (ATM re-strike), model value at trail exit. 1% equity premium budget per trade-chain.",
   "iv_markup_sweep": {
     "x1": {

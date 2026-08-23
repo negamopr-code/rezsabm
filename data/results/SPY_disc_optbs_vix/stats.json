@@ -1,0 +1,61 @@
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "part-II cocktail-proxy trail exits; ATM CALL chain priced by BSM (RV(20)*1), re-struck ATM every 5d while the trade lives",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 835,
+  "skipped_signals": 270,
+  "win_rate_pct_all_trades": 16.77,
+  "significant_trades": 807,
+  "non_significant_trades": 28,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 15.86,
+  "profit_factor": 0.338,
+  "profit_factor_significant": 0.336,
+  "avg_r": -0.4955,
+  "sum_r": -413.75,
+  "median_hold_days": 3,
+  "max_hold_days": 58,
+  "still_open": 0,
+  "final_fixed_pct": -328.01,
+  "final_compounded_pct": -96.29,
+  "maxdd_fixed_pct_of_T0": -328.97,
+  "maxdd_compounded_pct_points_SABM": -96.64,
+  "maxdd_compounded_pct_relative": -96.33,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-option-bsm",
+  "pricing": "BSM sigma=VIX*1 (floor 0.1), r=0.04, haircut 3%/side, ATM re-strike each roll",
+  "avg_premium_R": 2.106,
+  "avg_weeks_rolled": 1.64,
+  "skipped_no_rv_history": 0,
+  "reached_2R_pct": 31.3,
+  "reached_3R_pct": 20.6,
+  "best_trade_R": 8.2412,
+  "description": "MODEL-priced option chain riding the Part-II discretionary trail: ATM call priced by Black-Scholes from the quote history, re-struck ATM at every weekly expiry while the trade lives (intrinsic collected each roll), model value at the trail exit; premiums = the whole risk.",
+  "note": "MODEL-priced option chain on the part-II trail: BSM premiums from our quote history (RV*markup), intrinsic at each weekly roll (ATM re-strike), model value at trail exit. 1% equity premium budget per trade-chain.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -413.75,
+      "final_compounded_pct": -96.29
+    },
+    "x1.15": {
+      "sum_net_R": -562.54,
+      "final_compounded_pct": -96.82
+    },
+    "x1.2": {
+      "sum_net_R": -611.86,
+      "final_compounded_pct": -96.95
+    },
+    "x1.25": {
+      "sum_net_R": -661.01,
+      "final_compounded_pct": -97.06
+    },
+    "x1.5": {
+      "sum_net_R": -904.62,
+      "final_compounded_pct": -97.44
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "same breakout signals; LONG quarterly ATM CALL priced by BSM (RV(20)*1.2), 63d expiry; target-touch sells at model value, expiry settles intrinsic; premium = whole risk",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 268,
+  "skipped_signals": 142,
+  "win_rate_pct_all_trades": 65.3,
+  "significant_trades": 248,
+  "non_significant_trades": 20,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 65.73,
+  "profit_factor": 0.656,
+  "profit_factor_significant": 0.652,
+  "avg_r": -0.3358,
+  "sum_r": -89.98,
+  "median_hold_days": 20,
+  "max_hold_days": 63,
+  "still_open": 1,
+  "final_fixed_pct": -12.51,
+  "final_compounded_pct": -12.06,
+  "maxdd_fixed_pct_of_T0": -19.35,
+  "maxdd_compounded_pct_points_SABM": -18.3,
+  "maxdd_compounded_pct_relative": -17.75,
+  "buy_hold_pct": 1642.75,
+  "target": "R3",
+  "mode": "weekly-call-bsm",
+  "pricing": "BSM sigma=RV(20)*1.2, r=0.04, haircut 3%/side, T=cal/365",
+  "avg_premium_pct_of_S": 3.759,
+  "avg_premium_R": 5.188,
+  "skipped_no_rv_history": 4,
+  "target_exits": 213,
+  "expiry_settlements": 54,
+  "expired_worthless": 44,
+  "best_trade_R": 1.892,
+  "description": "MODEL-priced option on the breakout signals: a quarterly ATM call priced by Black-Scholes from our own quote history (sigma = 20-day realized vol x 1.2 markup, 3%/side costs); sells at model value on the R3 target touch, settles intrinsic at expiry; premium = the whole risk.",
+  "note": "MODEL-priced option (user request): premium & early-sale value from Black-Scholes with sigma = realized vol of our own quote history * markup (resim doctrine); gamma/time value now included in wins; expiry = intrinsic. Still simplified: RV-proxy IV (no vol smile/term structure), leg keeps entry sigma. 1% of equity spent on premium per trade.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": -8.44,
+      "final_compounded_pct": 6.01
+    },
+    "x1.15": {
+      "sum_net_R": -69.95,
+      "final_compounded_pct": -8.39
+    },
+    "x1.2": {
+      "sum_net_R": -89.98,
+      "final_compounded_pct": -12.06
+    },
+    "x1.25": {
+      "sum_net_R": -109.78,
+      "final_compounded_pct": -15.32
+    },
+    "x1.5": {
+      "sum_net_R": -206.35,
+      "final_compounded_pct": -27.25
+    }
+  }
+}

@@ -52,6 +52,8 @@ OPT_DAYS = int(arg('--opt-days', '5'))              # trading days to expiry ("w
 PRICING = arg('--pricing', 'bsm')                   # 'bsm' = Black-Scholes from quote history | 'rough' = static delta + flat premium
 IV_MARKUP = float(arg('--iv-markup', '1.2'))        # sigma = RV(window) * markup (resim doctrine: never raw RV)
 RV_WIN = int(arg('--rv-window', '20'))              # realized-vol lookback (trading days, no lookahead)
+IV_SRC = arg('--iv-source', 'rv')                   # 'rv' = RV*markup | 'vix' = real VIX history (uploads/VIX_...csv)
+IV_FLOOR = float(arg('--iv-floor', '0.10'))         # sigma floor (annualized) - dead-calm RV underprices real options
 OPT_RATE = float(arg('--opt-rate', '0.04'))         # risk-free rate for BSM
 HAIRCUT = float(arg('--opt-haircut-pct', '3'))      # % lost to spread/fees on each buy AND sell
 # part-II exit knobs (exit-conformance audit 2026-08-23)
@@ -68,7 +70,12 @@ elif EXIT_MODE == 'disc':
     _BASE = f"{SYM}_disc"
 else:
     _BASE = f"{SYM}_R{RK:g}"
-_OPT_SUFFIX = '' if not OPT else ('_optbs' if PRICING == 'bsm' else '_opt')
+_DTE_TAG = '' if OPT_DAYS == 5 else f'{OPT_DAYS}d'
+_OPT_SUFFIX = '' if not OPT else (('_optbs' if PRICING == 'bsm' else '_opt') + _DTE_TAG + ('_vix' if IV_SRC == 'vix' else ''))
+
+
+def _dte_label():
+    return {5: 'weekly', 21: 'monthly', 63: 'quarterly'}.get(OPT_DAYS, f'{OPT_DAYS}-day')
 OUT = os.path.join(ROOT, 'data', 'results', f"{_BASE}{_SUFFIX}{_OPT_SUFFIX}")
 VID = os.path.join(OUT, 'videos')
 
@@ -349,11 +356,15 @@ def _disc_signals_and_trail(bars):
     Mapping (course pp. 44-70, esp. p.57 cocktail + p.64 'logique globale'):
     - Dow (p.45): a pivot low (low[j] < low[j-1] and low[j] < low[j+1], known at close j+1)
       becomes the stop once a NEW HIGH above the peak preceding that pivot prints.
-    - Deep (p.52): lower wick > body -> stop under that day's low immediately, any R zone.
+    - Deep (p.52/p.55): a REAL deep only - wick > DEEP_BODY_K*body, >= DEEP_MIN_R*R and
+      >= DEEP_MIN_RANGE of the day's range -> stop under the wick, any R zone.
+    - Tempo line (p.47): anchored at the entry bar's low + confirmed pivot lows, ascending
+      only; descending segments give no line.
     - R zones (p.57, p.64): below 2R 'let it breathe' (only validated Dow + deep);
-      from 2R every fresh pivot low moves the stop even unvalidated (trendline-broken rule
-      proxied by the pivot itself - we do not draw literal trendlines);
-      from 3R 'coller le mouvement': trail under EVERY previous day's low (climax hug).
+      from 2R, IF the tempo line is broken (close < line), stop under the last visible
+      pivot low even unvalidated; from 3R 'coller le mouvement': hug the previous day's
+      low ONLY when it sits within HUG_TOL*R of the tempo line (p.66 counter-example:
+      no line/no creux -> no move).
     - All stop moves are effective from the NEXT day (no lookahead); stop only ratchets up.
     - Exit: open <= stop -> at open (gap), else low <= stop -> at stop. No profit target.
     NOT implemented (disclosed): gap-zone stop rules (pp.61-63/77/90), intraday climax exits
@@ -380,11 +391,13 @@ def _disc_signals_and_trail(bars):
             pos['peak'] = max(pos['peak'], b['high'])
             zone = (pos['peak'] - e) / R
 
-            def tl(j):  # trendline through the last two confirmed pivot lows (tempo proxy)
+            def tl(j):  # tempo line: entry anchor + confirmed pivot lows, ascending only (p.47)
                 tp = pos['tl_pts']
                 if len(tp) < 2:
                     return None
                 (i1, l1), (i2, l2) = tp[-2], tp[-1]
+                if l2 <= l1:
+                    return None
                 return l2 + (l2 - l1) / (i2 - i1) * (j - i2)
 
             new_stop = pos['trail']
@@ -415,11 +428,12 @@ def _disc_signals_and_trail(bars):
             # >=3R climax hug (p.57/p.64) ONLY for lows that hug the trendline (p.66 counter-example)
             if zone >= 3:
                 lo1 = bars[i - 1]['low']
-                near = True if line is None else (lo1 - tl(i - 1)) <= HUG_TOL * R
+                near = (line is not None) and (lo1 - tl(i - 1)) <= HUG_TOL * R
                 if near and lo1 - STOP_BUF * R > new_stop:
                     new_stop = lo1 - STOP_BUF * R
+            new_stop = round(new_stop, 4)
             if new_stop > pos['trail']:
-                pos['trail'] = round(new_stop, 4)
+                pos['trail'] = new_stop
                 pos['stops'].append([i, pos['trail']])
             pos['peak_before'] = pos['peak']
         if pos is None:
@@ -434,7 +448,7 @@ def _disc_signals_and_trail(bars):
                        'entry_price': round(b['close'], 4), 'stop': round(body_bottom, 4),
                        'R_abs': round(R, 4), 'trail': round(body_bottom, 4),
                        'stops': [[i, round(body_bottom, 4)]], 'peak': b['high'],
-                       'peak_before': b['high'], 'pivot': None, 'tl_pts': [], 'disc': True}
+                       'peak_before': b['high'], 'pivot': None, 'tl_pts': [(i, b['low'])], 'disc': True}
     if pos is not None:
         last = bars[-1]
         pos.update(exit_i=len(bars) - 1, exit_date=last['date'], exit_price=round(last['close'], 4), reason='open')
@@ -520,12 +534,13 @@ def backtest_disc(bars):
                         "tempo line breaks, and above 3R hugging every low near the trendline (climax "
                         "mode). Exits when the trailed stop is hit. Audited against the course PDF by the "
                         "exit-conformance agent."),
-        'note': ('SABM part-II DISCRETIONARY PROXY: Dow pivot-low trailing + deep wicks + R-zone '
-                 'mode switches (>=2R fresh pivots, >=3R hug prev low); trendlines proxied by pivots, '
-                 'not drawn literally; stop moves effective next day; no profit target. Gross.'),
+        'note': ('SABM part-II DISCRETIONARY PROXY (exit-conformance audited): real-deep wicks, Dow '
+                 'validated pivots, entry-anchored ascending tempo line gating the >=2R unvalidated-low '
+                 'rule (on break) and the >=3R hug (proximity); stops buffered under lows; effective '
+                 'next day; no profit target. Gross.'),
     }
     rule = ("long at close when close > previous day's high; initial stop = body bottom; EXIT = part-II "
-            "cocktail proxy (Dow/deep trail, >=2R unvalidated pivots, >=3R prev-day-low hug); no target")
+            "cocktail proxy (real-deep/Dow trail, tempo-line-gated >=2R lows and >=3R hug); no target")
     return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, skipped, rule, extra),
                     'fixed': fixed, 'comp_pct': comp_pct}
 
@@ -606,6 +621,23 @@ def realized_vols(bars, win=None):
     return out
 
 
+def _sigma_base(bars):
+    """Per-bar base sigma: real VIX close/100 (date-joined, forward-filled) when
+    --iv-source vix, else RV(RV_WIN). Markup and IV_FLOOR applied at the use site."""
+    if IV_SRC == 'vix':
+        vix = {}
+        path = os.path.join(ROOT, 'uploads', 'VIX_daily_OHLC_yahoo.csv')
+        with open(path) as f:
+            for r in csv.DictReader(f):
+                vix[r['Date']] = float(r['Close']) / 100.0
+        out, last = [], None
+        for b in bars:
+            last = vix.get(b['date'], last)
+            out.append(last)
+        return out
+    return realized_vols(bars)
+
+
 def _t_years(trading_days):
     return trading_days * 7 / 5 / 365.0  # trading days -> calendar fraction (resim: cal/365)
 
@@ -616,7 +648,7 @@ def backtest_options_bsm(bars, markup=None):
     sells at BS remaining * (1-haircut) with the leg's entry sigma; expiry settles intrinsic.
     Premium is the whole risk - no stop."""
     markup = IV_MARKUP if markup is None else markup
-    rvs = realized_vols(bars)
+    rvs = _sigma_base(bars)
     trades = []
     pos = None
     skipped_body = 0
@@ -659,7 +691,7 @@ def backtest_options_bsm(bars, markup=None):
                 if rvs[i] is None:
                     skipped_rv += 1
                     continue
-                sigma = rvs[i] * markup
+                sigma = max(IV_FLOOR, rvs[i] * markup)
                 prem = bs_call(b['close'], b['close'], _t_years(OPT_DAYS), sigma) * (1 + HAIRCUT / 100)
                 pos = {'n': len(trades) + 1, 'entry_i': i, 'entry_date': b['date'],
                        'entry_price': round(b['close'], 4), 'stop': round(body_bottom, 4),
@@ -688,7 +720,7 @@ def backtest_options_bsm(bars, markup=None):
     comp_pct = [c - 100.0 for c in comp]
     extra = {
         'target': f'R{RK:g}', 'mode': 'weekly-call-bsm',
-        'pricing': f'BSM sigma=RV({RV_WIN})*{markup:g}, r={OPT_RATE:g}, haircut {HAIRCUT:g}%/side, T=cal/365',
+        'pricing': f"BSM sigma={'VIX' if IV_SRC == 'vix' else f'RV({RV_WIN})'}*{markup:g} (floor {IV_FLOOR:g}), r={OPT_RATE:g}, haircut {HAIRCUT:g}%/side, T=cal/365",
         'avg_premium_pct_of_S': round(sum(t['premium_pct_of_S'] for t in trades) / len(trades), 3),
         'avg_premium_R': round(sum(t['premium_R'] for t in trades) / len(trades), 3),
         'skipped_no_rv_history': skipped_rv,
@@ -696,7 +728,7 @@ def backtest_options_bsm(bars, markup=None):
         'expiry_settlements': sum(1 for t in trades if t['reason'] == 'expiry'),
         'expired_worthless': sum(1 for t in trades if t['reason'] == 'expiry' and t['r_gross'] == 0),
         'best_trade_R': max(rs),
-        'description': (f"MODEL-priced option on the breakout signals: a weekly ATM call priced by "
+        'description': (f"MODEL-priced option on the breakout signals: a {_dte_label()} ATM call priced by "
                         f"Black-Scholes from our own quote history (sigma = {RV_WIN}-day realized vol x "
                         f"{markup:g} markup, {HAIRCUT:g}%/side costs); sells at model value on the R{RK:g} "
                         f"target touch, settles intrinsic at expiry; premium = the whole risk."),
@@ -706,7 +738,7 @@ def backtest_options_bsm(bars, markup=None):
                  'RV-proxy IV (no vol smile/term structure), leg keeps entry sigma. '
                  '1% of equity spent on premium per trade.'),
     }
-    rule = (f"same breakout signals; LONG ATM CALL priced by BSM (RV({RV_WIN})*{markup:g}), {OPT_DAYS}d expiry; "
+    rule = (f"same breakout signals; LONG {_dte_label()} ATM CALL priced by BSM (RV({RV_WIN})*{markup:g}), {OPT_DAYS}d expiry; "
             f"target-touch sells at model value, expiry settles intrinsic; premium = whole risk")
     return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, skipped_body, rule, extra),
                     'fixed': fixed, 'comp_pct': comp_pct}
@@ -717,7 +749,7 @@ def backtest_disc_options_bsm(bars, markup=None):
     expiry while the trade lives, settle intrinsic and re-buy ATM at the current close with
     CURRENT RV; trail exit sells the live leg at model value."""
     markup = IV_MARKUP if markup is None else markup
-    rvs = realized_vols(bars)
+    rvs = _sigma_base(bars)
     raw, skipped = _disc_signals_and_trail(bars)
     trades = []
     skipped_rv = 0
@@ -731,7 +763,7 @@ def backtest_disc_options_bsm(bars, markup=None):
         proceeds = 0.0
         j = i0
         K = t['entry_price']
-        sigma = rvs[i0] * markup
+        sigma = max(IV_FLOOR, rvs[i0] * markup)
         prem = bs_call(t['entry_price'], K, _t_years(OPT_DAYS), sigma) * (1 + HAIRCUT / 100)
         cost += prem
         expiry = i0 + OPT_DAYS
@@ -749,7 +781,7 @@ def backtest_disc_options_bsm(bars, markup=None):
             proceeds += max(0.0, S_roll - K)
             legs.append({'K': round(K, 4), 'prem': round(prem, 4), 'settle': 'roll'})
             K = S_roll
-            sigma = (rvs[expiry] or sigma / markup) * markup
+            sigma = max(IV_FLOOR, (rvs[expiry] or sigma / markup) * markup)
             prem = bs_call(S_roll, K, _t_years(OPT_DAYS), sigma) * (1 + HAIRCUT / 100)
             cost += prem
             expiry += OPT_DAYS
@@ -773,7 +805,7 @@ def backtest_disc_options_bsm(bars, markup=None):
     comp_pct = [c - 100.0 for c in comp]
     extra = {
         'target': 'disc', 'mode': 'disc-option-bsm',
-        'pricing': f'BSM sigma=RV({RV_WIN})*{markup:g}, r={OPT_RATE:g}, haircut {HAIRCUT:g}%/side, ATM re-strike each roll',
+        'pricing': f"BSM sigma={'VIX' if IV_SRC == 'vix' else f'RV({RV_WIN})'}*{markup:g} (floor {IV_FLOOR:g}), r={OPT_RATE:g}, haircut {HAIRCUT:g}%/side, ATM re-strike each roll",
         'avg_premium_R': round(sum(t['premium_R'] for t in trades) / len(trades), 3),
         'avg_weeks_rolled': round(sum(t['weeks_rolled'] for t in trades) / len(trades), 2),
         'skipped_no_rv_history': skipped_rv,
@@ -781,7 +813,7 @@ def backtest_disc_options_bsm(bars, markup=None):
         'reached_3R_pct': round(100 * sum(1 for t in trades if t['max_r'] >= 3) / len(trades), 1),
         'best_trade_R': max(rs),
         'description': ("MODEL-priced option chain riding the Part-II discretionary trail: ATM call "
-                        "priced by Black-Scholes from the quote history, re-struck ATM at every weekly "
+                        f"priced by Black-Scholes from the quote history, re-struck ATM at every {_dte_label()} "
                         "expiry while the trade lives (intrinsic collected each roll), model value at the "
                         "trail exit; premiums = the whole risk."),
         'note': ('MODEL-priced option chain on the part-II trail: BSM premiums from our quote history '
@@ -1115,10 +1147,11 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
         d.text((pl + 2, round(2 * s) + size + round(2 * s)), l2, fill=HEAD, font=fh)
 
     win_col = UP if t['r'] > 0 else DN
+    _dl = f"d{t['delta']:g}" if t.get('delta') is not None else 'BSM'
     if t.get('opt') and t.get('stops'):
-        head_live = (f"{SYM} 1d  #{t['n']:04d}  CALL d{t['delta']:g} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
+        head_live = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
                      f"rolls {OPT_PREM:g}%/{OPT_DAYS}d  forming...")
-        head_done = (f"{SYM} 1d  #{t['n']:04d}  CALL d{t['delta']:g} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
+        head_done = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
                      f"-> {t['exit_date']}  gross {t['r_gross']:+.2f}R - prem {t['premium_R']:.2f}R ({t['weeks_rolled']}wk) = {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
     elif t.get('open_entry'):
         head_live = f"{SYM} 1d  #{t['n']:04d}  LONG daily-open {t['entry_date']} @ {t['entry_price']}  SL {t['stop']}  forming..."
@@ -1129,9 +1162,9 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
         head_done = (f"{SYM} 1d  #{t['n']:04d}  LONG SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
                      f"-> {t['exit_date']} @ {t['exit_price']}  {t['r']:+.2f}R (max {t.get('max_r', 0):+.1f}R, {t['reason']}, {t['days']}d)")
     elif t.get('opt'):
-        head_live = (f"{SYM} 1d  #{t['n']:04d}  CALL d{t['delta']:g} prem {t['premium']} {t['entry_date']} @ {t['entry_price']}  "
+        head_live = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} prem {t['premium']} {t['entry_date']} @ {t['entry_price']}  "
                      f"tgt {t['target']}  no stop, premium = risk  forming...")
-        head_done = (f"{SYM} 1d  #{t['n']:04d}  CALL d{t['delta']:g} prem {t['premium']} {t['entry_date']} @ {t['entry_price']}  tgt {t['target']}  "
+        head_done = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} prem {t['premium']} {t['entry_date']} @ {t['entry_price']}  tgt {t['target']}  "
                      f"-> {t['exit_date']}  gross {t['r_gross']:+.2f}R - prem {t['premium_R']:.2f}R = {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
     else:
         head_live = f"{SYM} 1d  #{t['n']:04d}  LONG {t['entry_date']} @ {t['entry_price']}  stop {t['stop']}  tgt {t['target']}  forming..."
