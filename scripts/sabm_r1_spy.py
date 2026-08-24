@@ -1606,14 +1606,21 @@ def graph_distribution(trades, path, w=1920, h=1080):
         d.rectangle([x0 + 1, h - pb - hh, x0 + bw - 1, h - pb], fill=col)
         if c > mx * 0.02:
             d.text((x0 + bw / 2 - 14, h - pb - hh - 26), str(c), fill=TXT, font=fs)
+    tfm = any(t.get('proof_premium_pct_of_S') is not None for t in trades)  # 0DTE transform line: r = premium multiples
+    unit = 'x' if tfm else 'R'
     for i in range(nb + 1):
         v = lo + i * 0.25
         if abs(v * 4 - round(v * 4)) < 1e-9 and (round(v * 4) % 4 == 0):
             xx = int(pl + i * bw)
             d.line([(xx, pt), (xx, h - pb)], fill=GRID, width=1)
-            d.text((xx - 16, h - pb + 10), f'{v:+.0f}R', fill=TXT, font=fs)
-    d.text((pl, 16), f"Result distribution (R multiples, 0.25R bins) - {trades and ''}SABM target exit", fill=HEAD, font=f)
-    d.text((pl, 52), f'tails beyond +/-5R collected into the edge bins; <-1R = gap-through-stop opens, >+{RK:g}R = gap-through-target accidents (SABM)', fill=TXT, font=fs)
+            d.text((xx - 16, h - pb + 10), f'{v:+.0f}{unit}', fill=TXT, font=fs)
+    if tfm:
+        d.text((pl, 16), "Gains distribution (premium multiples, 0.25 bins) - 0DTE proof days + transform rides", fill=HEAD, font=f)
+        d.text((pl, 52), '-1x = 0DTE expired worthless (the whole premium, i.e. the whole risk); '
+               'tails beyond +/-5x collected into the edge bins - the big right-tail bar is the transform rides', fill=TXT, font=fs)
+    else:
+        d.text((pl, 16), "Result distribution (R multiples, 0.25R bins) - SABM target exit", fill=HEAD, font=f)
+        d.text((pl, 52), f'tails beyond +/-5R collected into the edge bins; <-1R = gap-through-stop opens, >+{RK:g}R = gap-through-target accidents (SABM)', fill=TXT, font=fs)
     img.save(path)
 
 

@@ -33,6 +33,7 @@
   select, button { background: #101724; color: #ddeef6; border: 1px solid #223148; border-radius: 6px; padding: 5px 10px; font: inherit; cursor: pointer; }
   button.on { border-color: #00c8f0; color: #00c8f0; }
   a { color: #00c8f0; }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -59,9 +60,9 @@
     <button data-f="all" class="on">all</button>
     <button data-f="win">wins</button>
     <button data-f="loss">losses</button>
-    <button data-f="acc">&gt;+1R accidents</button>
-    <button data-f="gap">&lt;−1R gap losses</button>
-    <button data-f="amb">ambiguous</button>
+    <button data-f="acc" id="accbtn">&gt;+1R accidents</button>
+    <button data-f="gap" id="gapbtn">&lt;−1R gap losses</button>
+    <button data-f="amb" id="ambbtn">ambiguous</button>
     <button data-f="tf" id="tfbtn" hidden style="border-color:#00c8f0">transform rides</button>
     <span class="sub" id="count"></span>
     <span id="odtegroup" hidden style="margin-left:auto;display:flex;gap:6px;align-items:center">
@@ -109,6 +110,7 @@
       <div class="cap" id="cap"></div>
     </div>
   </div>
+  <img class="graph" id="g4" hidden alt="gains distribution" style="margin-top:14px">
 </div>
 <script>
 let VARIANTS = [];
@@ -140,10 +142,14 @@ function syncOdtePickers() {
   el('odteexit').value = dir.includes('_prevlow') ? 'prevlow' : 'trail';
 }
 function syncRunGroups() {
-  el('odtegroup').hidden = TAB !== '0dte';
-  el('opengroup').hidden = TAB === '0dte';
-  el('tfbtn').hidden = TAB !== '0dte';
-  if (TAB !== '0dte' && filter === 'tf') {
+  const o = TAB === '0dte';
+  el('odtegroup').hidden = !o;
+  el('opengroup').hidden = o;
+  el('tfbtn').hidden = !o;
+  // breakout-specific filters make no sense for the 0DTE lines (r floor = −1 premium,
+  // no targets, no ambiguous-stop days)
+  el('accbtn').hidden = o; el('gapbtn').hidden = o; el('ambbtn').hidden = o;
+  if (((o && ['acc', 'gap', 'amb'].includes(filter)) || (!o && filter === 'tf'))) {
     filter = 'all';
     document.querySelectorAll('button[data-f]').forEach(x => x.classList.toggle('on', x.dataset.f === 'all'));
   }
@@ -196,7 +202,20 @@ function renderStats() {
     (stats.note ? `<br><span style="color:#7090a0;font-size:12px">${stats.note}</span>` : '') +
     `<br><span style="color:#00c8f0">Performance: ${stats.trades} trades · win ${stats.win_rate_pct_all_trades ?? stats.win_rate_pct_significant}% · PF ${stats.profit_factor_significant ?? stats.profit_factor} · compounded ${fmt(stats.final_compounded_pct, 1)}% vs buy&hold ${fmt(stats.buy_hold_pct, 0)}%</span>`;
   el('rule').textContent = `${stats.symbol} ${stats.from} → ${stats.to} (${stats.bars} bars) · ${stats.rule} · gross, risk min(1%, R%) per trade, no leverage`;
-  const items = [
+  const items = dir.includes('_0dtew') ? [
+    // 0DTE transform lines: r is in PREMIUM MULTIPLES (−1 = the 0DTE premium, the whole risk)
+    [stats.trades, 'daily attempts'], [(stats.win_rate_pct_all_trades ?? stats.win_rate_pct_significant) + '%', 'win rate'],
+    [stats.profit_factor, 'profit factor'],
+    [stats.transforms, 'transforms'], [fmt(stats.transform_rate_pct, 1) + '%', 'transform rate'],
+    stats.avg_afford_trigger_move_pct != null
+      ? ['+' + fmt(stats.avg_afford_trigger_move_pct, 2) + '%', 'avg afford trigger (move)']
+      : ['+' + fmt(stats.transform_trigger_pct, 1) + '%', 'fixed trigger'],
+    [fmt(stats.avg_proof_premium_pct_of_S, 2) + '%', 'avg 0DTE premium (% of spot)'],
+    [fmt(stats.best_trade_multiple, 1) + 'x', 'best trade (premium multiples)'],
+    [fmt(stats.sum_r, 1) + 'x', 'sum (premium multiples)'],
+    [fmt(stats.final_compounded_pct, 1) + '%', 'compounded 1%/day final'],
+    [fmt(stats.maxdd_compounded_pct_relative, 1) + '%', 'maxDD relative'], [fmt(stats.buy_hold_pct, 0) + '%', 'buy & hold'],
+  ] : [
     [stats.trades, 'trades'], [stats.win_rate_pct_significant + '%', 'win rate (significant)'], [stats.profit_factor_significant, 'profit factor (sig)'],
     [fmt(stats.avg_r, 3) + 'R', 'avg result'], [fmt(stats.sum_r, 1) + 'R', 'sum R'],
     [stats.positive_accidents_beyond_target, 'accidents beyond target'], [stats.gap_losses_worse_than_minus1R, 'gaps <−1R'],
@@ -251,6 +270,8 @@ async function load() {
     el('g2').src = `results/${dir}/graph_distribution.png`;
     el('g3').src = `results/${stats.symbol}_graph_compare.png`;
   }
+  el('g4').hidden = !nog;  // 0DTE tab: gains distribution AFTER the result table
+  if (nog) el('g4').src = `results/${dir}/graph_distribution.png?v=${Date.now()}`;
   renderTable();
   el('viewer').hidden = true;
   syncOdtePickers();
