@@ -62,6 +62,7 @@
     <button data-f="acc">&gt;+1R accidents</button>
     <button data-f="gap">&lt;−1R gap losses</button>
     <button data-f="amb">ambiguous</button>
+    <button data-f="tf" id="tfbtn" hidden style="border-color:#00c8f0">transform rides</button>
     <span class="sub" id="count"></span>
     <span id="odtegroup" hidden style="margin-left:auto;display:flex;gap:6px;align-items:center">
       <label class="sub"><b style="color:#00c8f0">0DTE:</b> trigger</label>
@@ -141,6 +142,11 @@ function syncOdtePickers() {
 function syncRunGroups() {
   el('odtegroup').hidden = TAB !== '0dte';
   el('opengroup').hidden = TAB === '0dte';
+  el('tfbtn').hidden = TAB !== '0dte';
+  if (TAB !== '0dte' && filter === 'tf') {
+    filter = 'all';
+    document.querySelectorAll('button[data-f]').forEach(x => x.classList.toggle('on', x.dataset.f === 'all'));
+  }
 }
 function syncVariantSelect() {
   const vs = tabVariants();
@@ -158,6 +164,7 @@ function match(t) {
   if (filter === 'acc') return t.r > (parseFloat((stats.target || 'R1').slice(1)) || 1) + 0.0001;
   if (filter === 'gap') return t.r < -1.0001;
   if (filter === 'amb') return t.reason === 'ambiguous-stop';
+  if (filter === 'tf') return !!t.transform_price;
   return true;
 }
 
