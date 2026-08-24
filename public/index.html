@@ -206,10 +206,13 @@ async function load() {
   stats = await (await fetch(`results/${dir}/stats.json`)).json();
   trades = await (await fetch(`results/${dir}/trades.json`)).json();
   renderStats();
-  el('g1').src = `results/${dir}/graph_portfolio.png`;
-  el('g2').src = `results/${dir}/graph_distribution.png`;
-  el('g3').hidden = false;
-  el('g3').src = `results/${stats.symbol}_graph_compare.png`;
+  const nog = TAB === '0dte';  // R-multiple portfolio/distribution/compare graphs are noise for the 0DTE tab
+  el('g1').hidden = nog; el('g2').hidden = nog; el('g3').hidden = nog;
+  if (!nog) {
+    el('g1').src = `results/${dir}/graph_portfolio.png`;
+    el('g2').src = `results/${dir}/graph_distribution.png`;
+    el('g3').src = `results/${stats.symbol}_graph_compare.png`;
+  }
   renderTable();
   el('viewer').hidden = true;
 }
