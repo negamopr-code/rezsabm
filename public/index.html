@@ -176,13 +176,20 @@ function renderStats() {
   el('stats').innerHTML = items.map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
 }
 
+function prettyReason(t) {
+  // 'proof-expiry' = the 0DTE reached its same-day expiration without the transform
+  // trigger: expiration IS the exit (worthless, or auto-settled at intrinsic) — no sale
+  if (t.reason === 'proof-expiry') return t.r <= -0.9999 ? 'expired worthless' : 'expired ITM → settled';
+  return t.reason;
+}
+
 function renderTable() {
   const rows = trades.filter(match);
   el('count').textContent = `${rows.length} shown of ${trades.length}`;
   el('tbl').tBodies[0].innerHTML = rows.map(t => `
     <tr class="t" data-n="${t.n}"><td>${t.entry_date}</td><td>#${t.n}</td><td>${t.entry_price}</td>
     <td>${t.stop}</td><td>${t.target}</td><td>${t.exit_date}</td><td>${t.exit_price}</td>
-    <td class="${t.r > 0 ? 'pos' : 'neg'}">${t.r > 0 ? '+' : ''}${fmt(t.r)}</td><td>${t.days}</td><td>${t.reason}</td></tr>`).join('');
+    <td class="${t.r > 0 ? 'pos' : 'neg'}">${t.r > 0 ? '+' : ''}${fmt(t.r)}</td><td>${t.days}</td><td>${prettyReason(t)}</td></tr>`).join('');
 }
 
 function show(n) {
@@ -194,7 +201,7 @@ function show(n) {
   el('viewer').hidden = false;
   if (t.video) {
     el('vid').src = `results/${dir}/${t.video}`;
-    el('cap').textContent = `#${t.n} ${t.entry_date} @ ${t.entry_price} → ${t.exit_date} @ ${t.exit_price} (${t.r > 0 ? '+' : ''}${fmt(t.r)}R, ${t.reason}, ${t.days}d) — animation restarts on reopen`;
+    el('cap').textContent = `#${t.n} ${t.entry_date} @ ${t.entry_price} → ${t.exit_date} @ ${t.exit_price} (${t.r > 0 ? '+' : ''}${fmt(t.r)}R, ${prettyReason(t)}, ${t.days}d) — animation restarts on reopen`;
   } else {
     el('vid').removeAttribute('src');
     el('cap').textContent = 'no video for this variant (videos exist only for variants that were rendered with --videos)';
