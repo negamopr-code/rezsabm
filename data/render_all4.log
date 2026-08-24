@@ -1,0 +1,805 @@
+=== 2026-08-24 07:23:30 START --entry open --exit target --rk 2
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at EVERY open when flat; R = 0.25% of the open (defined SL); resting stop -1R / resting limit +2R; both-touched day = pessimistic stop",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 7508,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 24.0,
+  "significant_trades": 7507,
+  "non_significant_trades": 1,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 24.0,
+  "profit_factor": 0.642,
+  "profit_factor_significant": 0.642,
+  "avg_r": -0.2758,
+  "sum_r": -2070.62,
+  "median_hold_days": 0,
+  "max_hold_days": 7,
+  "still_open": 1,
+  "final_fixed_pct": -517.64,
+  "final_compounded_pct": -99.46,
+  "maxdd_fixed_pct_of_T0": -521.96,
+  "maxdd_compounded_pct_points_SABM": -102.19,
+  "maxdd_compounded_pct_relative": -99.48,
+  "buy_hold_pct": 1642.75,
+  "target": "R2",
+  "mode": "daily-open-sabm-target",
+  "open_sl_pct": 0.25,
+  "final_fixed_pct_sabm_literal": -2070.62,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 7508,
+  "positive_accidents_beyond_target": 260,
+  "gap_losses_worse_than_minus1R": 348,
+  "ambiguous_days_pessimistic": 2110,
+  "ambiguous_share_pct": 28.1,
+  "sum_r_optimistic_ambiguous": 4259.38,
+  "best_trade_R": 6.4852,
+  "description": "Daily-open entry x SABM Part-I target exit: enter long at EVERY market open when flat; R = the defined stop-loss of 0.25% below the open (editable --open-sl-pct); resting stop at -1R, resting limit sells at +2R; gaps fill at the open; a day touching both counts pessimistically as a stop.",
+  "note": "R is DEFINED by the chosen SL (not by candle structure); gross; 1% risk capped at 100% equity. \u26a0 HONESTY LIMIT: with a tight SL both stop AND target often sit inside ONE daily bar; the intraday order is unknowable from OHLC, so both-touch days count pessimistically as stops. When ambiguous_share_pct is large the pessimistic and optimistic bounds diverge so far that DAILY DATA CANNOT SETTLE THIS LINE - it needs intraday bars."
+}
+videos: 100/7508
+videos: 200/7508
+videos: 300/7508
+videos: 400/7508
+videos: 500/7508
+videos: 600/7508
+videos: 700/7508
+videos: 800/7508
+videos: 900/7508
+videos: 1000/7508
+videos: 1100/7508
+videos: 1200/7508
+videos: 1300/7508
+videos: 1400/7508
+videos: 1500/7508
+videos: 1600/7508
+videos: 1700/7508
+videos: 1800/7508
+videos: 1900/7508
+videos: 2000/7508
+videos: 2100/7508
+videos: 2200/7508
+videos: 2300/7508
+videos: 2400/7508
+videos: 2500/7508
+videos: 2600/7508
+videos: 2700/7508
+videos: 2800/7508
+videos: 2900/7508
+videos: 3000/7508
+videos: 3100/7508
+videos: 3200/7508
+videos: 3300/7508
+videos: 3400/7508
+videos: 3500/7508
+videos: 3600/7508
+videos: 3700/7508
+videos: 3800/7508
+videos: 3900/7508
+videos: 4000/7508
+videos: 4100/7508
+videos: 4200/7508
+videos: 4300/7508
+videos: 4400/7508
+videos: 4500/7508
+videos: 4600/7508
+videos: 4700/7508
+videos: 4800/7508
+videos: 4900/7508
+videos: 5000/7508
+videos: 5100/7508
+videos: 5200/7508
+videos: 5300/7508
+videos: 5400/7508
+videos: 5500/7508
+videos: 5600/7508
+videos: 5700/7508
+videos: 5800/7508
+videos: 5900/7508
+videos: 6000/7508
+videos: 6100/7508
+videos: 6200/7508
+videos: 6300/7508
+videos: 6400/7508
+videos: 6500/7508
+videos: 6600/7508
+videos: 6700/7508
+videos: 6800/7508
+videos: 6900/7508
+videos: 7000/7508
+videos: 7100/7508
+videos: 7200/7508
+videos: 7300/7508
+videos: 7400/7508
+videos: 7500/7508
+videos done: 7508
+=== 2026-08-24 07:30:44 DONE  --entry open --exit target --rk 2 (exit 0)
+=== 2026-08-24 07:30:44 START --smb cc
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "SMB Synthetic covered call campaign: 21d, delta 0.3, width 15%, PT 0%",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 37,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 59.46,
+  "significant_trades": 30,
+  "non_significant_trades": 7,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 63.33,
+  "profit_factor": 2.614,
+  "profit_factor_significant": 2.723,
+  "avg_r": 0.2893,
+  "sum_r": 10.71,
+  "median_hold_days": 231,
+  "max_hold_days": 231,
+  "still_open": 0,
+  "final_fixed_pct": 10.71,
+  "final_compounded_pct": 11.17,
+  "maxdd_fixed_pct_of_T0": -2.44,
+  "maxdd_compounded_pct_points_SABM": -2.52,
+  "maxdd_compounded_pct_relative": -2.42,
+  "buy_hold_pct": 1642.75,
+  "target": "smb-cc",
+  "mode": "smb-cc",
+  "structure": "Synthetic covered call",
+  "params": {
+    "dte": 21,
+    "short_delta": 0.3,
+    "width_pct": 15.0,
+    "profit_take_pct": 0.0
+  },
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), haircut 3%/side",
+  "avg_credit_debit_pct_of_S": -18.962,
+  "best_trade_r": 1.9479,
+  "description": "SMB covered-call keys [U8gFC00kZ58]: own the upside via a DEEP-ITM long call (~15% ITM, LEAP-style - key #2, the FNV synthetic that made >$30k on a quarter of the stock's capital) and sell a ~30-delta call against it each cycle; key #1: buy the short call back at ~10% of its sale price and RELOAD immediately (AAPL campaign: +64% more income). Cycle = the short call's life. Parameters here: 21 trading days, short-leg delta 0.3, width 15%, profit-take 0% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
+}
+videos done: 37
+=== 2026-08-24 07:30:45 DONE  --smb cc (exit 0)
+=== 2026-08-24 07:30:45 START --smb csp
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "SMB Cash-secured put campaign: 21d, delta 0.3, width 0%, PT 0%",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 384,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 84.11,
+  "significant_trades": 0,
+  "non_significant_trades": 384,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": null,
+  "profit_factor": 2.291,
+  "profit_factor_significant": null,
+  "avg_r": 0.0052,
+  "sum_r": 2.01,
+  "median_hold_days": 21,
+  "max_hold_days": 21,
+  "still_open": 1,
+  "final_fixed_pct": 2.01,
+  "final_compounded_pct": 2.03,
+  "maxdd_fixed_pct_of_T0": -0.23,
+  "maxdd_compounded_pct_points_SABM": -0.23,
+  "maxdd_compounded_pct_relative": -0.23,
+  "buy_hold_pct": 1642.75,
+  "target": "smb-csp",
+  "mode": "smb-csp",
+  "structure": "Cash-secured put",
+  "params": {
+    "dte": 21,
+    "short_delta": 0.3,
+    "width_pct": 0.0,
+    "profit_take_pct": 0.0
+  },
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), haircut 3%/side",
+  "avg_credit_debit_pct_of_S": 1.017,
+  "best_trade_r": 0.0855,
+  "description": "SMB cash-secured puts / the wheel entry leg [batch-1 chapter]: sell a ~30-delta put (bear-market ladders go as low as 10-delta), collect the premium, settle at expiry - assignment risk IS the trade; risk = strike minus credit (cash-secured). Parameters here: 21 trading days, short-leg delta 0.3, width 0%, profit-take 0% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
+}
+videos: 100/384
+videos: 200/384
+videos: 300/384
+videos done: 384
+=== 2026-08-24 07:34:53 DONE  --smb csp (exit 0)
+=== 2026-08-24 07:34:53 START --smb pcs
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "SMB Put credit spread campaign: 5d, delta 0.3, width 1%, PT 0%",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 1405,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 80.5,
+  "significant_trades": 1345,
+  "non_significant_trades": 60,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 81.49,
+  "profit_factor": 1.396,
+  "profit_factor_significant": 1.4,
+  "avg_r": 0.0604,
+  "sum_r": 84.81,
+  "median_hold_days": 5,
+  "max_hold_days": 5,
+  "still_open": 1,
+  "final_fixed_pct": 84.81,
+  "final_compounded_pct": 130.32,
+  "maxdd_fixed_pct_of_T0": -9.56,
+  "maxdd_compounded_pct_points_SABM": -13.03,
+  "maxdd_compounded_pct_relative": -9.27,
+  "buy_hold_pct": 1642.75,
+  "target": "smb-pcs",
+  "mode": "smb-pcs",
+  "structure": "Put credit spread",
+  "params": {
+    "dte": 5,
+    "short_delta": 0.3,
+    "width_pct": 1.0,
+    "profit_take_pct": 0.0
+  },
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), haircut 3%/side",
+  "avg_credit_debit_pct_of_S": 0.209,
+  "best_trade_r": 0.3022,
+  "description": "SMB put credit spreads [6VPPI-MNUDM, nvJ_43579z8]: sell a ~30-delta put, buy one ~2% lower, weekly cadence - the May-2024 controlled experiment (40-delta PCS 12/12 wins while call-buying went 3W/10L on the same days) is the corpus's sharpest evidence for this structure. Hold to expiry; defined risk = width - credit. Parameters here: 5 trading days, short-leg delta 0.3, width 1%, profit-take 0% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
+}
+videos: 100/1405
+videos: 200/1405
+videos: 300/1405
+videos: 400/1405
+videos: 500/1405
+videos: 600/1405
+videos: 700/1405
+videos: 800/1405
+videos: 900/1405
+videos: 1000/1405
+videos: 1100/1405
+videos: 1200/1405
+videos: 1300/1405
+videos: 1400/1405
+videos done: 1405
+=== 2026-08-24 07:42:30 DONE  --smb pcs (exit 0)
+=== 2026-08-24 07:42:30 START --smb ic
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "SMB Iron condor (5-delta campaign) campaign: 44d, delta 0.05, width 1%, PT 90%",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 245,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 96.73,
+  "significant_trades": 5,
+  "non_significant_trades": 240,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 0.0,
+  "profit_factor": 3.533,
+  "profit_factor_significant": 0.0,
+  "avg_r": 0.0419,
+  "sum_r": 10.26,
+  "median_hold_days": 32,
+  "max_hold_days": 44,
+  "still_open": 1,
+  "final_fixed_pct": 10.26,
+  "final_compounded_pct": 10.78,
+  "maxdd_fixed_pct_of_T0": -1.29,
+  "maxdd_compounded_pct_points_SABM": -1.36,
+  "maxdd_compounded_pct_relative": -1.29,
+  "buy_hold_pct": 1642.75,
+  "target": "smb-ic",
+  "mode": "smb-ic",
+  "structure": "Iron condor (5-delta campaign)",
+  "params": {
+    "dte": 44,
+    "short_delta": 0.05,
+    "width_pct": 1.0,
+    "profit_take_pct": 90.0
+  },
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), haircut 3%/side",
+  "avg_credit_debit_pct_of_S": 0.069,
+  "best_trade_r": 0.0698,
+  "description": "SMB SPX iron-condor year [m8R_564Kp6k]: ~60-CALENDAR-day condors with 5-delta short strikes, ~90% per-trade probability, credits ~6-7% of margin; SMB's credit-structure management is capture ~75-90% of max profit and redeploy [TpAPTwLMb44] - modeled as a 90% profit-take. Wings 1% wide (defined risk). NOT modeled: the delta-doubling defensive roll. Parameters here: 44 trading days, short-leg delta 0.05, width 1%, profit-take 90% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
+}
+videos: 100/245
+videos: 200/245
+videos done: 245
+=== 2026-08-24 07:46:21 DONE  --smb ic (exit 0)
+=== 2026-08-24 07:46:21 START --smb ib
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "SMB Iron butterfly (unmanaged illustration) campaign: 40d, delta 0.5, width 3%, PT 50%",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 207,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 30.92,
+  "significant_trades": 196,
+  "non_significant_trades": 11,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 29.59,
+  "profit_factor": 0.591,
+  "profit_factor_significant": 0.587,
+  "avg_r": -0.2548,
+  "sum_r": -52.75,
+  "median_hold_days": 40,
+  "max_hold_days": 40,
+  "still_open": 1,
+  "final_fixed_pct": -52.75,
+  "final_compounded_pct": -41.69,
+  "maxdd_fixed_pct_of_T0": -57.39,
+  "maxdd_compounded_pct_points_SABM": -46.09,
+  "maxdd_compounded_pct_relative": -44.27,
+  "buy_hold_pct": 1642.75,
+  "target": "smb-ib",
+  "mode": "smb-ib",
+  "structure": "Iron butterfly (unmanaged illustration)",
+  "params": {
+    "dte": 40,
+    "short_delta": 0.5,
+    "width_pct": 3.0,
+    "profit_take_pct": 50.0
+  },
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), haircut 3%/side",
+  "avg_credit_debit_pct_of_S": 2.135,
+  "best_trade_r": 2.6939,
+  "description": "SMB iron butterfly [batch-0 worked example]: sell the ATM straddle, buy wings ~3% away; their >400%-in-8-weeks case study was ONE lucky close - run as a continuous campaign this structure needs |move| < ~2% per cycle and historically loses (the corpus itself warns backtests expose what single examples hide [Dl0O3z_5hB0]). Stop-loss at 2x credit modeled; SMB's actually-repeatable fly is 0-DTE with +10%/-20% rules - intraday, out of scope here. Parameters here: 40 trading days, short-leg delta 0.5, width 3%, profit-take 50% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
+}
+videos: 100/207
+videos: 200/207
+videos done: 207
+=== 2026-08-24 07:50:05 DONE  --smb ib (exit 0)
+=== 2026-08-24 07:50:05 START --smb cds
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "SMB Call debit spread campaign: 63d, delta 0.5, width 8%, PT 0%",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 152,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 53.95,
+  "significant_trades": 133,
+  "non_significant_trades": 19,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 55.64,
+  "profit_factor": 1.37,
+  "profit_factor_significant": 1.367,
+  "avg_r": 0.1198,
+  "sum_r": 18.2,
+  "median_hold_days": 63,
+  "max_hold_days": 63,
+  "still_open": 1,
+  "final_fixed_pct": 18.2,
+  "final_compounded_pct": 19.23,
+  "maxdd_fixed_pct_of_T0": -13.57,
+  "maxdd_compounded_pct_points_SABM": -13.94,
+  "maxdd_compounded_pct_relative": -12.83,
+  "buy_hold_pct": 1642.75,
+  "target": "smb-cds",
+  "mode": "smb-cds",
+  "structure": "Call debit spread",
+  "params": {
+    "dte": 63,
+    "short_delta": 0.5,
+    "width_pct": 8.0,
+    "profit_take_pct": 0.0
+  },
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), haircut 3%/side",
+  "avg_credit_debit_pct_of_S": -2.894,
+  "best_trade_r": 2.2537,
+  "description": "SMB call debit spread [hsPmj_6nl5E MSFT template]: buy the ATM call, sell one ~8% higher, long-dated (their example ran a year; quarterly here), debit ~38% of width; exit when the underlying reaches the short strike (sell at your price target - the covered-call key #3 doctrine) or settle at expiry. The SMB-verifier flagged this as the desk-approved expression of a bullish view. Parameters here: 63 trading days, short-leg delta 0.5, width 8%, profit-take 0% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
+}
+videos: 100/152
+videos done: 152
+=== 2026-08-24 07:52:18 DONE  --smb cds (exit 0)
+=== 2026-08-24 07:52:18 START --smb leap
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "SMB Deep-ITM LEAP (synthetic stock) campaign: 252d, delta 0.85, width 15%, PT 0%",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 37,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 64.86,
+  "significant_trades": 30,
+  "non_significant_trades": 7,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 70.0,
+  "profit_factor": 2.419,
+  "profit_factor_significant": 2.59,
+  "avg_r": 0.2329,
+  "sum_r": 8.62,
+  "median_hold_days": 231,
+  "max_hold_days": 231,
+  "still_open": 1,
+  "final_fixed_pct": 8.62,
+  "final_compounded_pct": 8.91,
+  "maxdd_fixed_pct_of_T0": -2.77,
+  "maxdd_compounded_pct_points_SABM": -2.89,
+  "maxdd_compounded_pct_relative": -2.76,
+  "buy_hold_pct": 1642.75,
+  "target": "smb-leap",
+  "mode": "smb-leap",
+  "structure": "Deep-ITM LEAP (synthetic stock)",
+  "params": {
+    "dte": 252,
+    "short_delta": 0.85,
+    "width_pct": 15.0,
+    "profit_take_pct": 0.0
+  },
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), haircut 3%/side",
+  "avg_credit_debit_pct_of_S": -19.847,
+  "best_trade_r": 1.6896,
+  "description": "SMB deep-ITM LEAPs [hsPmj_6nl5E HRB example: $690 -> +$1,600, beat the shares in absolute dollars]: buy a ~15% ITM one-year call as a stock substitute (delta ~0.85+, minimal extrinsic), roll with ~1 month left. Cycle = one option life to the 21-DTE roll point. Parameters here: 252 trading days, short-leg delta 0.85, width 15%, profit-take 0% (all editable via --smb-dte/--smb-delta/--smb-width-pct/--smb-profit-take-pct). Continuous campaign: a new cycle opens at the close whenever flat. r = cycle P&L / max risk; 1% of equity per cycle.",
+  "note": "BSM-priced from our quote history; sigma frozen at cycle entry; friction = 3% of option price capped at 0.3% of spot per leg; expiry settles intrinsic. NOT modeled: early assignment, dividends, vol smile, delta-doubling defensive rolls, the wheel's post-assignment covered-call phase, trend filters on the PCS campaign, and the earnings/0DTE-intraday SMB strategies (event/intraday data - out of scope)."
+}
+videos done: 37
+=== 2026-08-24 07:53:00 DONE  --smb leap (exit 0)
+=== 2026-08-24 07:53:00 START --entry open --exit target --rk 3
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at EVERY open when flat; R = 0.25% of the open (defined SL); resting stop -1R / resting limit +3R; both-touched day = pessimistic stop",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 6940,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 20.36,
+  "significant_trades": 6939,
+  "non_significant_trades": 1,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 20.36,
+  "profit_factor": 0.778,
+  "profit_factor_significant": 0.778,
+  "avg_r": -0.1807,
+  "sum_r": -1254.0,
+  "median_hold_days": 0,
+  "max_hold_days": 10,
+  "still_open": 1,
+  "final_fixed_pct": -313.49,
+  "final_compounded_pct": -95.91,
+  "maxdd_fixed_pct_of_T0": -328.43,
+  "maxdd_compounded_pct_points_SABM": -105.45,
+  "maxdd_compounded_pct_relative": -96.45,
+  "buy_hold_pct": 1642.75,
+  "target": "R3",
+  "mode": "daily-open-sabm-target",
+  "open_sl_pct": 0.25,
+  "final_fixed_pct_sabm_literal": -1254.0,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 6940,
+  "positive_accidents_beyond_target": 294,
+  "gap_losses_worse_than_minus1R": 355,
+  "ambiguous_days_pessimistic": 1318,
+  "ambiguous_share_pct": 19.0,
+  "sum_r_optimistic_ambiguous": 4018.0,
+  "best_trade_R": 8.1139,
+  "description": "Daily-open entry x SABM Part-I target exit: enter long at EVERY market open when flat; R = the defined stop-loss of 0.25% below the open (editable --open-sl-pct); resting stop at -1R, resting limit sells at +3R; gaps fill at the open; a day touching both counts pessimistically as a stop.",
+  "note": "R is DEFINED by the chosen SL (not by candle structure); gross; 1% risk capped at 100% equity. \u26a0 HONESTY LIMIT: with a tight SL both stop AND target often sit inside ONE daily bar; the intraday order is unknowable from OHLC, so both-touch days count pessimistically as stops. When ambiguous_share_pct is large the pessimistic and optimistic bounds diverge so far that DAILY DATA CANNOT SETTLE THIS LINE - it needs intraday bars."
+}
+videos: 100/6940
+videos: 200/6940
+videos: 300/6940
+videos: 400/6940
+videos: 500/6940
+videos: 600/6940
+videos: 700/6940
+videos: 800/6940
+videos: 900/6940
+videos: 1000/6940
+videos: 1100/6940
+videos: 1200/6940
+videos: 1300/6940
+videos: 1400/6940
+videos: 1500/6940
+videos: 1600/6940
+videos: 1700/6940
+videos: 1800/6940
+videos: 1900/6940
+videos: 2000/6940
+videos: 2100/6940
+videos: 2200/6940
+videos: 2300/6940
+videos: 2400/6940
+videos: 2500/6940
+videos: 2600/6940
+videos: 2700/6940
+videos: 2800/6940
+videos: 2900/6940
+videos: 3000/6940
+videos: 3100/6940
+videos: 3200/6940
+videos: 3300/6940
+videos: 3400/6940
+videos: 3500/6940
+videos: 3600/6940
+videos: 3700/6940
+videos: 3800/6940
+videos: 3900/6940
+videos: 4000/6940
+videos: 4100/6940
+videos: 4200/6940
+videos: 4300/6940
+videos: 4400/6940
+videos: 4500/6940
+videos: 4600/6940
+videos: 4700/6940
+videos: 4800/6940
+videos: 4900/6940
+videos: 5000/6940
+videos: 5100/6940
+videos: 5200/6940
+videos: 5300/6940
+videos: 5400/6940
+videos: 5500/6940
+videos: 5600/6940
+videos: 5700/6940
+videos: 5800/6940
+videos: 5900/6940
+videos: 6000/6940
+videos: 6100/6940
+videos: 6200/6940
+videos: 6300/6940
+videos: 6400/6940
+videos: 6500/6940
+videos: 6600/6940
+videos: 6700/6940
+videos: 6800/6940
+videos: 6900/6940
+videos done: 6940
+=== 2026-08-24 08:20:07 DONE  --entry open --exit target --rk 3 (exit 0)
+=== 2026-08-24 08:20:07 START --entry open --exit disc
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at EVERY open when flat; R = defined SL 0.25% below the open; EXIT = part-II cocktail proxy (real-deep/Dow trail, tempo-line-gated >=2R lows and >=3R hug); no target",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 4727,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 10.18,
+  "significant_trades": 4707,
+  "non_significant_trades": 20,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 10.09,
+  "profit_factor": 0.933,
+  "profit_factor_significant": 0.933,
+  "avg_r": -0.0625,
+  "sum_r": -295.52,
+  "median_hold_days": 0,
+  "max_hold_days": 22,
+  "still_open": 1,
+  "final_fixed_pct": -73.89,
+  "final_compounded_pct": -61.66,
+  "maxdd_fixed_pct_of_T0": -151.89,
+  "maxdd_compounded_pct_points_SABM": -117.71,
+  "maxdd_compounded_pct_relative": -80.35,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-linear",
+  "final_fixed_pct_sabm_literal": -295.52,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 4727,
+  "reached_2R_pct": 51.2,
+  "reached_3R_pct": 38.5,
+  "best_trade_R": 54.8982,
+  "avg_win_R": 8.56,
+  "description": "Daily-open entry (R = defined SL 0.25% below the open, editable) x SABM Part-II discretionary exit, mechanized ('the cocktail'): NO profit target - the stop trails the trend: under validated swing lows (Dow), under REAL long-wick 'deep' days, after 2R behind fresh lows once the tempo line breaks, and above 3R hugging every low near the trendline (climax mode). Exits when the trailed stop is hit. Audited against the course PDF by the exit-conformance agent.",
+  "note": "SABM part-II DISCRETIONARY PROXY (exit-conformance audited): real-deep wicks, Dow validated pivots, entry-anchored ascending tempo line gating the >=2R unvalidated-low rule (on break) and the >=3R hug (proximity); stops buffered under lows; effective next day; no profit target. Gross."
+}
+videos: 100/4727
+videos: 200/4727
+videos: 300/4727
+videos: 400/4727
+videos: 500/4727
+videos: 600/4727
+videos: 700/4727
+videos: 800/4727
+videos: 900/4727
+videos: 1000/4727
+videos: 1100/4727
+videos: 1200/4727
+videos: 1300/4727
+videos: 1400/4727
+videos: 1500/4727
+videos: 1600/4727
+videos: 1700/4727
+videos: 1800/4727
+videos: 1900/4727
+videos: 2000/4727
+videos: 2100/4727
+videos: 2200/4727
+videos: 2300/4727
+videos: 2400/4727
+videos: 2500/4727
+videos: 2600/4727
+videos: 2700/4727
+videos: 2800/4727
+videos: 2900/4727
+videos: 3000/4727
+videos: 3100/4727
+videos: 3200/4727
+videos: 3300/4727
+videos: 3400/4727
+videos: 3500/4727
+videos: 3600/4727
+videos: 3700/4727
+videos: 3800/4727
+videos: 3900/4727
+videos: 4000/4727
+videos: 4100/4727
+videos: 4200/4727
+videos: 4300/4727
+videos: 4400/4727
+videos: 4500/4727
+videos: 4600/4727
+videos: 4700/4727
+videos done: 4727
+=== 2026-08-24 08:38:23 DONE  --entry open --exit disc (exit 0)
+=== 2026-08-24 08:38:23 START --entry open --exit transform
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "0DTE ATM call at every flat open; transform at +2% into weekly ATM (all proceeds); audited part-II trail exit with R = 0.25% of transform price",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 7828,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 36.79,
+  "significant_trades": 7330,
+  "non_significant_trades": 498,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 36.0,
+  "profit_factor": 1.163,
+  "profit_factor_significant": 1.165,
+  "avg_r": 0.0897,
+  "sum_r": 702.51,
+  "median_hold_days": 0,
+  "max_hold_days": 15,
+  "still_open": 0,
+  "final_fixed_pct": 702.51,
+  "final_compounded_pct": 41163.03,
+  "maxdd_fixed_pct_of_T0": -68.27,
+  "maxdd_compounded_pct_points_SABM": -13508.73,
+  "maxdd_compounded_pct_relative": -53.88,
+  "buy_hold_pct": 1642.75,
+  "target": "transform",
+  "mode": "0dte-weekly-transform-sabm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side",
+  "transform_trigger_pct": 2.0,
+  "trail_R_pct": 0.25,
+  "transforms": 230,
+  "transform_rate_pct": 2.94,
+  "transform_day_trail_convention": "trail arms next day (pre-trigger low unusable)",
+  "avg_proof_premium_pct_of_S": 0.277,
+  "skipped_no_rv_history": 19,
+  "best_trade_multiple": 39.318,
+  "description": "0DTE proof -> weekly transform -> SABM trail (the H3 pipeline): every flat day buy a 0DTE ATM call at the open (premium = the whole risk); if the underlying rises 2% intraday (editable --transform-trigger-pct), all proceeds roll into a weekly ATM call at the trigger price, ridden under the audited SABM Part-II trail (R = 0.25% of the transform price, editable) with ATM re-strikes at each weekly expiry; the trail exit sells at model value. r is in proof-premium multiples (-1 = the premium, the whole risk).",
+  "note": "BSM-priced both legs; transform fill pessimistically AT the trigger; a transform-day low below the trail counts pessimistically as a same-day trail exit (intraday order unknowable); daily proof spend = 1% of equity per attempt.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": 2040.33,
+      "final_compounded_pct": 16298559146.7
+    },
+    "x1.15": {
+      "sum_net_R": 1013.03,
+      "final_compounded_pct": 837368.35
+    },
+    "x1.2": {
+      "sum_net_R": 702.51,
+      "final_compounded_pct": 41163.03
+    },
+    "x1.25": {
+      "sum_net_R": 407.27,
+      "final_compounded_pct": 2238.88
+    },
+    "x1.5": {
+      "sum_net_R": -844.92,
+      "final_compounded_pct": -99.99
+    }
+  }
+}
+videos: 100/7828
+videos: 200/7828
+videos: 300/7828
+videos: 400/7828
+videos: 500/7828
+videos: 600/7828
+videos: 700/7828
+videos: 800/7828
+videos: 900/7828
+videos: 1000/7828
+videos: 1100/7828
+videos: 1200/7828
+videos: 1300/7828
+videos: 1400/7828
+videos: 1500/7828
+videos: 1600/7828
+videos: 1700/7828
+videos: 1800/7828
+videos: 1900/7828
+videos: 2000/7828
+videos: 2100/7828
+videos: 2200/7828
+videos: 2300/7828
+videos: 2400/7828
+videos: 2500/7828
+videos: 2600/7828
+videos: 2700/7828
+videos: 2800/7828
+videos: 2900/7828
+videos: 3000/7828
+videos: 3100/7828
+videos: 3200/7828
+videos: 3300/7828
+videos: 3400/7828
+videos: 3500/7828
+videos: 3600/7828
+videos: 3700/7828
+videos: 3800/7828
+videos: 3900/7828
+videos: 4000/7828
+videos: 4100/7828
+videos: 4200/7828
+videos: 4300/7828
+videos: 4400/7828
+videos: 4500/7828
+videos: 4600/7828
+videos: 4700/7828
+videos: 4800/7828
+videos: 4900/7828
+videos: 5000/7828
+videos: 5100/7828
+videos: 5200/7828
+videos: 5300/7828
+videos: 5400/7828
+videos: 5500/7828
+videos: 5600/7828
+videos: 5700/7828
+videos: 5800/7828
+videos: 5900/7828
+videos: 6000/7828
+videos: 6100/7828
+videos: 6200/7828
+videos: 6300/7828
+videos: 6400/7828
+videos: 6500/7828
+videos: 6600/7828
+videos: 6700/7828
+videos: 6800/7828
+videos: 6900/7828
+videos: 7000/7828
+videos: 7100/7828
+videos: 7200/7828
+videos: 7300/7828
+videos: 7400/7828
+videos: 7500/7828
+videos: 7600/7828
+videos: 7700/7828
+videos: 7800/7828
+videos done: 7828
+=== 2026-08-24 08:38:24 DONE  --entry open --exit transform (exit 0)
+=== 2026-08-24 08:38:24 ALL RENDERS DONE ===
