@@ -41,6 +41,14 @@
   <div class="sub" id="rule">loading…</div>
 </header>
 <div class="wrap">
+  <div class="filters" id="tabbar">
+    <button data-tab="all" class="on">All lines</button>
+    <button data-tab="breakout">Breakout × SABM</button>
+    <button data-tab="open">Daily-open</button>
+    <button data-tab="0dte">0DTE low-premium (H3)</button>
+    <button data-tab="smb">SMB structures</button>
+    <span class="sub" id="tabdesc" style="flex-basis:100%"></span>
+  </div>
   <div class="filters" style="position:relative">
     <label>Instrument <input id="symq" placeholder="search any symbol…" autocomplete="off"
       style="width:180px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:5px 8px"></label>
@@ -94,6 +102,28 @@
 <script>
 let VARIANTS = [];
 let trades = [], stats = {}, filter = 'all', dir = '';
+let TAB = 'all';
+try { TAB = localStorage.getItem('rezsabm_tab') || 'all'; } catch {}
+const TABDESC = {
+  all: '',
+  breakout: 'Rezvyakov breakout entry (close above previous high) × SABM exits: R1/R2/R3 targets, part-II discretionary trail, plus weekly/monthly/quarterly call overlays.',
+  open: 'Daily-open entry lines: buy every open, defined-SL R; exits = hold-trail (E2), R1/R2/R3 resting targets, SABM discretionary trail.',
+  '0dte': 'Enter every flat day at VERY LOW premium — a 0DTE ATM call priced to the current market — then transform the gain into a longer option (weekly/monthly) and ride the trend under a choosable exit: SABM trail or first daily close below the previous candle’s low. Default trigger = real-time affordability (transform when the 0DTE pays for one longer ATM call); _t2 = the fixed +2% indication variant.',
+  smb: 'SMB Capital desk structures: covered call (LEAP-financed), cash-secured put, put credit spread, iron condor, iron butterfly, call debit spread, LEAP.',
+};
+function tabOf(v) {
+  if (v.includes('_0dtew')) return '0dte';
+  if (v.includes('_smb_')) return 'smb';
+  if (v.includes('_open')) return 'open';
+  return 'breakout';
+}
+function tabVariants() { return TAB === 'all' ? VARIANTS : VARIANTS.filter(v => tabOf(v) === TAB); }
+function syncVariantSelect() {
+  const vs = tabVariants();
+  el('variant').innerHTML = vs.map(v => `<option>${v}</option>`).join('');
+  if (!vs.includes(dir)) dir = vs[0] || '';
+  if (dir) el('variant').value = dir;
+}
 
 const fmt = (v, d = 2) => (v == null ? '—' : (+v).toFixed(d));
 const el = id => document.getElementById(id);
@@ -113,7 +143,7 @@ function shortDesc(st) {
 }
 
 async function renderOverview() {
-  const rows = await Promise.all(VARIANTS.map(async v => {
+  const rows = await Promise.all(tabVariants().map(async v => {
     try { return [v, await (await fetch(`results/${v}/stats.json`)).json()]; } catch { return [v, null]; }
   }));
   document.querySelector('#ovtbl tbody').innerHTML = rows.map(([v, st]) => st ? `
@@ -185,10 +215,22 @@ async function load() {
 }
 
 el('variant').onchange = e => { dir = e.target.value; load(); };
+document.querySelectorAll('#tabbar button[data-tab]').forEach(b => b.onclick = () => {
+  TAB = b.dataset.tab;
+  try { localStorage.setItem('rezsabm_tab', TAB); } catch {}
+  document.querySelectorAll('#tabbar button[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+  el('tabdesc').textContent = TABDESC[TAB];
+  renderOverview();
+  syncVariantSelect();
+  if (dir) load();
+});
 (async () => {
   VARIANTS = await (await fetch('/api/variants')).json();
-  el('variant').innerHTML = VARIANTS.map(v => `<option>${v}</option>`).join('');
-  dir = VARIANTS[0] || '';
+  const tb = document.querySelector(`#tabbar button[data-tab="${TAB}"]`) || document.querySelector('#tabbar button[data-tab="all"]');
+  TAB = tb.dataset.tab;
+  document.querySelectorAll('#tabbar button[data-tab]').forEach(x => x.classList.toggle('on', x === tb));
+  el('tabdesc').textContent = TABDESC[TAB];
+  syncVariantSelect();
   renderOverview();
   if (dir) load();
 })();
@@ -235,7 +277,7 @@ el('runsuite').onclick = async () => {
     const st = await (await fetch('/api/run-suite-status')).json();
     el('suitestat').textContent = st.running ? `suite ${st.symbol}: ${st.tail}` : `suite done`;
     VARIANTS = await (await fetch('/api/variants')).json();
-    el('variant').innerHTML = VARIANTS.map(v => `<option>${v}</option>`).join('');
+    syncVariantSelect();
     if (!st.running) { clearInterval(timer); renderOverview(); }
   }, 8000);
 };
@@ -251,7 +293,13 @@ el('runopen').onclick = async () => {
     if (!st.running) {
       clearInterval(timer);
       VARIANTS = await (await fetch('/api/variants')).json();
-      el('variant').innerHTML = VARIANTS.map(v => `<option>${v}</option>`).join('');
+      if (VARIANTS.includes(r.variant) && tabOf(r.variant) !== TAB) {
+        TAB = tabOf(r.variant);
+        try { localStorage.setItem('rezsabm_tab', TAB); } catch {}
+        document.querySelectorAll('#tabbar button[data-tab]').forEach(x => x.classList.toggle('on', x.dataset.tab === TAB));
+        el('tabdesc').textContent = TABDESC[TAB];
+      }
+      syncVariantSelect();
       renderOverview();
       if (VARIANTS.includes(r.variant)) { dir = r.variant; el('variant').value = dir; load(); }
       el('runstat').textContent = `done: ${r.variant}`;
