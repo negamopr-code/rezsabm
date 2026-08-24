@@ -1,0 +1,87 @@
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "long at EVERY open when flat; R = defined SL 0.25% below the open; EXIT = part-II cocktail proxy (real-deep/Dow trail, tempo-line-gated >=2R lows and >=3R hug); no target",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 4727,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 10.18,
+  "significant_trades": 4707,
+  "non_significant_trades": 20,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 10.09,
+  "profit_factor": 0.933,
+  "profit_factor_significant": 0.933,
+  "avg_r": -0.0625,
+  "sum_r": -295.52,
+  "median_hold_days": 0,
+  "max_hold_days": 22,
+  "still_open": 1,
+  "final_fixed_pct": -73.89,
+  "final_compounded_pct": -61.66,
+  "maxdd_fixed_pct_of_T0": -151.89,
+  "maxdd_compounded_pct_points_SABM": -117.71,
+  "maxdd_compounded_pct_relative": -80.35,
+  "buy_hold_pct": 1642.75,
+  "target": "disc",
+  "mode": "disc-linear",
+  "final_fixed_pct_sabm_literal": -295.52,
+  "leverage_capped_curve": true,
+  "trades_hitting_notional_cap": 4727,
+  "reached_2R_pct": 51.2,
+  "reached_3R_pct": 38.5,
+  "best_trade_R": 54.8982,
+  "avg_win_R": 8.56,
+  "description": "Daily-open entry (R = defined SL 0.25% below the open, editable) x SABM Part-II discretionary exit, mechanized ('the cocktail'): NO profit target - the stop trails the trend: under validated swing lows (Dow), under REAL long-wick 'deep' days, after 2R behind fresh lows once the tempo line breaks, and above 3R hugging every low near the trendline (climax mode). Exits when the trailed stop is hit. Audited against the course PDF by the exit-conformance agent.",
+  "note": "SABM part-II DISCRETIONARY PROXY (exit-conformance audited): real-deep wicks, Dow validated pivots, entry-anchored ascending tempo line gating the >=2R unvalidated-low rule (on break) and the >=3R hug (proximity); stops buffered under lows; effective next day; no profit target. Gross."
+}
+videos: 100/4727
+videos: 200/4727
+videos: 300/4727
+videos: 400/4727
+videos: 500/4727
+videos: 600/4727
+videos: 700/4727
+videos: 800/4727
+videos: 900/4727
+videos: 1000/4727
+videos: 1100/4727
+videos: 1200/4727
+videos: 1300/4727
+videos: 1400/4727
+videos: 1500/4727
+videos: 1600/4727
+videos: 1700/4727
+videos: 1800/4727
+videos: 1900/4727
+videos: 2000/4727
+videos: 2100/4727
+videos: 2200/4727
+videos: 2300/4727
+videos: 2400/4727
+videos: 2500/4727
+videos: 2600/4727
+videos: 2700/4727
+videos: 2800/4727
+videos: 2900/4727
+videos: 3000/4727
+videos: 3100/4727
+videos: 3200/4727
+videos: 3300/4727
+videos: 3400/4727
+videos: 3500/4727
+videos: 3600/4727
+videos: 3700/4727
+videos: 3800/4727
+videos: 3900/4727
+videos: 4000/4727
+videos: 4100/4727
+videos: 4200/4727
+videos: 4300/4727
+videos: 4400/4727
+videos: 4500/4727
+videos: 4600/4727
+videos: 4700/4727
+videos done: 4727

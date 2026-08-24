@@ -1,0 +1,64 @@
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "0DTE ATM call at every flat open; transform at +2% into monthly ATM (all proceeds); exit on first daily close below the previous candle's low",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 7467,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 37.27,
+  "significant_trades": 7006,
+  "non_significant_trades": 461,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 36.57,
+  "profit_factor": 1.225,
+  "profit_factor_significant": 1.227,
+  "avg_r": 0.1232,
+  "sum_r": 919.79,
+  "median_hold_days": 0,
+  "max_hold_days": 32,
+  "still_open": 0,
+  "final_fixed_pct": 919.79,
+  "final_compounded_pct": 366629.88,
+  "maxdd_fixed_pct_of_T0": -51.97,
+  "maxdd_compounded_pct_points_SABM": -64760.06,
+  "maxdd_compounded_pct_relative": -43.17,
+  "buy_hold_pct": 1642.75,
+  "target": "transform",
+  "mode": "0dte-weekly-transform-sabm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side",
+  "transform_trigger_pct": 2.0,
+  "transform_exit": "prevlow",
+  "transform_dte": 21,
+  "transforms": 205,
+  "transform_rate_pct": 2.75,
+  "transform_day_exit_convention": "exit arms next day (pre-trigger low/close unusable)",
+  "avg_proof_premium_pct_of_S": 0.268,
+  "skipped_no_rv_history": 19,
+  "best_trade_multiple": 20.6308,
+  "description": "0DTE proof -> monthly transform -> prev-low close exit (the H3 pipeline): every flat day buy a 0DTE ATM call at the open (premium = the whole risk); if the underlying rises 2% intraday (editable --transform-trigger-pct), all proceeds roll into a monthly ATM call at the trigger price, sold on the first daily CLOSE below the previous candle's low (--transform-exit prevlow) with ATM re-strikes at each monthly expiry; the exit sells at model value. r is in proof-premium multiples (-1 = the premium, the whole risk).",
+  "note": "BSM-priced both legs; transform fill pessimistically AT the trigger; the exit arms from the day AFTER the transform (intraday order vs the trigger is unknowable on daily OHLC); daily proof spend = 1% of equity per attempt.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": 2210.03,
+      "final_compounded_pct": 97525491460.05
+    },
+    "x1.15": {
+      "sum_net_R": 1220.89,
+      "final_compounded_pct": 6843491.85
+    },
+    "x1.2": {
+      "sum_net_R": 919.79,
+      "final_compounded_pct": 366629.88
+    },
+    "x1.25": {
+      "sum_net_R": 632.76,
+      "final_compounded_pct": 22312.09
+    },
+    "x1.5": {
+      "sum_net_R": -590.31,
+      "final_compounded_pct": -99.86
+    }
+  }
+}

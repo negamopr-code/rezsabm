@@ -1,0 +1,287 @@
+=== batchA start 14:52:04
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "0DTE ATM call at every flat open; transform at +2% into weekly ATM (all proceeds); audited part-II trail exit with R = 0.25% of transform price",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 7828,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 36.79,
+  "significant_trades": 7330,
+  "non_significant_trades": 498,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 36.0,
+  "profit_factor": 1.163,
+  "profit_factor_significant": 1.165,
+  "avg_r": 0.0897,
+  "sum_r": 702.51,
+  "median_hold_days": 0,
+  "max_hold_days": 15,
+  "still_open": 0,
+  "final_fixed_pct": 702.51,
+  "final_compounded_pct": 41163.03,
+  "maxdd_fixed_pct_of_T0": -68.27,
+  "maxdd_compounded_pct_points_SABM": -13508.73,
+  "maxdd_compounded_pct_relative": -53.88,
+  "buy_hold_pct": 1642.75,
+  "target": "transform",
+  "mode": "0dte-weekly-transform-sabm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side",
+  "transform_trigger_pct": 2.0,
+  "transform_exit": "trail",
+  "transform_dte": 5,
+  "trail_R_pct": 0.25,
+  "transforms": 230,
+  "transform_rate_pct": 2.94,
+  "transform_day_exit_convention": "exit arms next day (pre-trigger low/close unusable)",
+  "avg_proof_premium_pct_of_S": 0.277,
+  "skipped_no_rv_history": 19,
+  "best_trade_multiple": 39.318,
+  "description": "0DTE proof -> weekly transform -> SABM trail (the H3 pipeline): every flat day buy a 0DTE ATM call at the open (premium = the whole risk); if the underlying rises 2% intraday (editable --transform-trigger-pct), all proceeds roll into a weekly ATM call at the trigger price, ridden under the audited SABM Part-II trail (R = 0.25% of the transform price, editable) with ATM re-strikes at each weekly expiry; the exit sells at model value. r is in proof-premium multiples (-1 = the premium, the whole risk).",
+  "note": "BSM-priced both legs; transform fill pessimistically AT the trigger; the exit arms from the day AFTER the transform (intraday order vs the trigger is unknowable on daily OHLC); daily proof spend = 1% of equity per attempt.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": 2040.33,
+      "final_compounded_pct": 16298559146.7
+    },
+    "x1.15": {
+      "sum_net_R": 1013.03,
+      "final_compounded_pct": 837368.35
+    },
+    "x1.2": {
+      "sum_net_R": 702.51,
+      "final_compounded_pct": 41163.03
+    },
+    "x1.25": {
+      "sum_net_R": 407.27,
+      "final_compounded_pct": 2238.88
+    },
+    "x1.5": {
+      "sum_net_R": -844.92,
+      "final_compounded_pct": -99.99
+    }
+  }
+}
+videos: 100/7828
+videos: 200/7828
+videos: 300/7828
+videos: 400/7828
+videos: 500/7828
+videos: 600/7828
+videos: 700/7828
+videos: 800/7828
+videos: 900/7828
+videos: 1000/7828
+videos: 1100/7828
+videos: 1200/7828
+videos: 1300/7828
+videos: 1400/7828
+videos: 1500/7828
+videos: 1600/7828
+videos: 1700/7828
+videos: 1800/7828
+videos: 1900/7828
+videos: 2000/7828
+videos: 2100/7828
+videos: 2200/7828
+videos: 2300/7828
+videos: 2400/7828
+videos: 2500/7828
+videos: 2600/7828
+videos: 2700/7828
+videos: 2800/7828
+videos: 2900/7828
+videos: 3000/7828
+videos: 3100/7828
+videos: 3200/7828
+videos: 3300/7828
+videos: 3400/7828
+videos: 3500/7828
+videos: 3600/7828
+videos: 3700/7828
+videos: 3800/7828
+videos: 3900/7828
+videos: 4000/7828
+videos: 4100/7828
+videos: 4200/7828
+videos: 4300/7828
+videos: 4400/7828
+videos: 4500/7828
+videos: 4600/7828
+videos: 4700/7828
+videos: 4800/7828
+videos: 4900/7828
+videos: 5000/7828
+videos: 5100/7828
+videos: 5200/7828
+videos: 5300/7828
+videos: 5400/7828
+videos: 5500/7828
+videos: 5600/7828
+videos: 5700/7828
+videos: 5800/7828
+videos: 5900/7828
+videos: 6000/7828
+videos: 6100/7828
+videos: 6200/7828
+videos: 6300/7828
+videos: 6400/7828
+videos: 6500/7828
+videos: 6600/7828
+videos: 6700/7828
+videos: 6800/7828
+videos: 6900/7828
+videos: 7000/7828
+videos: 7100/7828
+videos: 7200/7828
+videos: 7300/7828
+videos: 7400/7828
+videos: 7500/7828
+videos: 7600/7828
+videos: 7700/7828
+videos: 7800/7828
+videos done: 7828
+=== batchA 0dtew done 15:23:30
+{
+  "symbol": "SPY",
+  "bars": 8448,
+  "from": "1993-01-29",
+  "to": "2026-08-21",
+  "rule": "0DTE ATM call at every flat open; transform at +2% into weekly ATM (all proceeds); exit on first daily close below the previous candle's low",
+  "min_R_filter_pct_of_price": 0.3,
+  "trades": 7500,
+  "skipped_signals": 0,
+  "win_rate_pct_all_trades": 36.33,
+  "significant_trades": 7024,
+  "non_significant_trades": 476,
+  "significance_threshold_R": 0.2,
+  "win_rate_pct_significant": 35.52,
+  "profit_factor": 1.15,
+  "profit_factor_significant": 1.152,
+  "avg_r": 0.0831,
+  "sum_r": 623.23,
+  "median_hold_days": 0,
+  "max_hold_days": 21,
+  "still_open": 0,
+  "final_fixed_pct": 623.23,
+  "final_compounded_pct": 18935.27,
+  "maxdd_fixed_pct_of_T0": -60.7,
+  "maxdd_compounded_pct_points_SABM": -5171.73,
+  "maxdd_compounded_pct_relative": -47.25,
+  "buy_hold_pct": 1642.75,
+  "target": "transform",
+  "mode": "0dte-weekly-transform-sabm",
+  "pricing": "BSM sigma=RV(20)*1.2 (floor 0.1), r=0.04, haircut 3%/side",
+  "transform_trigger_pct": 2.0,
+  "transform_exit": "prevlow",
+  "transform_dte": 5,
+  "transforms": 205,
+  "transform_rate_pct": 2.73,
+  "transform_day_exit_convention": "exit arms next day (pre-trigger low/close unusable)",
+  "avg_proof_premium_pct_of_S": 0.269,
+  "skipped_no_rv_history": 19,
+  "best_trade_multiple": 42.9953,
+  "description": "0DTE proof -> weekly transform -> prev-low close exit (the H3 pipeline): every flat day buy a 0DTE ATM call at the open (premium = the whole risk); if the underlying rises 2% intraday (editable --transform-trigger-pct), all proceeds roll into a weekly ATM call at the trigger price, sold on the first daily CLOSE below the previous candle's low (--transform-exit prevlow) with ATM re-strikes at each weekly expiry; the exit sells at model value. r is in proof-premium multiples (-1 = the premium, the whole risk).",
+  "note": "BSM-priced both legs; transform fill pessimistically AT the trigger; the exit arms from the day AFTER the transform (intraday order vs the trigger is unknowable on daily OHLC); daily proof spend = 1% of equity per attempt.",
+  "iv_markup_sweep": {
+    "x1": {
+      "sum_net_R": 1928.07,
+      "final_compounded_pct": 5124033700.59
+    },
+    "x1.15": {
+      "sum_net_R": 924.43,
+      "final_compounded_pct": 349647.03
+    },
+    "x1.2": {
+      "sum_net_R": 623.23,
+      "final_compounded_pct": 18935.27
+    },
+    "x1.25": {
+      "sum_net_R": 337.46,
+      "final_compounded_pct": 1090.86
+    },
+    "x1.5": {
+      "sum_net_R": -869.12,
+      "final_compounded_pct": -99.99
+    }
+  }
+}
+videos: 100/7500
+videos: 200/7500
+videos: 300/7500
+videos: 400/7500
+videos: 500/7500
+videos: 600/7500
+videos: 700/7500
+videos: 800/7500
+videos: 900/7500
+videos: 1000/7500
+videos: 1100/7500
+videos: 1200/7500
+videos: 1300/7500
+videos: 1400/7500
+videos: 1500/7500
+videos: 1600/7500
+videos: 1700/7500
+videos: 1800/7500
+videos: 1900/7500
+videos: 2000/7500
+videos: 2100/7500
+videos: 2200/7500
+videos: 2300/7500
+videos: 2400/7500
+videos: 2500/7500
+videos: 2600/7500
+videos: 2700/7500
+videos: 2800/7500
+videos: 2900/7500
+videos: 3000/7500
+videos: 3100/7500
+videos: 3200/7500
+videos: 3300/7500
+videos: 3400/7500
+videos: 3500/7500
+videos: 3600/7500
+videos: 3700/7500
+videos: 3800/7500
+videos: 3900/7500
+videos: 4000/7500
+videos: 4100/7500
+videos: 4200/7500
+videos: 4300/7500
+videos: 4400/7500
+videos: 4500/7500
+videos: 4600/7500
+videos: 4700/7500
+videos: 4800/7500
+videos: 4900/7500
+videos: 5000/7500
+videos: 5100/7500
+videos: 5200/7500
+videos: 5300/7500
+videos: 5400/7500
+videos: 5500/7500
+videos: 5600/7500
+videos: 5700/7500
+videos: 5800/7500
+videos: 5900/7500
+videos: 6000/7500
+videos: 6100/7500
+videos: 6200/7500
+videos: 6300/7500
+videos: 6400/7500
+videos: 6500/7500
+videos: 6600/7500
+videos: 6700/7500
+videos: 6800/7500
+videos: 6900/7500
+videos: 7000/7500
+videos: 7100/7500
+videos: 7200/7500
+videos: 7300/7500
+videos: 7400/7500
+videos: 7500/7500
+videos done: 7500
+=== batchA ALL DONE 15:54:25
