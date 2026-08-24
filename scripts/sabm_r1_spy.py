@@ -49,7 +49,12 @@ EXIT_MODE = arg('--exit', 'e2' if ENTRY == 'open' else 'target')
 # SL below the entry-day open, defining R for the SABM exits (user 2026-08-23: 0.25% default
 # for the open+SABM combos, editable); the resim e2 line keeps its 0.2% default
 OPEN_SL = float(arg('--open-sl-pct', '0.2' if EXIT_MODE == 'e2' else '0.25'))
-TRIG = float(arg('--transform-trigger-pct', '2'))  # 0DTE->weekly transform trigger (underlying move %)
+# transform trigger (user 2026-08-24): 'afford' = transform at the FIRST intraday price where
+# selling the 0DTE pays for one longer ATM call (both legs model-priced at that concrete moment,
+# so the required move floats with vol/tenor: ~1% may afford a weekly, ~2% a monthly);
+# 'pct' = fixed TRIG% underlying move (the original indication-only rule, kept as a variant)
+TRIG_MODE = arg('--transform-trigger', 'afford')
+TRIG = float(arg('--transform-trigger-pct', '2'))  # fixed trigger (%, only for --transform-trigger pct)
 # exit for the transformed leg (user 2026-08-24): 'trail' = audited SABM part-II trail |
 # 'prevlow' = sell on the first daily CLOSE below the previous candle's low
 TEXIT = arg('--transform-exit', 'trail')
@@ -80,7 +85,8 @@ _SUFFIX = '' if MINR == 0.3 else ('_raw' if MINR == 0 else f'_minR{MINR:g}')
 if SMB:
     _BASE = f"{SYM}_smb_{SMB}"
 elif ENTRY == 'open' and EXIT_MODE == 'transform':
-    _BASE = (f"{SYM}_0dtew" + (f"_t{TRIG:g}" if TRIG != 2 else '') + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.25 else '')
+    _BASE = (f"{SYM}_0dtew" + (f"_t{TRIG:g}" if TRIG_MODE == 'pct' else '')
+             + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.25 else '')
              + (f"_{OPT_DAYS}d" if OPT_DAYS != 5 else '') + ('_prevlow' if TEXIT == 'prevlow' else ''))
 elif ENTRY == 'open' and EXIT_MODE == 'e2':
     _BASE = f"{SYM}_open" + (f"_sl{OPEN_SL:g}" if OPEN_SL != 0.2 else '')
@@ -900,8 +906,31 @@ def backtest_0dte_transform(bars, markup=None):
              'premium': round(prem0, 4), 'premium_R': 1.0, 'be': round(S0 + prem0, 4),
              'R_abs': round(S0 * OPEN_SL / 100, 4), 'stop': round(S0 - S0 * OPEN_SL / 100, 4),
              'delta': None, 'weeks_rolled': 0, 'proof_premium_pct_of_S': round(100 * prem0 / S0, 3)}
-        trig_price = S0 * (1 + TRIG / 100)
-        if b['high'] < trig_price:
+        if TRIG_MODE == 'afford':
+            # real-time affordability trigger: the first price S where selling the 0DTE
+            # (model value, haircut out) pays for ONE longer ATM call (haircut in).
+            # f is strictly increasing in S (0DTE delta >= ~0.5 vs ~1-2%/S ATM cost slope),
+            # so a bisection on [open, day high] finds the minimal crossing; the fill is
+            # taken exactly AT the crossing -> qty = 1 longer option by construction.
+            def _f(S):
+                return (bs_call(S, S0, 0.25 / 365, sigma) * (1 - HAIRCUT / 100)
+                        - bs_call(S, S, _t_years(OPT_DAYS), sigma) * (1 + HAIRCUT / 100))
+            if _f(b['high']) < 0:
+                trig_price = None
+            else:
+                lo_s, hi_s = S0, b['high']
+                for _ in range(50):
+                    mid = (lo_s + hi_s) / 2
+                    if _f(mid) >= 0:
+                        hi_s = mid
+                    else:
+                        lo_s = mid
+                trig_price = hi_s
+        else:
+            trig_price = S0 * (1 + TRIG / 100)
+            if b['high'] < trig_price:
+                trig_price = None
+        if trig_price is None:
             settle = max(0.0, b['close'] - S0)
             t.update(exit_i=i, exit_date=b['date'], exit_price=round(b['close'], 4),
                      reason='proof-expiry', days=0,
@@ -912,6 +941,7 @@ def backtest_0dte_transform(bars, markup=None):
             continue
         # transform at the trigger price (pessimistic: assume fill exactly at trigger)
         S_t = trig_price
+        t['trigger_move_pct'] = round(100 * (S_t / S0 - 1), 3)
         proceeds = bs_call(S_t, S0, 0.25 / 365, sigma) * (1 - HAIRCUT / 100)
         K = S_t
         prem_w = bs_call(S_t, K, _t_years(OPT_DAYS), sigma) * (1 + HAIRCUT / 100)
@@ -985,7 +1015,18 @@ def backtest_0dte_transform(bars, markup=None):
     extra = {
         'target': 'transform', 'mode': '0dte-weekly-transform-sabm',
         'pricing': f"BSM sigma={'VIX' if IV_SRC == 'vix' else f'RV({RV_WIN})'}*{IV_MARKUP:g} (floor {IV_FLOOR:g}), r={OPT_RATE:g}, haircut {HAIRCUT:g}%/side",
-        'transform_trigger_pct': TRIG, 'transform_exit': TEXIT, 'transform_dte': OPT_DAYS,
+        'transform_trigger': TRIG_MODE,
+        **({'transform_trigger_pct': TRIG} if TRIG_MODE == 'pct' else
+           {'avg_afford_trigger_move_pct': round(sum(t['trigger_move_pct'] for t in trades
+                                                     if t.get('trigger_move_pct') is not None)
+                                                 / max(1, n_tr), 3),
+            'min_afford_trigger_move_pct': round(min((t['trigger_move_pct'] for t in trades
+                                                      if t.get('trigger_move_pct') is not None),
+                                                     default=0), 3),
+            'max_afford_trigger_move_pct': round(max((t['trigger_move_pct'] for t in trades
+                                                      if t.get('trigger_move_pct') is not None),
+                                                     default=0), 3)}),
+        'transform_exit': TEXIT, 'transform_dte': OPT_DAYS,
         **({'trail_R_pct': OPEN_SL} if TEXIT != 'prevlow' else {}),
         'transforms': n_tr, 'transform_rate_pct': round(100 * n_tr / len(trades), 2),
         'transform_day_exit_convention': 'exit arms next day (pre-trigger low/close unusable)',
@@ -994,9 +1035,13 @@ def backtest_0dte_transform(bars, markup=None):
         'best_trade_multiple': max(rs),
         'description': (f"0DTE proof -> {_dte_label()} transform -> "
                         f"{'prev-low close exit' if TEXIT == 'prevlow' else 'SABM trail'} (the H3 pipeline): "
-                        f"every flat day buy a 0DTE ATM call at the open (premium = the whole risk); if the "
-                        f"underlying rises {TRIG:g}% intraday (editable --transform-trigger-pct), all proceeds "
-                        f"roll into a {_dte_label()} ATM call at the trigger price, "
+                        f"every flat day buy a 0DTE ATM call at the open (premium = the whole risk); "
+                        + (f"at the FIRST intraday price where the 0DTE's model value pays for one "
+                           f"{_dte_label()} ATM call (real-time affordability, --transform-trigger afford: "
+                           f"the required move floats with vol/tenor), "
+                           if TRIG_MODE == 'afford' else
+                           f"if the underlying rises {TRIG:g}% intraday (--transform-trigger pct), ")
+                        + f"all proceeds roll into a {_dte_label()} ATM call at the trigger price, "
                         + (f"sold on the first daily CLOSE below the previous candle's low (--transform-exit prevlow)"
                            if TEXIT == 'prevlow' else
                            f"ridden under the audited SABM Part-II trail (R = {OPEN_SL:g}% of the transform "
@@ -1007,7 +1052,9 @@ def backtest_0dte_transform(bars, markup=None):
                  'the day AFTER the transform (intraday order vs the trigger is unknowable on daily OHLC); '
                  'daily proof spend = 1% of equity per attempt.'),
     }
-    rule = (f"0DTE ATM call at every flat open; transform at +{TRIG:g}% into {_dte_label()} ATM (all proceeds); "
+    rule = (f"0DTE ATM call at every flat open; transform "
+            + ("when the 0DTE affords one " if TRIG_MODE == 'afford' else f"at +{TRIG:g}% into ")
+            + f"{_dte_label()} ATM (all proceeds); "
             + ("exit on first daily close below the previous candle's low"
                if TEXIT == 'prevlow' else f"audited part-II trail exit with R = {OPEN_SL:g}% of transform price"))
     return trades, {'stats': _std_stats(trades, rs, fixed, comp, comp_pct, bars, 0, rule, extra),
@@ -1739,17 +1786,20 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
         head_done = (f"{SYM} 1d  #{t['n']:04d}  SMB {t['smb'].upper()} {t['entry_date']} @ {t['entry_price']}  {_legs}  "
                      f"-> {t['exit_date']}  {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
     elif t.get('open_entry') and t.get('opt'):
+        _trg = (f"+{t['trigger_move_pct']:g}% (afford)" if TRIG_MODE == 'afford'
+                and t.get('trigger_move_pct') is not None else f"+{TRIG:g}%")
+        _wait = ('affordability trigger' if TRIG_MODE == 'afford' else f'+{TRIG:g}% trigger')
         if t.get('transform_price'):
-            _tf = (f"0DTE proof @ {t['entry_price']} +{TRIG:g}% -> ALL proceeds into "
+            _tf = (f"0DTE proof @ {t['entry_price']} {_trg} -> ALL proceeds into "
                    f"{_dte_label()} ATM {t['transform_price']}")
             head_live = f"{SYM} 1d  #{t['n']:04d}  {_tf}  rolling ATM each expiry  forming..."
             head_done = (f"{SYM} 1d  #{t['n']:04d}  {_tf} ({t['weeks_rolled']} legs)  "
                          f"-> {t['exit_date']}  {t['r']:+.2f}x prem ({t['reason']}, {t['days']}d)")
         else:
             head_live = (f"{SYM} 1d  #{t['n']:04d}  0DTE ATM call @ open {t['entry_price']} "
-                         f"(prem {t['premium']})  waiting for the +{TRIG:g}% trigger  forming...")
+                         f"(prem {t['premium']})  waiting for the {_wait}  forming...")
             head_done = (f"{SYM} 1d  #{t['n']:04d}  0DTE ATM call @ open {t['entry_price']} "
-                         f"(prem {t['premium']})  no +{TRIG:g}% trigger -> settled at close "
+                         f"(prem {t['premium']})  no {_wait} -> settled at close "
                          f"{t['exit_price']}  {t['r']:+.2f}x prem ({t['reason']})")
     elif t.get('opt') and t.get('stops'):
         head_live = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
