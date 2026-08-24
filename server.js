@@ -62,8 +62,20 @@ const server = http.createServer((req, res) => {
       args.push('--exit', 'disc');
       variant = `SPY_opendisc${sl === 0.25 ? '' : '_sl' + sl}`;
     } else if (mode === 'transform') {
-      args.push('--exit', 'transform', '--transform-trigger-pct', String(trig));
-      variant = `SPY_0dtew${trig === 2 ? '' : '_t' + trig}${sl === 0.25 ? '' : '_sl' + sl}`;
+      // trigger: 'afford' (dynamic affordability, engine default) or a fixed % (always _t-tagged)
+      const trigRaw = url.searchParams.get('trigger') || 'afford';
+      const dte = url.searchParams.get('dte') === '21' ? 21 : 5;
+      const texit = url.searchParams.get('texit') === 'prevlow' ? 'prevlow' : 'trail';
+      args.push('--exit', 'transform', '--opt-days', String(dte));
+      let ttag = '';
+      if (trigRaw !== 'afford') {
+        const tp = parseFloat(trigRaw);
+        if (!(tp >= 0.3 && tp <= 20)) return send(res, 400, { error: 'trigger must be "afford" or 0.3..20 (%)' });
+        args.push('--transform-trigger', 'pct', '--transform-trigger-pct', String(tp));
+        ttag = '_t' + tp;
+      }
+      if (texit === 'prevlow') args.push('--transform-exit', 'prevlow');
+      variant = `SPY_0dtew${ttag}${sl === 0.25 ? '' : '_sl' + sl}${dte === 21 ? '_21d' : ''}${texit === 'prevlow' ? '_prevlow' : ''}`;
     } else {
       const rk = mode.replace('R', '');
       args.push('--exit', 'target', '--rk', rk);

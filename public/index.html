@@ -63,7 +63,17 @@
     <button data-f="gap">&lt;−1R gap losses</button>
     <button data-f="amb">ambiguous</button>
     <span class="sub" id="count"></span>
-    <span style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <span id="odtegroup" hidden style="margin-left:auto;display:flex;gap:6px;align-items:center">
+      <label class="sub"><b style="color:#00c8f0">0DTE:</b> trigger</label>
+      <select id="odtetrig"><option value="afford">afford (dynamic)</option><option value="t2">fixed +2%</option></select>
+      <label class="sub">transform into</label>
+      <select id="odtedte"><option value="5">weekly</option><option value="21">monthly</option></select>
+      <label class="sub">exit</label>
+      <select id="odteexit"><option value="trail">SABM trail</option><option value="prevlow">prev-low close</option></select>
+      <button id="odtego">▶ show</button>
+      <span class="sub" id="odtestat"></span>
+    </span>
+    <span id="opengroup" style="margin-left:auto;display:flex;gap:6px;align-items:center">
       <label class="sub"><b style="color:#00c8f0">daily-open:</b> SL %</label>
       <input id="opensl" type="number" value="0.25" min="0.05" max="5" step="0.05"
              style="width:70px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:5px 8px">
@@ -118,6 +128,20 @@ function tabOf(v) {
   return 'breakout';
 }
 function tabVariants() { return TAB === 'all' ? VARIANTS : VARIANTS.filter(v => tabOf(v) === TAB); }
+function odteVariant() {
+  return 'SPY_0dtew' + (el('odtetrig').value === 't2' ? '_t2' : '')
+    + (el('odtedte').value === '21' ? '_21d' : '') + (el('odteexit').value === 'prevlow' ? '_prevlow' : '');
+}
+function syncOdtePickers() {
+  if (!dir.includes('_0dtew')) return;
+  el('odtetrig').value = dir.includes('_t2') ? 't2' : 'afford';
+  el('odtedte').value = dir.includes('_21d') ? '21' : '5';
+  el('odteexit').value = dir.includes('_prevlow') ? 'prevlow' : 'trail';
+}
+function syncRunGroups() {
+  el('odtegroup').hidden = TAB !== '0dte';
+  el('opengroup').hidden = TAB === '0dte';
+}
 function syncVariantSelect() {
   const vs = tabVariants();
   el('variant').innerHTML = vs.map(v => `<option>${v}</option>`).join('');
@@ -222,6 +246,7 @@ async function load() {
   }
   renderTable();
   el('viewer').hidden = true;
+  syncOdtePickers();
 }
 
 el('variant').onchange = e => { dir = e.target.value; load(); };
@@ -230,16 +255,41 @@ document.querySelectorAll('#tabbar button[data-tab]').forEach(b => b.onclick = (
   try { localStorage.setItem('rezsabm_tab', TAB); } catch {}
   document.querySelectorAll('#tabbar button[data-tab]').forEach(x => x.classList.toggle('on', x === b));
   el('tabdesc').textContent = TABDESC[TAB];
+  syncRunGroups();
   renderOverview();
   syncVariantSelect();
   if (dir) load();
 });
+['odtetrig', 'odtedte', 'odteexit'].forEach(id => el(id).onchange = () => {
+  const v = odteVariant();
+  if (VARIANTS.includes(v)) { dir = v; el('variant').value = v; el('odtestat').textContent = ''; load(); }
+  else el('odtestat').textContent = `${v} not computed yet — press ▶`;
+});
+el('odtego').onclick = async () => {
+  const v = odteVariant();
+  if (VARIANTS.includes(v)) { dir = v; el('variant').value = v; el('odtestat').textContent = ''; load(); return; }
+  const trig = el('odtetrig').value === 't2' ? '2' : 'afford';
+  const r = await (await fetch(`/api/run-open?exit=transform&sl=0.25&trigger=${trig}&dte=${el('odtedte').value}&texit=${el('odteexit').value}`, { method: 'POST' })).json();
+  if (r.error) { el('odtestat').textContent = r.error; return; }
+  el('odtestat').textContent = `running ${r.variant}…`;
+  const timer = setInterval(async () => {
+    const st = await (await fetch('/api/run-open-status')).json();
+    el('odtestat').textContent = st.running ? `running: ${st.tail}` : 'done';
+    if (!st.running) {
+      clearInterval(timer);
+      VARIANTS = await (await fetch('/api/variants')).json();
+      syncVariantSelect(); renderOverview();
+      if (VARIANTS.includes(r.variant)) { dir = r.variant; el('variant').value = dir; load(); }
+    }
+  }, 5000);
+};
 (async () => {
   VARIANTS = await (await fetch('/api/variants')).json();
   const tb = document.querySelector(`#tabbar button[data-tab="${TAB}"]`) || document.querySelector('#tabbar button[data-tab="all"]');
   TAB = tb.dataset.tab;
   document.querySelectorAll('#tabbar button[data-tab]').forEach(x => x.classList.toggle('on', x === tb));
   el('tabdesc').textContent = TABDESC[TAB];
+  syncRunGroups();
   syncVariantSelect();
   renderOverview();
   if (dir) load();
