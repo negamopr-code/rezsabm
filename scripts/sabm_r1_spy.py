@@ -1565,8 +1565,15 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
     hi_i = min(len(bars), i1 + pad_after + 1)
     win = bars[lo_i:hi_i]
     ie, ix = i0 - lo_i, i1 - lo_i
-    lo = min(min(b['low'] for b in win), t['stop'])
-    hi = max(max(b['high'] for b in win), t['target'])
+    # level prices that must stay inside the visible range (SMB structures have leg
+    # strikes / BE instead of a breakout target; 0DTE-transform has BE only)
+    _lvl_ps = [t['stop']] + ([t['target']] if t.get('target') is not None else [])
+    if t.get('smb'):
+        _lvl_ps += [p for p, _nm in t.get('legs_view', [])]
+    if t.get('opt') and t.get('be') is not None:
+        _lvl_ps.append(t['be'])
+    lo = min([min(b['low'] for b in win)] + _lvl_ps)
+    hi = max([max(b['high'] for b in win)] + _lvl_ps)
     hi += (hi - lo) * 0.04  # headroom so the next ladder line can peek in when close
     span = max(hi - lo, 1e-9)
     pl, pr, pt, pb = round(8 * s), round(64 * s), round(34 * s), round(26 * s)
@@ -1587,16 +1594,25 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
     # SABM p.58 ladder: entry green, stop red, R1..R3 blue, R4+ grey; ladder lines are
     # drawn only where they fall inside the visible price range (keeps the candles readable).
     R_abs = t['entry_price'] - t['stop']
-    if t.get('opt'):
+    if t.get('smb'):
+        # SMB structure: draw the actual legs (short = red / long = blue) + BE;
+        # the R-ladder is meaningless for premium structures
+        levels = [(t['entry_price'], LVL_ENTRY, 'entry')]
+        if t.get('be') is not None:
+            levels.append((t['be'], TGT, 'BE'))
+        for p, nm in t.get('legs_view', []):
+            levels.append((p, LVL_STOP if nm.startswith('short') else LVL_TGT, nm))
+    elif t.get('opt'):
         levels = [(t['entry_price'], LVL_ENTRY, 'entry'), (t['be'], TGT, 'BE')]
     elif t.get('stops'):
         levels = [(t['entry_price'], LVL_ENTRY, 'entry')]  # trail drawn dynamically
     else:
         levels = [(t['entry_price'], LVL_ENTRY, 'entry'), (t['stop'], LVL_STOP, 'stop')]
-    for k in range(1, 7):
-        p = t['entry_price'] + k * R_abs
-        if p <= hi:
-            levels.append((p, LVL_TGT if k <= 3 else LVL_HI, f'R{k}'))
+    if not t.get('smb'):
+        for k in range(1, 7):
+            p = t['entry_price'] + k * R_abs
+            if p <= hi:
+                levels.append((p, LVL_TGT if k <= 3 else LVL_HI, f'R{k}'))
     lab_gap = round(11 * s)
     lab = sorted((int(y(p)), p, col, name) for p, col, name in levels)
     lab_ys, last_y = {}, None
@@ -1687,7 +1703,21 @@ def render_video(bars, t, path, w=1280, h=720, pad_before=12, pad_after=4, max_f
 
     win_col = UP if t['r'] > 0 else DN
     _dl = f"d{t['delta']:g}" if t.get('delta') is not None else 'BSM'
-    if t.get('opt') and t.get('stops'):
+    if t.get('smb'):
+        _legs = ' '.join(f"{nm} {p:g}" for p, nm in t.get('legs_view', []))
+        _cd = t.get('credit_debit')
+        _cd_s = '' if _cd is None else f"  {'credit' if _cd > 0 else 'debit'} {abs(_cd):.2f}"
+        head_live = (f"{SYM} 1d  #{t['n']:04d}  SMB {t['smb'].upper()} {t['entry_date']} @ {t['entry_price']}  "
+                     f"{_legs}{_cd_s}  forming...")
+        head_done = (f"{SYM} 1d  #{t['n']:04d}  SMB {t['smb'].upper()} {t['entry_date']} @ {t['entry_price']}  {_legs}  "
+                     f"-> {t['exit_date']}  {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
+    elif t.get('open_entry') and t.get('opt'):
+        head_live = (f"{SYM} 1d  #{t['n']:04d}  0DTE->weekly CALL {t['entry_date']} @ {t['entry_price']}  "
+                     f"BE {t['be']:.2f}  forming...")
+        head_done = (f"{SYM} 1d  #{t['n']:04d}  0DTE->weekly CALL {t['entry_date']} @ {t['entry_price']}  "
+                     f"-> {t['exit_date']}  gross {t['r_gross']:+.2f}R - prem {t['premium_R']:.2f}R "
+                     f"({t['weeks_rolled']}wk) = {t['r']:+.2f}R ({t['reason']}, {t['days']}d)")
+    elif t.get('opt') and t.get('stops'):
         head_live = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
                      f"rolls {OPT_PREM:g}%/{OPT_DAYS}d  forming...")
         head_done = (f"{SYM} 1d  #{t['n']:04d}  CALL {_dl} SABM-II trail {t['entry_date']} @ {t['entry_price']}  "
