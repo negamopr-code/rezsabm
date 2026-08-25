@@ -105,3 +105,17 @@ R6 — ledger.json is held in memory by a running harvester and re-saved after e
 edit it while the harvester is alive (edits get overwritten).
 Pending cleanup (supervisor at end of run): rm transcripts/zs4pK__ncCo.txt; ledger zs4pK__ncCo →
 pending; delete 6 leftover YouTube sources incl. ecefa0da-c890-43fb-abed-50382daaa347.
+
+### 2026-08-25 09:20 UTC — user directives: visible heartbeat + progressive NLM usage
+User: "you should just output this heartbeat shortly to nlm slot manager, where I can see what is
+going on" and "it is better to use quota of nlm progressively and not at one time at the end of
+the day".
+Implemented: R7 — every supervisor writes `smb/heartbeat.sh <state> "<summary>" ["<needs user>"]`
+at least every 10 min → `persistent/nlm-profile/heartbeats/smb-pipeline.json` → shown on the
+NLM Slot Manager (http://localhost:8110/, section "Background jobs"; >20 min without heartbeat =
+STALE in red). R8 — chunked cycle instead of one 400-run: harvest 40 → (harvester exits) →
+cleanup leftovers → audit → sync_archives → distill batch (agent) → volume upload → journal sync
+→ heartbeat → next chunk. NLM work is spread across the day and R5 (no concurrent adds) holds
+because every add happens between chunks. Slot-manager patch (collectors.scanHeartbeats +
+"Background jobs" UI) applied via docker cp into `workspaces/nlm slot manager` — NOT yet
+git-committed there (no git in that container; commit from a session with that mount).
