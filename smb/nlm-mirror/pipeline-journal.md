@@ -148,3 +148,62 @@ LESSON / R9: a `docker exec -d` job does not survive a Docker restart, and neith
 supervising agent of a finished session. Every session touching SMB must (a) read the heartbeat
 age first, (b) if container StartedAt > last log line ⇒ restart the chunk, no diagnosis needed,
 (c) leave a supervisor agent running for as long as the session lives.
+
+### 2026-08-25 12:40 → 16:47 UTC — supervisor killed by session limit; post-chunk steps did not run (4 h gap)
+Symptom: heartbeat stale 12:39→16:47. The cycle-2 chunk (`harvest 40`, pid 322, restarted 12:00) finished
+on its own (ledger 221 transcribed) but the supervisor agent died with the Claude session at ~12:40, so
+cleanup/audit/sync/distill/next-chunk never ran (R9(c) again — the supervisor's life is the session's).
+Resume 16:5x: harvester dead (lock pid gone, /proc grep clean, container StartedAt 09:54 unchanged),
+auth valid. Cleanup: stale lock removed; 5 leftover YouTube sources deleted after re-list (stranded
+c9432390 + 4× DUY1tapNfZE) → notebook = 4 keep sources. audit 221 ok / 0 suspect. sync_archives:
+archive vol.1 = 141 videos (2,392,834 chars), vol.2 = 80 videos (1,187,496 chars). Distill batch 5
+agent launched (backlog 120 → 15 taken: vFTpvP8kwzY WDbHqMeSCHA lRj741LUAFo 1HXDto7qXaU RbWA61gJSa4
+KPcDNIqd4OI Stfx1brjj0k 4iCQciAzjJY pW2ZZAAPVMI DQ6nTpng7MM ic24mZL9Fdk qm5ENAPUCEA toMmfKHzQXU
+weUoHkMBL4A ipzry05eP00).
+FINDING — "add refused" is not always rate-limit OR auth: DUY1tapNfZE ("Options Tribe Sam Parikh…",
+12k views) got 4× "Could not add url source" (60/300/900 s backoff, ~21 min wasted) while NLM in fact
+CREATED a youtube source each time, titled with the raw URL — the video is not fetchable by NLM (likely
+a livestream/restricted). Ledger set to `unavailable` (not pending) so it is never retried.
+TODO harvest.py: after a refusal, re-list; if a new youtube source titled with the video URL appeared →
+delete it and mark `unavailable` immediately (no backoff). Decision: `failed`+"refused" entries are reset
+to pending only when auth was the cause; per-video refusals with URL-titled sources = unavailable.
+UPDATE 17:1x UTC: the harvest.py TODO above is DONE (patched while no harvester was alive; mirrored in
+REZSABM/smb/smb_harvest.py): on a "could not add", re-list; a new source titled with the video URL ⇒
+delete the stub, ledger `unavailable`, return without backoff. Auth probe unchanged (runs after).
+
+## COMMENTS PIPELINE (second SMB pipeline — YouTube comments → raw archive + audience analysis)
+
+### 2026-08-25 16:45 UTC — pipeline born (user directive 12:15 UTC; a first agent died before doing anything)
+Mechanism REUSED, not invented: yt-dlp `getcomments` exactly as yt2nlm/youtube.py fetch_video (no API key),
+cap lifted to `max_comments=all,all,all,all` (yt2nlm caps at 1000 — see market-monitor sharp edge);
+verified: the 1.1M-view video returns 1002 comments = YouTube's own comment_count, ~90 s; small videos ~5 s.
+Files (container awf-monitor-runner:/app/state/smb-options/, mirrored in REZSABM/smb/): `comments_harvest.py`
+(ledger-driven over videos.json most-viewed first; own state only: comments/<id>.jsonl, comments_ledger.json,
+comments.log, comments_harvest.lock — NEVER touches the transcript pipeline's ledger/lock/transcripts),
+`comments_sync.py` (archive volumes "SMB comments archive vol. N" ~400k chars, temporary "SMB comments batch
+<tag>" sources for source-scoped analysis queries, "SMB audience needs vol. 1"; every add is R5-guarded:
+exits 75 if harvest.lock pid is alive), `heartbeat-comments.sh` → heartbeats/smb-comments.json (Slot Manager
+"Background jobs"). Full collector launched 16:52 UTC (`docker exec -d … comments_harvest.py harvest`), 3-video
+e2e test passed first (1,953 comments).
+DESIGN DECISION (user, relayed 16:52 UTC — overrides the initial "Haiku, zero NLM quota" plan): the ANALYSIS is
+done by NotebookLM itself on work4 quota, market-monitor style: batch source uploaded → fixed question set asked
+source-scoped (`nlm notebook query -s <sid>`) → answers parsed → batch source deleted → comments merged into the
+archive. Per-comment coverage is verified by numbering every comment in the rendered source (`[#n 👍likes date]`,
+replies `#n.k`) and checking every number comes back; if NLM's per-comment coverage proves unreliable, NLM keeps
+the digest/takeaways/needs role and the per-comment topic count is done locally (stated in audience-needs.md).
+Haiku-via-OAuth path (cigna pattern) was verified working (0.9 s) but is NOT used for the analysis by user decision.
+Commenter display names stay in the raw archive (NLM) only — never in audience-needs.md, digests, memory, commits;
+the local mirror /workspace/smb/comments/ is gitignored.
+
+### 2026-08-25 16:55 UTC — user refinement: spend NLM quota WISELY (relayed by coordinator)
+No per-video / small-batch queries. Batch unit = one COMPLETED "SMB comments archive vol. N" (~400k chars ≈
+1.5–2k comments; volumes are stable once the next one starts because videos arrive in fixed most-viewed order).
+Round = 4 fixed questions over that volume's source (concerns+new topics / takeaways / unanswered questions /
+needs), a handful of rounds per day (R8), every query logged below with purpose + size. Per-comment counting =
+local rule-based classifier (`~/.claude/skills/smb-audience/scripts/classify.py`, zero quota; coarse — ~40% of
+comments fall into offtopic/praise sinks in v0, NLM's concern ranking is used to refine rules). Temporary batch
+sources dropped from the design (test source cd25b3c0 deleted, no AI quota spent on it). Local layer first run:
+4,882 comments / 10 videos classified 16:56 UTC.
+#### NLM query log (comments pipeline)
+- 2026-08-25 16:59 UTC NLM query `concerns` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: concerns layer of audience-needs.md): answered in 68s, 5099 chars
+- 2026-08-25 16:59 UTC NLM query `takeaways` over "SMB comments archive vol. 1" (source bf1a74ec): NO ANSWER after 1s () → stop round, retry later (exit 75)
