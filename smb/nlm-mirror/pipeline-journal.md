@@ -119,3 +119,32 @@ cleanup leftovers → audit → sync_archives → distill batch (agent) → volu
 because every add happens between chunks. Slot-manager patch (collectors.scanHeartbeats +
 "Background jobs" UI) applied via docker cp into `workspaces/nlm slot manager` — NOT yet
 git-committed there (no git in that container; commit from a session with that mount).
+
+## 2026-08-25 09:19–09:30 UTC — cycle 1 (supervisor, progressive-chunk mode)
+Harvester 400-run (started 08:5x, old source-diff code) stopped cleanly at [64/400] after
+BY2qOpNoDdI began (ledger confirmed pending); 94 → 157 transcribed at ~3 vid/min, 0 refusals,
+auth valid throughout. Cleanup: rm transcripts/zs4pK__ncCo.txt + ledger → pending; deleted 5
+leftover YouTube sources (627beeb9, 2a1a49fd, 19119e29, 97aa8831, ecefa0da) → notebook = 3 keep
+sources. Source count stayed 9 during the whole run (no concurrent adders observed).
+audit_transcripts: 156 ok / 0 suspect. sync_archives 41 s: archive vol.1 = 142 videos
+(2,389,200 chars), NEW archive vol.2 = 14 videos (210,126 chars). Distill batch 4 (agent): 15
+videos, volume 32,304 → 39,216 words, all 15 files read to EOF (no truncation), new
+"SMB Options vol. 1" = f357475f-7e7b-457a-8b34-a1d9327e6284, old a6701d05 deleted, commit
+9e1be2c; distill backlog 56. Next: harvester chunk of 40 (patched harvest.py, title-match).
+
+### 2026-08-25 11:59–12:05 UTC — STALE heartbeat (2h20m) root-caused: Docker restart killed the harvester
+User: "smb is without heartbeat more than 20 min". Last heartbeat 09:37, last harvest.log line 09:39
+([28/40] tpxBJhfawzQ, cycle-2 chunk). `docker inspect awf-monitor-runner` StartedAt = 09:54:21 UTC —
+every container shows "Up 2 hours" ⇒ Docker/WSL restarted at 09:54 and the `docker exec -d` harvester
+(pid 3200) died with it; the previous session's supervisor agent was gone too, so nobody re-armed.
+Auth on work4 was VALID (notebook list ok) — this was not the 08-25 cookie incident. One stranded
+YouTube source c9432390 ("A Really Interesting One Day Options Strategy") left in the notebook.
+Fix 12:00 UTC: harvest.log → harvest.log.cycle2-part1, stale lock removed, `harvest 40` restarted
+(pid 322; ledger-driven, so it continues from the 12 remaining + next pending), heartbeat written.
+`nlm source delete` without `--confirm` prompts and aborts — the stranded c9432390 stays until the
+harvester exits (R5), then delete with `--confirm`. harvest_one's `before` snapshot excludes it, so
+the re-added copy is selected unambiguously.
+LESSON / R9: a `docker exec -d` job does not survive a Docker restart, and neither does the
+supervising agent of a finished session. Every session touching SMB must (a) read the heartbeat
+age first, (b) if container StartedAt > last log line ⇒ restart the chunk, no diagnosis needed,
+(c) leave a supervisor agent running for as long as the session lives.
