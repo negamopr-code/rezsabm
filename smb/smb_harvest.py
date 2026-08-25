@@ -126,6 +126,19 @@ def harvest_one(v, led):
             break
         # 2026-08-25 incident: "could not add" masked an EXPIRED work4 session for 34 h.
         # Probe auth once; if expired, backoff is pointless -> exit loudly for the supervisor.
+        # 2026-08-25 16:5x incident (DUY1tapNfZE): "could not add" while NLM still CREATED a
+        # youtube source titled with the raw URL -> the video itself is not fetchable. Delete the
+        # stub, mark unavailable, no backoff (4 retries wasted 21 min and left 4 stub sources).
+        stubs = [k for k, t in source_ids().items()
+                 if k not in before and (t or '').strip().rstrip('/') in (v['url'], v['url'].replace('www.', ''))]
+        if stubs:
+            for k in stubs:
+                nlm('source', 'delete', k, '--confirm')
+                time.sleep(1.6)
+            led[vid] = {**led[vid], 'status': 'unavailable',
+                        'why': 'NLM could not add: stub source titled with URL (video not fetchable)'}
+            print('  NLM created a URL-titled stub source -> video not fetchable, marked unavailable', flush=True)
+            return False
         pr = nlm('notebook', 'list', timeout=120)
         if 'authentication expired' in (pr.stdout + pr.stderr).lower() or 'authentication error' in (pr.stdout + pr.stderr).lower():
             save(LEDGER, led)

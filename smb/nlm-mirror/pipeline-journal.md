@@ -207,3 +207,7 @@ sources dropped from the design (test source cd25b3c0 deleted, no AI quota spent
 #### NLM query log (comments pipeline)
 - 2026-08-25 16:59 UTC NLM query `concerns` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: concerns layer of audience-needs.md): answered in 68s, 5099 chars
 - 2026-08-25 16:59 UTC NLM query `takeaways` over "SMB comments archive vol. 1" (source bf1a74ec): NO ANSWER after 1s () → stop round, retry later (exit 75)
+Batch 5 DONE 17:2x UTC: 15/15 read to EOF, volume 39,216 → 45,044 words, new "SMB Options vol. 1" =
+6f972687-1d57-4379-86ec-11dcb98c26d8 (old f357475f deleted), commit 5f6b7f5; distill backlog 105.
+Comments pipeline (parallel agent) uploaded "SMB comments archive vol. 1–3" while no harvester was
+alive (R5 respected). Next: journal sync → chunk 3 (harvest 40, patched harvest.py).
