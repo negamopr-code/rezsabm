@@ -124,6 +124,13 @@ def harvest_one(v, led):
         if 'could not add' not in (r.stdout + r.stderr).lower():
             REFUSED_STREAK[0] = 0
             break
+        # 2026-08-25 incident: "could not add" masked an EXPIRED work4 session for 34 h.
+        # Probe auth once; if expired, backoff is pointless -> exit loudly for the supervisor.
+        pr = nlm('notebook', 'list', timeout=120)
+        if 'authentication expired' in (pr.stdout + pr.stderr).lower() or 'authentication error' in (pr.stdout + pr.stderr).lower():
+            save(LEDGER, led)
+            print('AUTH EXPIRED for profile ' + PROFILE + ' - sync keeper cookies -> bind store and restart (see smb/nlm-mirror/pipeline-journal.md)', flush=True)
+            sys.exit(3)
     else:
         # add-refusal is a RATE LIMIT symptom, NOT missing captions -> retryable 'failed'
         led[vid] = {**led[vid], 'status': 'failed', 'why': 'add refused after retries'}
@@ -135,11 +142,24 @@ def harvest_one(v, led):
         return False
     sid = None
     for _ in range(6):
-        now = set(source_ids())
-        new = now - before
+        now = source_ids()
+        new = {k: t for k, t in now.items() if k not in before}
         if new:
-            sid = new.pop()
-            break
+            # 2026-08-25 incident: a concurrently uploaded volume/journal source was grabbed
+            # as "the video" and then deleted. Prefer the source whose title matches the video;
+            # never touch sources that look like our own documents.
+            def ours(t):
+                t = (t or '').lower()
+                return t.startswith('smb options') or t.startswith('smb transcripts') or t.startswith('smb-mirror')
+            want = re.sub(r'\W+', ' ', v['title'].lower()).strip()
+            cand = [k for k, t in new.items() if want and re.sub(r'\W+', ' ', (t or '').lower()).strip()[:40] == want[:40]]
+            if not cand:
+                cand = [k for k, t in new.items() if not ours(t)]
+            if len(cand) == 1:
+                sid = cand[0]
+                break
+            if len(cand) > 1:
+                print(f'  ambiguous new sources {cand} - waiting', flush=True)
         time.sleep(10)
     if sid is None:
         led[vid] = {**led[vid], 'status': 'failed', 'why': 'no new source appeared'}
@@ -150,6 +170,10 @@ def harvest_one(v, led):
         if text and len(text) > 300:
             break
         time.sleep(20)
+    if text and text.lstrip()[:80].upper().startswith('# SMB OPTIONS'):
+        print('  captured a foreign source (distilled volume) - NOT deleting it, marking pending', flush=True)
+        led[vid] = {**led[vid], 'status': 'pending'}
+        return False
     if text and len(text) > 300:
         os.makedirs(TDIR, exist_ok=True)
         with open(os.path.join(TDIR, vid + '.txt'), 'w') as f:

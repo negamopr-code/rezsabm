@@ -84,3 +84,24 @@ check (reject bodies that start with "SMB OPTIONS — distilled" or exceed ~6× 
 Also noted: no "SMB Options vol. 1" source existed in the notebook before batch 3's upload
 (7 sources listed) — the batch-2 copy had disappeared; batch 3 re-added it as
 a6701d05-2a2b-4c5f-915f-039fa5e0e3a7 (ready).
+
+### 2026-08-25 — ROOT CAUSE of the zs4pK__ncCo contamination + vanished vol. 1: source-identification race
+Confirmed by reading harvest.py: after `source add` it took `new = source_ids(now) − before` and used
+`new.pop()` as the video source. Any CONCURRENT `source add` on the notebook (distiller uploading
+"SMB Options vol. 1", journal sync, sync_archives.py) lands in that set → the harvester reads the
+foreign document as the "transcript" and then DELETES it. That is how the batch-2 vol. 1 source
+disappeared and why zs4pK__ncCo.txt contains the volume. Only 1 of 131 transcripts affected (scan
+08-25 09:30 UTC: header check + size outliers).
+Fix (harvest.py patched 09:35 UTC, effective on next restart; mirrored in REZSABM/smb/smb_harvest.py):
+(1) new source chosen by TITLE MATCH with the video, never a source titled "SMB Options*/SMB
+transcripts*/smb-mirror*"; ambiguous → wait; (2) content starting with "# SMB OPTIONS" → mark
+pending, do NOT delete the source; (3) on the first "could not add", probe `nlm notebook list` →
+"Authentication expired" ⇒ print AUTH EXPIRED and exit 3 (no backoff).
+RULES (standing): R5 — NEVER `source add` to the SMB notebook while a harvester process is alive:
+no sync_archives, no volume upload, no journal sync. Order at end of a harvest run: cleanup
+(remove bad transcript, ledger → pending, delete leftover YouTube sources after re-listing) →
+audit_transcripts → sync_archives → volume upload → journal sync → restart harvester.
+R6 — ledger.json is held in memory by a running harvester and re-saved after every video: never
+edit it while the harvester is alive (edits get overwritten).
+Pending cleanup (supervisor at end of run): rm transcripts/zs4pK__ncCo.txt; ledger zs4pK__ncCo →
+pending; delete 6 leftover YouTube sources incl. ecefa0da-c890-43fb-abed-50382daaa347.
