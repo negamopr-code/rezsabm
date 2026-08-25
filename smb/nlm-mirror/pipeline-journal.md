@@ -61,3 +61,26 @@ Decisions: (a) auth expiry ⇒ sync volume→bind, NOT retry; (b) if the keeper'
 also fail → human login via noVNC http://localhost:8106 is required, stop and report;
 (c) harvest.py should probe auth (`notebook list`) on the first refusal and exit with a clear
 "AUTH EXPIRED" message instead of backing off — TODO, not yet implemented.
+
+### 2026-08-25 — distill batch 3: transcript zs4pK__ncCo is NOT a transcript (wrong NLM source captured)
+Symptom: `transcripts/zs4pK__ncCo.txt` ("Top 3 Options Trading Mistakes You Must Avoid", 94k views)
+is 164,752 chars — ~8× a normal transcript — and after the harvester's `## title | views | url`
+header its body is a verbatim copy of **SMB Options vol. 1** (the distilled volume), not the
+video. ledger.json still says `status: transcribed, chars: 161450`. The youtube source for that
+video (id ecefa0da-…) is also still present in the notebook, i.e. the harvester's delete step did
+not run for it. Likely cause: the raw-content poll read a different source (the volume upload
+that was happening concurrently) instead of the freshly added video source — harvest.py polls
+by position/latest rather than by the source id it just created (to verify).
+Distiller action: excluded from batch 3, substituted W5Gl_E2Sq-A; ledger row in volume-1.md
+marks it "NOT DISTILLED — re-harvest required". Note for backlog computation: the volume now
+CITES [zs4pK__ncCo] (header + ledger), so a set-difference "harvested − cited" will hide it —
+treat it as pending until re-harvested.
+Fix TODO (supervisor/harvester owner): (1) delete/rename `transcripts/zs4pK__ncCo.txt`;
+(2) set ledger.json[zs4pK__ncCo].status → pending (only while no harvester holds harvest.lock);
+(3) delete stale youtube source ecefa0da-c890-43fb-abed-50382daaa347 after re-listing;
+(4) make harvest.py poll the source id returned by `source add` and add a content sanity
+check (reject bodies that start with "SMB OPTIONS — distilled" or exceed ~6× expected chars/min);
+(5) audit_transcripts.py should flag size outliers, not only short/garbled tails.
+Also noted: no "SMB Options vol. 1" source existed in the notebook before batch 3's upload
+(7 sources listed) — the batch-2 copy had disappeared; batch 3 re-added it as
+a6701d05-2a2b-4c5f-915f-039fa5e0e3a7 (ready).
