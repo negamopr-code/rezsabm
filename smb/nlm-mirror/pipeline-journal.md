@@ -220,3 +220,20 @@ alive (pid 1754, 20/364 videos). work4 auth valid. Patched smb_harvest.py (URL-t
 verified identical to the container copy; committed. Chunk 3 = `harvest 40` launched 17:0x UTC.
 Side incident: http://localhost:8114/ (openday-serve) dead for the user although container Up + app
 listening ⇒ wedged port forward after the 09:54 Docker restart; `docker restart openday-serve` → 200.
+- 2026-08-25 17:02 UTC INCIDENT: `takeaways` query returned empty after 1 s (transient; identical query answered fine 2 min later). Manual reproduction printed only the first 800 chars of the answer → that answer was NOT stored = one wasted work4 query. Fixes: analyze.py resumes from `vol-N.md.partial` (never re-asks an answered question) + one retry after 45 s on an empty answer; rule: every NLM answer goes to a file BEFORE any peek.
+
+### 2026-08-25 17:02 UTC — DOCKER ENGINE RESTART #2 (root cause found: openday video render OOMs the WSL VM)
+All 30 containers restarted 17:02:36; claude session died ("it crashed again"). Harvester (chunk 3, pid 2162,
+at [1/40]) and comments collector (pid 1754, 21/361) killed, locks stale, one stranded YouTube source
+2371d404 ("A Lucrative Options Strategy for AMZN" — its ledger entry was already `transcribed`, so only the
+notebook copy was orphaned). R9 applied 17:04: auth valid → stranded source deleted (--confirm) → logs rotated
+(harvest.log.chunk3-part1, comments.log.part1) → both locks removed → `harvest 40` + `comments_harvest.py
+harvest` relaunched (pids 75 / 83), heartbeats green (225 transcribed / 137 pending; comments 25/364, 8,418 stored).
+ROOT CAUSE (both restarts today, 09:54 and 17:02): openday-serve `render_full.py` = min(cpu-1,12) = 12 parallel
+PIL+ffmpeg libx264 1080p chunks, auto-threaded, no container memory limit → WSL VM (10 GB, ~5 GB in use)
+OOM → Docker Desktop restarts the engine. GAZP render finished 09:51 → restart 09:54; SPY tps2 render started
+17:01 → restart 17:02. Fix (host workspaces/openday via docker exec -i): OPENDAY_RENDER_WORKERS default 3 +
+`-threads 2` per encoder (measured 862 MiB, 753 frames/min); `docker update --memory 3g --memory-swap 3g
+openday-serve` live + same flags in scripts/serve.sh. Verified: the unpatched 12-chunk run under the cap pinned
+at 3.0 GiB but Docker SURVIVED (cap contains the blast radius). Lesson: `docker exec` without `-i` swallows a
+heredoc silently — the first patch attempt was a no-op; always grep-verify.

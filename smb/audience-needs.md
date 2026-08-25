@@ -1,14 +1,14 @@
 # SMB Capital options audience — what the comments say (living doc)
 
-Updated 2026-08-25 16:56 UTC · 4882 comments classified from 10 videos · raw archive: NLM sources "SMB comments archive vol. N" (work4, notebook SMB Options).
+Updated 2026-08-25 17:01 UTC · 4882 comments classified from 10 videos · raw archive: NLM sources "SMB comments archive vol. N" (work4, notebook SMB Options).
 Method: every comment is tagged locally (rule-based taxonomy, zero quota) → counts + engagement weight (1 + likes + replies); NotebookLM is asked a fixed set of 4 questions per completed archive volume (semantic layer: new concerns, takeaways, unanswered questions, needs). Names of commenters never appear here.
 
 ## Scoreboard — concerns / topics (all videos)
 
 | # | topic | comments | % | engagement-weighted | questions | negative |
 |---|---|---|---|---|---|---|
-| 1 | Off-topic (`offtopic`) | 2121 | 43.4% | 13004 | 457 | 200 |
-| 2 | Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) (`strategy_specific`) | 891 | 18.3% | 5351 | 332 | 171 |
+| 1 | Off-topic (`offtopic`) | 2121 | 43.4% | 13004 | 457 | 199 |
+| 2 | Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) (`strategy_specific`) | 890 | 18.2% | 5349 | 331 | 170 |
 | 3 | Praise / testimonial / thanks (`praise`) | 919 | 18.8% | 4707 | 152 | 54 |
 | 4 | Data / backtesting / stats / edge validation (`data_backtest`) | 154 | 3.2% | 2112 | 49 | 31 |
 | 5 | Market regime / volatility environment / macro (`market_regime`) | 122 | 2.5% | 2069 | 37 | 27 |
@@ -81,7 +81,7 @@ Method: every comment is tagged locally (rule-based taxonomy, zero quota) → co
 | [How to Trade Covered Calls Properly (The 3 keys to Uncommon ](https://www.youtube.com/watch?v=U8gFC00kZ58) | 569 | Off-topic 159, Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) 114, Praise / testimonial / thanks 76 |
 | [Is it Easy to Make Weekly Income Through Options Trading? (t](https://www.youtube.com/watch?v=Qj8_3eybnaE) | 502 | Off-topic 202, Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) 68, Praise / testimonial / thanks 63 |
 | [The Only Options Trading Course a Beginner Will Ever Need (T](https://www.youtube.com/watch?v=w_BjFmbwbYA) | 414 | Off-topic 140, Praise / testimonial / thanks 120, Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) 31 |
-| [The Top 3 0 DTE Options Trading Strategies](https://www.youtube.com/watch?v=UG4f752OXq8) | 385 | Off-topic 101, Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) 87, Praise / testimonial / thanks 51 |
+| [The Top 3 0 DTE Options Trading Strategies](https://www.youtube.com/watch?v=UG4f752OXq8) | 384 | Off-topic 101, Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) 86, Praise / testimonial / thanks 51 |
 | [The Psychology of Hedge Fund Traders (Insights from Elite Tr](https://www.youtube.com/watch?v=mKQq33Rtdfo) | 243 | Off-topic 160, Praise / testimonial / thanks 41, Risk / position sizing / psychology 16 |
 
 ## Top unanswered questions (top-level, no replies, by likes — local layer)

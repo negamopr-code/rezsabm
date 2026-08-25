@@ -1,0 +1,34 @@
+### NotebookLM digest — SMB comments archive vol. 1 (2026-08-25 16:57 UTC)
+
+#### concerns
+
+| Taxonomy ID | Est. Comments | Description | Most-Liked Example (Paraphrased, ≤20 words) |
+| :--- | :--- | :--- | :--- |
+| praise | 700 | Deep gratitude for Seth's professional, clear, and hype-free options teaching style. | "Finally a person talking as a professional, not some guy trying to entertain me." |
+| management | 350 | Execution struggles, setting stop losses, and deciding when to close positions early to secure profits. | "I don't get scared when I'm down, but I get so nervous when I'm up." |
+| losses | 300 | Coping with massive losses, account liquidations, and the struggle to recover after blowing up capital. | "Becoming a good trader takes time; I was liquidated twice and lost my mortgage deposit before succeeding." |
+| small_account | 250 | Difficulty trading or scaling recommended strategies due to small starting capital (\$100 to \$1,000). | "I wouldn't recommend these strategies for small accounts; spreads tie up too much capital and are too risky." |
+| broker_platform | 200 | Struggles getting approved for Level 3/margin spreads on various brokers (ETrade, TD Ameritrade, Webull). | "Brokers do not allow new options traders to trade multi-leg spreads with a small account." |
+| skepticism | 150 | Accusations of using hindsight-based, perfect historical examples while omitting real-world risks to market courses. | "It is easy to look back in hindsight and see how you could have had different results." |
+| spam | 120 | Coordinated bot networks pretending to be successful students to push Telegram/WhatsApp financial advisors. | "Sir Ronal on Telegram has helped investors recover losses and make over \$32k weekly." |
+| market_regime | 110 | Navigating options strategies during high inflation, interest rate hikes, or impending market crashes. | "With 9% inflation and my stagnant \$300,000 retirement fund, how do I optimize my savings?" |
+| strikes_dte | 100 | Questions regarding strike price selection, optimal Days to Expiration (DTE), and handling 0-DTE expiration mechanics. | "To find the right strike price for stock I want to keep, look for 0.15 to 0.2 delta." |
+| assignment | 85 | Panic over early assignment risk of American-style options, particularly prior to ex-dividend dates. | "American options can be assigned anytime, especially during ex-dividend dates when extrinsic value is gone." |
+| course_mentorship | 80 | Questions about enrolling in SMB's options training programs, webinar availability, and course cost concerns. | "The advertised class is highly advanced and they sell you a \$2,000 course after it." |
+| greeks | 75 | Confusion over greeks like delta and theta, option pricing models, and time decay behavior. | "TSLA with a 59 delta covered call is asking to be called away; select a lower delta." |
+| paper_vs_live | 60 | Psychological gap when transitioning from high success on simulators to trading with real money. | "I am a killer with paper money but when I trade my own money I am a pussy." |
+| strategy_specific | 50 | Inquiries comparing different strategies, including synthetic covered calls, iron condors, and butterfly spreads. | "Synthetic stock purchase is a pure options trade, completely different from long-term covered call investing." |
+| data_backtest | 40 | Questions on backtesting specific setups or comparing backtest models to live market data. | "I backtested the crap out of my strategy and kept my position size disciplined through drawdowns." |
+| terminology | 20 | Basic vocabulary confusion (e.g., "shorting," "selling a call without owning shares," definitions of "LEAPS"). | "An option that when first listed has a duration of at least a year is a Leap." |
+| tax | 15 | Inquiries on wash sales, IRS rules, or short-term vs. long-term capital gains tax on option rolling. | "Underlying stocks will be taxed as short-term even if held over a year if selling covered calls." |
+| non_us | 10 | Requests for foreign branch locations (India) or trading region-specific derivatives (Australian warrants). | "In Australia, I traded Warrants which had no margin calls, making them much safer than options." |
+| iv_crush | 8 | Expensive lessons learned from trading earnings volatility crush or holding options through binary events. | "Do not bet on earnings; volatility crush makes it no different than going to a casino." |
+
+### NEW TOPICS NOT IN TAXONOMY
+
+*   **NEW:trading_psychology** (Est. 400 comments)
+    *   *Description*: Massive focus on mental health, greed, FOMO, "revenge trading," and building the mental discipline to follow a plan.
+    *   *Most-Liked Example (Paraphrased)*: "Risk tolerance and emotional control are the two most important elements in trading, even over strategy." (15 words)
+*   **NEW:commissions_fees** (Est. 30 comments)
+    *   *Description*: Concerns about high transaction and commission costs on multi-leg strategies (e.g., 40 contracts for iron condors) erasing small account profits.
+    *   *Most-Liked Example (Paraphrased)*: "Risking \$700 to make \$300 on an iron condor is expensive once you calculate the broker's option commissions." (17 words)
