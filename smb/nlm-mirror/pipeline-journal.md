@@ -211,3 +211,12 @@ Batch 5 DONE 17:2x UTC: 15/15 read to EOF, volume 39,216 → 45,044 words, new "
 6f972687-1d57-4379-86ec-11dcb98c26d8 (old f357475f deleted), commit 5f6b7f5; distill backlog 105.
 Comments pipeline (parallel agent) uploaded "SMB comments archive vol. 1–3" while no harvester was
 alive (R5 respected). Next: journal sync → chunk 3 (harvest 40, patched harvest.py).
+
+### 2026-08-25 17:00 UTC — resume: chunk 2 done (221/364), chunk 3 launched; openday :8114 wedged forward restarted
+Heartbeat check first (R9): container StartedAt 09:54 unchanged, harvest.log ended at [40/40] of chunk 2,
+harvest.lock left EMPTY (stale — note: `test -d /proc/$(cat lock)` with an empty lock is a FALSE "alive",
+check the pid string is non-empty). Ledger 221 transcribed / 141 pending / 2 unavailable. Comments collector
+alive (pid 1754, 20/364 videos). work4 auth valid. Patched smb_harvest.py (URL-titled stub ⇒ unavailable)
+verified identical to the container copy; committed. Chunk 3 = `harvest 40` launched 17:0x UTC.
+Side incident: http://localhost:8114/ (openday-serve) dead for the user although container Up + app
+listening ⇒ wedged port forward after the 09:54 Docker restart; `docker restart openday-serve` → 200.
