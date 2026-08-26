@@ -237,3 +237,22 @@ OOM → Docker Desktop restarts the engine. GAZP render finished 09:51 → resta
 openday-serve` live + same flags in scripts/serve.sh. Verified: the unpatched 12-chunk run under the cap pinned
 at 3.0 GiB but Docker SURVIVED (cap contains the blast radius). Lesson: `docker exec` without `-i` swallows a
 heredoc silently — the first patch attempt was a no-op; always grep-verify.
+
+### 2026-08-26 19:32 UTC — resume after Docker restart #3 (26.6 h gap); R9 applied, chunk 3 + collector relaunched
+Session-start check (R9a/b): all 30 containers "Up 4 h" (awf-monitor-runner StartedAt 2026-08-26 15:42 UTC),
+last log lines 2026-08-25 17:12 UTC (harvest.log at chunk 3 [22/40] = KS9jeJdjy2M, comments.log at
+[32/340] PrsUnhNjF4Y) — i.e. both jobs died ~10 min after the 17:04 relaunch (engine restart #3 that
+evening; restart #4 today 15:42 — no jobs were alive to lose), and nobody re-armed for 26 h because the
+previous session's supervisor died with it (R9(c) again). Locks stale (pids 75/83 gone). No supervisor
+alive ⇒ 4 h+ of the day lost; the fix remains: leave a supervisor agent running for the session's life.
+R9 applied 19:32: work4 auth VALID (source list ok, 9 sources) → 2 stranded YouTube sources deleted
+(`--confirm`): cf90b1c1 = KS9jeJdjy2M (ledger pending → re-added cleanly by the harvester) and 27e8c91f =
+BtbqHO7YNE0 "7 Qualities…" (ledger already transcribed → orphan copy) → notebook = 7 keep sources (SMB
+Options vol. 1, transcripts archive vol. 1–2, comments archive vol. 1–3, smb-mirror journal) → logs rotated
+(harvest.log.chunk3-part2, comments.log.part2) → locks removed → `harvest 40` (pid 502) + `comments_harvest.py
+harvest` (pid 510) relaunched; 60 s later 2 transcripts landed (KS9jeJdjy2M 11,162 chars, foY0AsxTjqk
+26,928 chars), collector at [4/309]; heartbeats green (247 transcribed / 115 pending / 2 unavailable;
+comments 59 videos / 12,553 stored). Container scripts md5-identical to the REZSABM/smb mirrors.
+Next (supervisor agent, this session): poll every ~10 min; on chunk end → cleanup leftovers → audit →
+sync_archives → distill batch 6 → volume upload → journal sync → `harvest 40` again; comments_sync only
+while no harvester is alive (R5).
