@@ -287,3 +287,6 @@ queued for the chunk end.
 Next: supervisor agent (poll ~10 min; chunk end → cleanup → audit → sync_archives + comments_sync → distill
 batch 6 → `harvest 40` for the last ~22). Note for R9: 3 restarts in one evening with no OOM signature — if #7
 happens, check Docker Desktop / WSL host logs, not the render containers.
+- 2026-08-26 21:22 UTC NLM query `takeaways` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: takeaways layer of audience-needs.md): answered in 47s, 7766 chars
+- 2026-08-26 21:24 UTC NLM query `questions` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: questions layer of audience-needs.md): answered in 84s, 4050 chars
+- 2026-08-26 21:25 UTC NLM query `needs` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: needs layer of audience-needs.md): answered in 58s, 4962 chars
