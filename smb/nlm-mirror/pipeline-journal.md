@@ -256,3 +256,19 @@ comments 59 videos / 12,553 stored). Container scripts md5-identical to the REZS
 Next (supervisor agent, this session): poll every ~10 min; on chunk end → cleanup leftovers → audit →
 sync_archives → distill batch 6 → volume upload → journal sync → `harvest 40` again; comments_sync only
 while no harvester is alive (R5).
+
+### 2026-08-26 21:02 UTC — resume after Docker restart #5 (20:57 UTC); chunk 3 DONE, chunk 4 + collector relaunched
+Session-start check: all containers "Up 5 min" (awf-monitor-runner StartedAt 20:57:01). Both logs stopped at
+19:55 UTC — an hour BEFORE the engine restart: chunk 3 had finished (harvest.log.chunk3-part3 [40/40], ledger
+284 transcribed / 77 pending / 3 unavailable), chunk 4 had been launched (pid 1250) and died at [1/40]
+(j7curDJSpI4 added as source e0965147, never read); collector died at [145/309]. The previous session's
+supervisor died with the session at ~19:55 (R9(c) again) so the post-chunk sync never ran.
+R9 applied 21:02: work4 auth valid → stranded source e0965147 deleted (--confirm; ledger pending → re-added
+by chunk 4) → logs rotated (harvest.log.chunk4-part1, comments.log.part3) → locks removed → while no
+harvester alive (R5): audit_transcripts ok 285 / 0 suspect; sync_archives → transcripts vol. 2 synced (144
+videos, 2.10M chars), vol. 1 unchanged (141); comments_sync archive → vols 4–11 created (vol. 11 = 19 videos,
+564 comments; total 11 comment volumes) → `harvest 40` (pid 193) + collector (pid 201) relaunched 21:05;
+90 s later harvester at [5/40], collector at [11/165]. Notebook = SMB Options vol. 1 + transcripts vol. 1–2
++ comments vol. 1–11 + journal = 15 sources (50-cap fine).
+Next: supervisor agent for the session (poll ~10 min; chunk end → cleanup → audit → sync → distill batch 6 →
+`harvest 40`; comments_sync only in harvester gaps).
