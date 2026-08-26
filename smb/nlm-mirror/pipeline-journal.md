@@ -272,3 +272,18 @@ videos, 2.10M chars), vol. 1 unchanged (141); comments_sync archive → vols 4�
 + comments vol. 1–11 + journal = 15 sources (50-cap fine).
 Next: supervisor agent for the session (poll ~10 min; chunk end → cleanup → audit → sync → distill batch 6 →
 `harvest 40`; comments_sync only in harvester gaps).
+
+### 2026-08-26 21:18 UTC — resume after Docker restart #6 (21:16 UTC); chunk 4 died at [12/40], chunk 5 + collector relaunched
+Session-start check: every container "Up About a minute" (awf-monitor-runner StartedAt 21:16:19); restart cause
+unknown (docker events empty after daemon restart; host mem 9.9G, 4.2G available). Before the restart both logs
+show a DNS outage 21:11–21:13 (`Failed to resolve www.youtube.com`) → harvester "add refused" backoff at [12/40],
+collector FAILs at [30–31/165]; then the engine died. Chunk 4 got 11 transcripts (284 → 295). Previous session's
+supervisor died with it (R9(c) — 3rd time today).
+R9 applied 21:18: work4 auth valid, notebook = 15 sources, NO stranded YouTube source (the refusals were DNS, not
+NLM) → DNS ok again → logs rotated (harvest.log.chunk4-part2, comments.log.part4) → locks removed → `harvest 40`
+(chunk 5, pid 61) + collector relaunched 21:18; 90 s later harvester at [4/40] (299 transcribed / 62 pending /
+3 unavailable), collector at [11/137]. Not run this time (harvester alive, R5): sync_archives / comments_sync —
+queued for the chunk end.
+Next: supervisor agent (poll ~10 min; chunk end → cleanup → audit → sync_archives + comments_sync → distill
+batch 6 → `harvest 40` for the last ~22). Note for R9: 3 restarts in one evening with no OOM signature — if #7
+happens, check Docker Desktop / WSL host logs, not the render containers.
