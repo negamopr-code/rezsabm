@@ -303,3 +303,7 @@ vol. 3 created (23 videos) → comments_sync archive: vol. 11 = 71 videos / 1,93
 (analyze.py 2, 4 queries) — user 08-26: consume quota progressively, one volume per ~30–40 min.
 Note: analyze.py had a hardcoded dead-session scratchpad path (crash on 08-26 21:20) → fixed to the skill's own .tmp/.
 Next: supervisor → harvest end → distill batch 6 (transcripts 6–… of 335) → rounds vol. 3–5 spaced → audience-needs regen.
+- 2026-08-27 05:31 UTC NLM query `concerns` over "SMB comments archive vol. 2" (source 92aff17f, purpose: concerns layer of audience-needs.md): answered in 63s, 5505 chars
+- 2026-08-27 05:32 UTC NLM query `takeaways` over "SMB comments archive vol. 2" (source 92aff17f, purpose: takeaways layer of audience-needs.md): answered in 50s, 6488 chars
+- 2026-08-27 05:34 UTC NLM query `questions` over "SMB comments archive vol. 2" (source 92aff17f, purpose: questions layer of audience-needs.md): answered in 105s, 3500 chars
+- 2026-08-27 05:36 UTC NLM query `needs` over "SMB comments archive vol. 2" (source 92aff17f, purpose: needs layer of audience-needs.md): answered in 69s, 5280 chars
