@@ -326,3 +326,22 @@ classify.py --pull tagged 16,216 new → 21,098 classified from 324 videos (the 
 replies without text); report.py regenerated audience-needs.md (22 topics, 19 needs) → uploaded "SMB audience needs vol. 1".
 Cadence per user (08-26, progressive): round vol. 3 at ~06:10, vol. 4 ~06:45, vol. 5 ~07:20, then stop for the day;
 vols 6–12 tomorrow. Distill backlog: 361 − 131 = 230 videos (batch 7+ in later sessions).
+- 2026-08-27 06:20 UTC NLM query `concerns` over "SMB comments archive vol. 3" (source b09f3925, purpose: concerns layer of audience-needs.md): answered in 88s, 5529 chars
+- 2026-08-27 06:21 UTC NLM query `takeaways` over "SMB comments archive vol. 3" (source b09f3925, purpose: takeaways layer of audience-needs.md): answered in 58s, 5443 chars
+- 2026-08-27 06:23 UTC NLM query `questions` over "SMB comments archive vol. 3" (source b09f3925, purpose: questions layer of audience-needs.md): answered in 78s, 3770 chars
+- 2026-08-27 06:25 UTC NLM query `needs` over "SMB comments archive vol. 3" (source b09f3925, purpose: needs layer of audience-needs.md): answered in 100s, 5798 chars
+
+### 2026-08-27 06:27 UTC — supervisor #2 died at Claude session limit too; main loop took over
+Supervisor #2 (relaunched 05:32) reached: audit 361/0 suspect → transcripts archive vol. 1–3 final (361 videos) →
+distill batch 6 (15 videos, registry #183–198) → "SMB Options vol. 1" replaced (3e064d92, 131 videos) →
+classify.py --pull (21,098 comments / 324 videos / 22 topics) → audience-needs regenerated → NLM round vol. 2 digest
+(4/4). Then it died: "session limit, resets 10:20 UTC" (R9(d) second occurrence — Claude usage limits kill supervisor
+agents mid-run; the pipeline itself is unaffected, only the operator).
+User feedback 06:15: Slot Manager showed both jobs STALE at 21:05 counts — the heartbeats are pushed by whoever
+supervises, so a dead supervisor freezes the DISPLAY while the pipeline is fine. Rule added: push both heartbeats
+(heartbeat.sh / heartbeat-comments.sh) after EVERY step and at least every 15 min, and use state done/paused with an
+explicit "next round at HH:MM" summary so a quota-pacing gap never reads as a stall.
+06:19–06:27 (main loop): heartbeats refreshed → NLM round vol. 3 (4/4: concerns/takeaways/questions/needs, source
+b09f3925) → report.py → audience-needs.md = 21,098 comments / 324 videos / 22 topics / 19 needs / 3 NLM digests.
+NLM quota consumed so far: 12 queries (vol. 1–3) — progressive pacing per user 08-26.
+Next: distill batch 7 (backlog 230), rounds vol. 4 and 5 spaced ~30–40 min, vols 6–12 tomorrow.
