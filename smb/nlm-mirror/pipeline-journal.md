@@ -541,3 +541,15 @@ harvested the NEW options video → **362 transcribed / 3 unavailable**, then sy
 transcript reads are NOT rate-limited by the query quota.
 State: digests vol. 1–10 (40 queries) + partials for 11 and 12 waiting on tomorrow's quota; distilled 171/362;
 comments 364/364 (21,751) plus the new video's comments queued in the daemon's next cycle.
+
+### 2026-08-27 23:00 UTC — auto-resume tick #4: new-video DEADLOCK in the daemon found and fixed
+Daemon healthy; quota backoff working as designed ("round: skipped, work4 NLM quota exhausted today (2026-08-27)").
+BUG (would have silently dropped every future video's comments): the daemon computed pending-comments from
+`comments_ledger.json` alone, but a NEWLY listed video is absent from that file until `comments_harvest.py` runs — and
+the harvester only ran when the count was > 0. So video 0jPpJRi4tuc (listed 21:24 by the daily re-list, transcript
+harvested → 362) would never have had its comments collected. Fixed: CPEND now = (videos.json ids missing from the
+ledger) + (ledger entries not done). After the restart the daemon immediately picked it up — comments ledger 364 → 365,
+all done; archives re-synced (12 volumes).
+Distillation blocked this tick: the hybrid batch starts with NLM extraction, and work4 queries are capped until
+tomorrow. Counts: 362 transcribed / 3 unavailable / 365 comment-videos / 21,751+ comments / digests vol. 1–10 /
+distilled 171.
