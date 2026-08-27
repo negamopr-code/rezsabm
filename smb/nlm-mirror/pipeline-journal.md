@@ -438,3 +438,7 @@ Verdict: NLM is good enough for PART A chapter prose as a first draft; it is NOT
 "Real numbers from the desk" registry. Recommended shape for batches 10+: NLM extracts (quota) → `trial_verify_figures.py`
 gates every figure (zero tokens) → Claude adjudicates only the handful of unmatched figures per batch instead of reading
 all 15 transcripts. Awaiting user's decision before any NLM-distilled text enters volume-1.md.
+- 2026-08-27 18:01 UTC NLM query `concerns` over "SMB comments archive vol. 7" (source 752deb2d, purpose: concerns layer of audience-needs.md): answered in 122s, 5304 chars
+- 2026-08-27 18:02 UTC NLM query `takeaways` over "SMB comments archive vol. 7" (source 752deb2d, purpose: takeaways layer of audience-needs.md): answered in 64s, 6063 chars
+- 2026-08-27 18:04 UTC NLM query `questions` over "SMB comments archive vol. 7" (source 752deb2d, purpose: questions layer of audience-needs.md): answered in 83s, 4351 chars
+- 2026-08-27 18:05 UTC NLM query `needs` over "SMB comments archive vol. 7" (source 752deb2d, purpose: needs layer of audience-needs.md): answered in 47s, 6478 chars
