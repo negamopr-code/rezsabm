@@ -486,3 +486,10 @@ to NLM — bug fixed, true distilled count 161, undistilled 200).
 VERDICT: parity on precision ⇒ adopt the hybrid — NLM extracts (quota, 0 tokens) → `trial_verify_figures.py` gates
 every figure (0 tokens) → Claude only adjudicates the handful of unmatched figures. Cost per 15-video batch falls from
 ~196k tokens to ~15 NLM queries + a few flagged lines.
+
+### 2026-08-27 21:28 UTC — auto-resume tick #1
+Daemon alive (pid 5413), correctly idle behind `nlm_external.lock` while the host pacer finishes rounds 11–12.
+Mirrored the 10 host-side digests INTO the container's digests/ dir — without this the daemon would have re-paid ~40
+work4 queries re-analysing volumes 1–10 (it picks "lowest volume lacking a digest" from its own filesystem).
+audience-needs.md regenerated. Hybrid distill batch DEFERRED this tick: the pacer holds the account (one work4 job at
+a time); the next tick runs it once rounds 11–12 are done.
