@@ -1,0 +1,111 @@
+[
+ {
+  "video": "-Dfl8YyoP0E",
+  "transcript_figures": 20,
+  "claude": [
+   20,
+   20,
+   100.0,
+   45.0
+  ],
+  "nlm": [
+   17,
+   17,
+   100.0,
+   75.0
+  ],
+  "nlm_not_in_transcript": [],
+  "claude_not_in_transcript": []
+ },
+ {
+  "video": "-gGvWxd_iXc",
+  "transcript_figures": 3,
+  "claude": [
+   0,
+   0,
+   null,
+   0.0
+  ],
+  "nlm": [
+   0,
+   0,
+   null,
+   0.0
+  ],
+  "nlm_not_in_transcript": [],
+  "claude_not_in_transcript": []
+ },
+ {
+  "video": "-h1mAx67OxA",
+  "transcript_figures": 12,
+  "claude": [
+   16,
+   13,
+   81.2,
+   66.7
+  ],
+  "nlm": [
+   13,
+   11,
+   84.6,
+   75.0
+  ],
+  "nlm_not_in_transcript": [
+   "$ 11,644",
+   "$40,000"
+  ],
+  "claude_not_in_transcript": [
+   "$11,634",
+   "$48,000",
+   "$5,490"
+  ]
+ },
+ {
+  "video": "-huhEgn9TRg",
+  "transcript_figures": 15,
+  "claude": [
+   18,
+   15,
+   83.3,
+   53.3
+  ],
+  "nlm": [
+   5,
+   5,
+   100.0,
+   33.3
+  ],
+  "nlm_not_in_transcript": [],
+  "claude_not_in_transcript": [
+   "$33,075",
+   "$6,475",
+   "$73,205"
+  ]
+ },
+ {
+  "video": "-rwYS0Dq6Ro",
+  "transcript_figures": 12,
+  "claude": [
+   24,
+   23,
+   95.8,
+   100.0
+  ],
+  "nlm": [
+   29,
+   24,
+   82.8,
+   100.0
+  ],
+  "nlm_not_in_transcript": [
+   "$2,000,000",
+   "$200,000",
+   "$75,000",
+   "$8,000",
+   "$90"
+  ],
+  "claude_not_in_transcript": [
+   "$75,000"
+  ]
+ }
+]

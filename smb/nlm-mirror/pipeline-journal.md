@@ -457,3 +457,32 @@ regenerated after each (commits a6b1f50 / 5e98009 / 608896c). "SMB audience need
 living doc → new source c441cbfa (old deleted by cmd_needs). Final rounds vol. 10–12 launched 21:15 — after them the
 whole comments corpus (12 archive volumes, 21,751 comments) will have been analysed by NotebookLM = 48 queries.
 Distillation stays paused pending the user's decision on the NLM-vs-Claude trial verdict (see 18:00 entry).
+- 2026-08-27 21:16 UTC NLM query `concerns` over "SMB comments archive vol. 10" (source 152a40ec, purpose: concerns layer of audience-needs.md): answered in 216s, 9953 chars
+- 2026-08-27 21:17 UTC NLM query `takeaways` over "SMB comments archive vol. 10" (source 152a40ec, purpose: takeaways layer of audience-needs.md): answered in 47s, 5653 chars
+- 2026-08-27 21:19 UTC NLM query `questions` over "SMB comments archive vol. 10" (source 152a40ec, purpose: questions layer of audience-needs.md): answered in 116s, 4457 chars
+- 2026-08-27 21:22 UTC NLM query `needs` over "SMB comments archive vol. 10" (source 152a40ec, purpose: needs layer of audience-needs.md): answered in 124s, 6852 chars
+
+### 2026-08-27 21:25 UTC — completeness re-check, container-side DAEMON (limit-proof), head-to-head verdict
+User: "continue adding all comments and videos… and when Claude tokens are out, come back and continue when they're back."
+COMPLETENESS: ledger 361 transcribed / 3 unavailable (tpxBJhfawzQ, DUY1tapNfZE, ckkX94GD7M4 — no subtitles, never retry)
+/ comments 364/364 done, 21,751 stored. Channel RE-LISTED (inventory was 4 days old): 2,020 → 2,022 videos, options
+364 → **365** ⇒ 1 new pending video queued. So "all" is a moving target: the channel keeps publishing, hence the daemon.
+DAEMON (`smb_daemon.sh`, runs INSIDE awf-monitor-runner, zero Claude tokens, survives usage limits / session end /
+Claude-container restarts; /app and the heartbeat dir are host binds so nothing is lost): every 30 min, strictly in
+series — re-list channel once a day → harvest pending transcripts → collect missing comments → sync transcript +
+comment archives → run ONE NLM round for the lowest comment volume lacking a digest (`analyze_local.py`, container
+copy of the round logic) → push both Slot Manager heartbeats. Guarded by `nlm_external.lock` (a Claude-side pacer
+holds it; the lock SELF-EXPIRES after 2 h so a dead session can never block the daemon forever).
+Claude-side auto-resume: cron 43e83a70 every :23/:53 continues the distillation backlog and restarts the daemon if
+needed — a tick during a usage limit simply fails and the next one retries. Session-only (7-day expiry); the daemon is
+the durable half.
+HEAD-TO-HEAD (batch 9 vs volume-1.md, `compare_nlm_vs_claude.py`, zero tokens, ground truth = raw transcript): 5
+videos were distilled by BOTH (my `\b` id regex hid ids starting with "-", so 6 already-distilled videos were re-sent
+to NLM — bug fixed, true distilled count 161, undistilled 200).
+  precision (figures stated that really appear in the transcript): **Claude 71/78 = 91.0% · NLM 57/64 = 89.1%**
+  recall (share of the transcript's distinct figures captured): Claude 45/67/53/100% · NLM 75/75/33/100%
+  Residual mismatches are mostly derived numbers (Claude: $54.90 × 100 = $5,490) or spoken-word variants; the one
+  confirmed fabrication stays NLM's "$400 chump-change → $40,000 on a 10-lot" ("chump" appears 0× in the transcript).
+VERDICT: parity on precision ⇒ adopt the hybrid — NLM extracts (quota, 0 tokens) → `trial_verify_figures.py` gates
+every figure (0 tokens) → Claude only adjudicates the handful of unmatched figures. Cost per 15-video batch falls from
+~196k tokens to ~15 NLM queries + a few flagged lines.

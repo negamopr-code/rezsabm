@@ -53,7 +53,8 @@ def journal(line):
 
 def main():
     os.makedirs(TRIAL, exist_ok=True)
-    done_ids = set(re.findall(r'\b([A-Za-z0-9_-]{11})\b', open(os.path.join(SMB, 'volume-1.md')).read()))
+    _vol = open(os.path.join(SMB, 'volume-1.md')).read()
+    done_ids = {x for x in re.findall(r'[A-Za-z0-9_-]{11}', _vol)}   # substring, not \b: ids may start with '-'
     tr = [x for x in ledger() if x.get('status') == 'transcribed']
     tr.sort(key=lambda x: -(x.get('views') or 0))
     # reproduce sync_archives' split EXACTLY: videos.json order, real file sizes, ROLL chars/volume
