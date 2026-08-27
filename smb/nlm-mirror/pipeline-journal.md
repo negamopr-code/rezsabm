@@ -370,3 +370,19 @@ Next: rounds 9–12 + "SMB audience needs vol. 1" upload; distill backlog 230 �
 - 2026-08-27 16:39 UTC NLM query `takeaways` over "SMB comments archive vol. 6" (source 6fe14fe5, purpose: takeaways layer of audience-needs.md): answered in 463s, 5401 chars
 - 2026-08-27 16:41 UTC NLM query `questions` over "SMB comments archive vol. 6" (source 6fe14fe5, purpose: questions layer of audience-needs.md): answered in 64s, 3828 chars
 - 2026-08-27 16:42 UTC NLM query `needs` over "SMB comments archive vol. 6" (source 6fe14fe5, purpose: needs layer of audience-needs.md): answered in 47s, 5768 chars
+
+### 2026-08-27 16:43 UTC — distill batch 8, NLM round vol. 6, "SMB Options vol. 1" refreshed to 161 videos
+Distill batch 8 (2acbb55): 15 videos 33k–28k views, registry #214–228 → distilled 161/361. Bookkeeping fix: batch 7
+(#199–213) had been committed inside e401b47 ("NLM digest vol. 5") instead of its own distill commit, which is why it
+read as missing — the agent verified volume-1.md already held those 15 and moved to the next 15 instead of redoing them.
+New teachings merged into existing chapters (spread width vs lot count on fixed risk, put credit spreads INTO VIX
+spikes, condor PoP dial + put-condor roll, NFLX LEAPS + deep-ITM share substitute, Brexit/AMZN double calendars,
+InvestiQuant 468-period stats 86.4% win, five deadliest mistakes); auto-transcript garbles flagged inline, never
+silently corrected.
+NLM round vol. 6 rc=0 at 16:42 → 6 digests = 24 work4 queries. Then, in the pacing gap (one work4 job at a time):
+"SMB Options vol. 1" replaced by --file upload → new 7182f644, old 3e064d92 deleted (verified). Notebook unchanged
+otherwise (transcripts v1–3, comments v1–12, audience needs v1, journal).
+⚠ Pacing note: a harness-backgrounded pacer only advances while the Claude session is ACTIVE — rounds 6–8 were
+launched 11:15 but the process resumed 16:30 when the session woke. Spacing is real but tracks session activity, not
+wall clock; for overnight pacing use a container-side cron instead.
+Next: rounds vol. 7–8 (pacer running), then 9–12; distill batches 9+ for the remaining 200.
