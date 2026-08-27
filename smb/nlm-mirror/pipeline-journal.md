@@ -442,3 +442,7 @@ all 15 transcripts. Awaiting user's decision before any NLM-distilled text enter
 - 2026-08-27 18:02 UTC NLM query `takeaways` over "SMB comments archive vol. 7" (source 752deb2d, purpose: takeaways layer of audience-needs.md): answered in 64s, 6063 chars
 - 2026-08-27 18:04 UTC NLM query `questions` over "SMB comments archive vol. 7" (source 752deb2d, purpose: questions layer of audience-needs.md): answered in 83s, 4351 chars
 - 2026-08-27 18:05 UTC NLM query `needs` over "SMB comments archive vol. 7" (source 752deb2d, purpose: needs layer of audience-needs.md): answered in 47s, 6478 chars
+- 2026-08-27 18:42 UTC NLM query `concerns` over "SMB comments archive vol. 8" (source 6ab6d2d1, purpose: concerns layer of audience-needs.md): answered in 70s, 5651 chars
+- 2026-08-27 18:44 UTC NLM query `takeaways` over "SMB comments archive vol. 8" (source 6ab6d2d1, purpose: takeaways layer of audience-needs.md): answered in 91s, 6208 chars
+- 2026-08-27 18:47 UTC NLM query `questions` over "SMB comments archive vol. 8" (source 6ab6d2d1, purpose: questions layer of audience-needs.md): answered in 127s, 3909 chars
+- 2026-08-27 18:49 UTC NLM query `needs` over "SMB comments archive vol. 8" (source 6ab6d2d1, purpose: needs layer of audience-needs.md): answered in 105s, 6595 chars
