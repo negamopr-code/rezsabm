@@ -307,3 +307,12 @@ Next: supervisor → harvest end → distill batch 6 (transcripts 6–… of 335
 - 2026-08-27 05:32 UTC NLM query `takeaways` over "SMB comments archive vol. 2" (source 92aff17f, purpose: takeaways layer of audience-needs.md): answered in 50s, 6488 chars
 - 2026-08-27 05:34 UTC NLM query `questions` over "SMB comments archive vol. 2" (source 92aff17f, purpose: questions layer of audience-needs.md): answered in 105s, 3500 chars
 - 2026-08-27 05:36 UTC NLM query `needs` over "SMB comments archive vol. 2" (source 92aff17f, purpose: needs layer of audience-needs.md): answered in 69s, 5280 chars
+
+### 2026-08-27 05:5x UTC — distill batch 6 DONE (supervisor #2); NLM round vol. 2 running; last chunk at [6/40]
+Batch 6 = next 15 undistilled by views (48k → 40k): RP5xIYMrXKE iJMkj24PHqs K6YVPHULzPA 4dedQBgiZJA oO5SfYblvio
+xrCSOh4WEGY l7BHgd2PO6A 8u89hMA2was qabKcPmwjEA LwZ9s2ud68s cSI1eXFW6Ms dU3eKVXlKQE 8BjBWBuiEh8 tT08tJdsH_E
+9q32G8yLxbM. Truncation NO-GO respected: docker cp → fold -w220 → Read tool, all 15 read to EOF (Read line counts
+= wc -l; 270,935 chars on disk = chars read). Merged into 8 chapters + registry rows #183–198 + 15 ledger rows;
+volume 45,044 → 49,995 words, ledger 116 → 131 videos; commit e7776f1. Distill backlog 335 − 131 = 204 (+ the
+~26 still harvesting). Volume upload ("SMB Options vol. 1", replace-by-title, old id 6f972687) QUEUED for the
+harvester gap (R5). Round vol. 2: `concerns` answered 05:31; remaining 3 questions in flight.
