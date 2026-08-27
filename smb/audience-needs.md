@@ -1,6 +1,6 @@
 # SMB Capital options audience — what the comments say (living doc)
 
-Updated 2026-08-27 21:59 UTC · 21098 comments classified from 324 videos · raw archive: NLM sources "SMB comments archive vol. N" (work4, notebook SMB Options).
+Updated 2026-08-27 22:36 UTC · 21098 comments classified from 324 videos · raw archive: NLM sources "SMB comments archive vol. N" (work4, notebook SMB Options).
 Method: every comment is tagged locally (rule-based taxonomy, zero quota) → counts + engagement weight (1 + likes + replies); NotebookLM is asked a fixed set of 4 questions per completed archive volume (semantic layer: new concerns, takeaways, unanswered questions, needs). Names of commenters never appear here.
 
 ## Scoreboard — concerns / topics (all videos)

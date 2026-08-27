@@ -523,3 +523,4 @@ Annotations rewritten inline in volume-1.md (✓verified / ⚠derived / ⚠infer
 Gate upgraded (zero tokens, permanent): `spoken_numbers()` now parses COMPOUND spoken numbers ("four hundred twenty two
 thousand five hundred" = 422,500) in both trial_verify_figures.py and merge_nlm_batch.py — batch-9 fidelity re-measured
 92.5% → **93.2%**, and future batches will stop false-flagging word-form figures.
+- 2026-08-27 22:36 UTC NLM query `concerns` over "SMB comments archive vol. 12" (source 0def1927): NO ANSWER after 50s () → stop round, retry later (exit 75)
