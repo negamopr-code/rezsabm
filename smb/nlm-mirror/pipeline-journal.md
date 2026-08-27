@@ -345,3 +345,7 @@ explicit "next round at HH:MM" summary so a quota-pacing gap never reads as a st
 b09f3925) → report.py → audience-needs.md = 21,098 comments / 324 videos / 22 topics / 19 needs / 3 NLM digests.
 NLM quota consumed so far: 12 queries (vol. 1–3) — progressive pacing per user 08-26.
 Next: distill batch 7 (backlog 230), rounds vol. 4 and 5 spaced ~30–40 min, vols 6–12 tomorrow.
+- 2026-08-27 07:07 UTC NLM query `concerns` over "SMB comments archive vol. 4" (source 1dfb081a, purpose: concerns layer of audience-needs.md): answered in 88s, 6279 chars
+- 2026-08-27 07:08 UTC NLM query `takeaways` over "SMB comments archive vol. 4" (source 1dfb081a, purpose: takeaways layer of audience-needs.md): answered in 56s, 5758 chars
+- 2026-08-27 07:10 UTC NLM query `questions` over "SMB comments archive vol. 4" (source 1dfb081a, purpose: questions layer of audience-needs.md): answered in 93s, 3954 chars
+- 2026-08-27 07:12 UTC NLM query `needs` over "SMB comments archive vol. 4" (source 1dfb081a, purpose: needs layer of audience-needs.md): answered in 92s, 5512 chars
