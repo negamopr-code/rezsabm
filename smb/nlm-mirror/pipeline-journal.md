@@ -353,3 +353,16 @@ Next: distill batch 7 (backlog 230), rounds vol. 4 and 5 spaced ~30–40 min, vo
 - 2026-08-27 07:52 UTC NLM query `takeaways` over "SMB comments archive vol. 5" (source 9d51472b, purpose: takeaways layer of audience-needs.md): answered in 96s, 7044 chars
 - 2026-08-27 07:54 UTC NLM query `questions` over "SMB comments archive vol. 5" (source 9d51472b, purpose: questions layer of audience-needs.md): answered in 103s, 3878 chars
 - 2026-08-27 07:56 UTC NLM query `needs` over "SMB comments archive vol. 5" (source 9d51472b, purpose: needs layer of audience-needs.md): answered in 98s, 5623 chars
+
+### 2026-08-27 11:15 UTC — rounds vol. 4–5 done (20 queries), distill batch 7 restarted after a third session-limit death
+07:06–07:56 the harness-supervised pacer ran NLM rounds vol. 4 (rc=0) and vol. 5 (rc=0) with heartbeats every 12 min;
+audience-needs.md regenerated after each; commits f18b2f0 / e401b47. Digests now vol. 1–5 = 20 work4 queries.
+Distill batch 7 agent died at "session limit, resets 11:10 UTC" before writing anything (third limit death today:
+21:40, ~06:05, ~07:20) — volume-1.md untouched, so the batch is simply re-run; distilled stays 131/361.
+⚠ Ops lesson (cost 35 min of a frozen Slot Manager): a pacer launched with bare `nohup`/`setsid` from a Claude Bash
+call does NOT survive — it showed up in `ps` but wrote zero heartbeats; the identical script works in the foreground.
+Long jobs must be started with the Bash tool's `run_in_background`. Also: `pkill -f "pacer.sh 99"` / `pgrep -f
+'pacer[.]sh'` matched the tool's OWN command line and killed the session shell (exit 144) twice — clean up by pid
+from a pidfile or a /proc scan instead. Memory: feedback_background_jobs_run_in_background.md.
+11:15: heartbeats refreshed, pacer relaunched for rounds vol. 6, 7, 8 (36-min spacing), distill batch 7 agent re-spawned.
+Next: rounds 9–12 + "SMB audience needs vol. 1" upload; distill backlog 230 → batches 8+.
