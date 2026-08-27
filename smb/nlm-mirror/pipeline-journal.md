@@ -524,3 +524,20 @@ Gate upgraded (zero tokens, permanent): `spoken_numbers()` now parses COMPOUND s
 thousand five hundred" = 422,500) in both trial_verify_figures.py and merge_nlm_batch.py — batch-9 fidelity re-measured
 92.5% → **93.2%**, and future batches will stop false-flagging word-form figures.
 - 2026-08-27 22:36 UTC NLM query `concerns` over "SMB comments archive vol. 12" (source 0def1927): NO ANSWER after 50s () → stop round, retry later (exit 75)
+
+### 2026-08-27 22:40 UTC — work4 DAILY NLM QUOTA EXHAUSTED (root cause of rounds 11–12 rc=75); daemon made quota-aware
+Rounds vol. 11 and 12 both returned empty. Probing the CLI directly gave the real error, which the wrapper had been
+swallowing as `answer: ""`:
+  `Google rejected the query (error code 8: RESOURCE_EXHAUSTED)` — work4's DAILY QUERY QUOTA is spent.
+Consumed today: 40 comment-round queries (digests vol. 1–10) + 25 trial-distillation queries + probes ≈ **~68 work4
+queries** — i.e. the user's "consume the quota progressively" goal was met and then some; the cap, not a fault, stopped us.
+Fixes (both zero-token, permanent):
+- `analyze_local.py` now detects RESOURCE_EXHAUSTED, writes `quota_exhausted` (dated), saves the partial and exits 76
+  instead of burning retries; the partial means tomorrow's round re-asks only the unanswered questions.
+- `smb_daemon.sh` skips the round step while `quota_exhausted` carries today's UTC date, and resumes automatically
+  tomorrow. Everything else in the cycle keeps running.
+Proof the non-query half is unaffected: with the lock released the daemon immediately re-listed the channel and
+harvested the NEW options video → **362 transcribed / 3 unavailable**, then synced the archives. Source uploads and
+transcript reads are NOT rate-limited by the query quota.
+State: digests vol. 1–10 (40 queries) + partials for 11 and 12 waiting on tomorrow's quota; distilled 171/362;
+comments 364/364 (21,751) plus the new video's comments queued in the daemon's next cycle.
