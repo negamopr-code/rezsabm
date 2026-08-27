@@ -290,3 +290,16 @@ happens, check Docker Desktop / WSL host logs, not the render containers.
 - 2026-08-26 21:22 UTC NLM query `takeaways` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: takeaways layer of audience-needs.md): answered in 47s, 7766 chars
 - 2026-08-26 21:24 UTC NLM query `questions` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: questions layer of audience-needs.md): answered in 84s, 4050 chars
 - 2026-08-26 21:25 UTC NLM query `needs` over "SMB comments archive vol. 1" (source bf1a74ec, purpose: needs layer of audience-needs.md): answered in 58s, 4962 chars
+
+### 2026-08-27 05:30 UTC — overnight: chunk 5 DONE, comments collector DONE (364/364); supervisor died at Claude session limit
+No Docker restart overnight (awf-monitor-runner StartedAt still 21:16:19). Chunk 5 finished [40/40] → 335 transcribed /
+26 pending / 3 unavailable. Comments collector finished 21:34 UTC: 364/364 videos, 21,751 comments. The session's
+supervisor agent died ~21:40 (Claude "session limit, resets 00:50 UTC") so the post-chunk steps and NLM rounds 2–5
+did not run — new failure mode R9(d): supervisor agents also die on Claude usage limits, not only on Docker restarts.
+05:30 (harvester gap, R5): audit ok 335 / 0 suspect → sync_archives: transcripts vol. 2 = 171 videos (2.40M chars),
+vol. 3 created (23 videos) → comments_sync archive: vol. 11 = 71 videos / 1,936 comments, vol. 12 created (113 videos,
+665 comments) — raw layer COMPLETE, 12 comment volumes. Notebook = SMB Options vol. 1 + transcripts 1–3 + comments 1–12
++ journal = 17 sources. Then `harvest 40` relaunched for the last 26 pending; NLM analysis round vol. 2 launched
+(analyze.py 2, 4 queries) — user 08-26: consume quota progressively, one volume per ~30–40 min.
+Note: analyze.py had a hardcoded dead-session scratchpad path (crash on 08-26 21:20) → fixed to the skill's own .tmp/.
+Next: supervisor → harvest end → distill batch 6 (transcripts 6–… of 335) → rounds vol. 3–5 spaced → audience-needs regen.
