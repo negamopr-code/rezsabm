@@ -1,30 +1,30 @@
 # SMB Capital options audience — what the comments say (living doc)
 
-Updated 2026-08-27 22:36 UTC · 21098 comments classified from 324 videos · raw archive: NLM sources "SMB comments archive vol. N" (work4, notebook SMB Options).
+Updated 2026-08-27 23:27 UTC · 21124 comments classified from 325 videos · raw archive: NLM sources "SMB comments archive vol. N" (work4, notebook SMB Options).
 Method: every comment is tagged locally (rule-based taxonomy, zero quota) → counts + engagement weight (1 + likes + replies); NotebookLM is asked a fixed set of 4 questions per completed archive volume (semantic layer: new concerns, takeaways, unanswered questions, needs). Names of commenters never appear here.
 
 ## Scoreboard — concerns / topics (all videos)
 
 | # | topic | comments | % | engagement-weighted | questions | negative |
 |---|---|---|---|---|---|---|
-| 1 | Off-topic (`offtopic`) | 8942 | 42.4% | 37678 | 2054 | 811 |
+| 1 | Off-topic (`offtopic`) | 8958 | 42.4% | 37732 | 2056 | 811 |
 | 2 | Strategy-specific question (condor, wheel, CC, spread, 0DTE, LEAPS…) (`strategy_specific`) | 3920 | 18.6% | 17600 | 1402 | 745 |
-| 3 | Praise / testimonial / thanks (`praise`) | 4062 | 19.3% | 15317 | 834 | 213 |
-| 4 | Trade management / exits / rolling / adjustments (`management`) | 1134 | 5.4% | 5251 | 387 | 438 |
+| 3 | Praise / testimonial / thanks (`praise`) | 4067 | 19.3% | 15322 | 834 | 213 |
+| 4 | Trade management / exits / rolling / adjustments (`management`) | 1135 | 5.4% | 5252 | 388 | 439 |
 | 5 | Greeks confusion (`greeks`) | 907 | 4.3% | 5061 | 302 | 173 |
 | 6 | Data / backtesting / stats / edge validation (`data_backtest`) | 831 | 3.9% | 4578 | 261 | 183 |
-| 7 | Market regime / volatility environment / macro (`market_regime`) | 542 | 2.6% | 4333 | 167 | 124 |
+| 7 | Market regime / volatility environment / macro (`market_regime`) | 543 | 2.6% | 4334 | 167 | 124 |
 | 8 | Broker / commissions / platform / approval level (`broker_platform`) | 1187 | 5.6% | 3474 | 444 | 171 |
 | 9 | Assignment / early exercise fear (`assignment`) | 739 | 3.5% | 3261 | 260 | 152 |
 | 10 | Small account / capital too low (`small_account`) | 459 | 2.2% | 3224 | 135 | 81 |
 | 11 | Risk / position sizing / psychology (`risk_sizing`) | 486 | 2.3% | 3088 | 80 | 131 |
-| 12 | Basic terminology / beginner confusion (`terminology`) | 580 | 2.7% | 2660 | 201 | 267 |
-| 13 | Wants course / software / mentorship / SMB training (`course_mentorship`) | 663 | 3.1% | 2184 | 201 | 139 |
+| 12 | Basic terminology / beginner confusion (`terminology`) | 581 | 2.8% | 2661 | 202 | 268 |
+| 13 | Wants course / software / mentorship / SMB training (`course_mentorship`) | 664 | 3.1% | 2185 | 201 | 139 |
 | 14 | Losses / blown account stories (`losses`) | 360 | 1.7% | 2141 | 93 | 201 |
-| 15 | Skepticism about returns / clickbait / "selling courses" (`skepticism`) | 337 | 1.6% | 1765 | 74 | 141 |
+| 15 | Skepticism about returns / clickbait / "selling courses" (`skepticism`) | 338 | 1.6% | 1766 | 74 | 141 |
 | 16 | Which strikes / DTE / delta to pick (`strikes_dte`) | 353 | 1.7% | 1357 | 148 | 61 |
 | 17 | IV / IV crush confusion (`iv_crush`) | 404 | 1.9% | 1317 | 133 | 62 |
-| 18 | Spam / scam / financial-advisor shill (`spam`) | 97 | 0.5% | 1029 | 8 | 6 |
+| 18 | Spam / scam / financial-advisor shill (`spam`) | 99 | 0.5% | 1031 | 8 | 6 |
 | 19 | Tax questions (`tax`) | 164 | 0.8% | 553 | 58 | 38 |
 | 20 | Non-US access / international (`non_us`) | 92 | 0.4% | 378 | 22 | 2 |
 | 21 | Paper trading vs live / getting started (`paper_vs_live`) | 116 | 0.5% | 373 | 36 | 24 |
@@ -38,7 +38,7 @@ Method: every comment is tagged locally (rule-based taxonomy, zero quota) → co
 2. **greeks explained by what they do to P&L, not formulas** — 780 comments, weight 4291
    - "If you only sell 20 delta or less spreads than you should be fine. Trade small but trade often."
    - "How would you manage this with selling bear call spreads? Would you buy a .20 delta leap put and then sell puts? Trying to understand the inverse thx!"
-3. **exit/roll/adjust rules with numbers (when to take profit, when to cut)** — 865 comments, weight 3649
+3. **exit/roll/adjust rules with numbers (when to take profit, when to cut)** — 866 comments, weight 3650
    - "25 point spread is extremely risky given how close the short side of the spread is to the current price of the underlying."
    - "There is much more to this strategy which is not disclosed here. There are many ways this could go wrong and the adjustments are not discussed."
 4. **a small-account playbook (what to trade with $500–$5k, PDT-safe)** — 459 comments, weight 3224
@@ -53,7 +53,7 @@ Method: every comment is tagged locally (rule-based taxonomy, zero quota) → co
 7. **broker/platform/fees/approval-level guidance** — 936 comments, weight 2547
    - "Also, learn how to watch and manage, learn how your broker treats things after hours."
    - "@ImmortalCayenne  you mean you put SL at 1150?   Your broker will ask 25000 of margin anyway."
-8. **how the strategy behaves in bear/high-VIX markets** — 268 comments, weight 2073
+8. **how the strategy behaves in bear/high-VIX markets** — 269 comments, weight 2074
    - "The risk adjusted reward looks bad, if you have one bad crash in the market you blow 24k, then you’re going to need 45 to 50ish positive trades to make up for it."
    - "Everything works in a bull market until the party is over and these so-called traders go back getting a normal job."
 9. **position-sizing and psychology rules** — 285 comments, weight 1928
@@ -65,7 +65,7 @@ Method: every comment is tagged locally (rule-based taxonomy, zero quota) → co
 11. **slower beginner-level foundations** — 329 comments, weight 1463
    - "@carlosduran1962 you need to learn the basics before you move forward obviously."
    - "I'm new to stock market /Crypto and would like to invest but I've go no idea on how to make good profits. Pls what's the best approach you'd recommend?"
-12. **proof: track record, both wins and losses, no hindsight examples** — 265 comments, weight 1385
+12. **proof: track record, both wins and losses, no hindsight examples** — 266 comments, weight 1386
    - "So easy after you know where the market went. Hindsight 20-20"
    - "binary options has nothing to do with options...……………...binary options is a total scam...…………..do your homework and know the difference in trading first...…………."
 

@@ -553,3 +553,14 @@ all done; archives re-synced (12 volumes).
 Distillation blocked this tick: the hybrid batch starts with NLM extraction, and work4 queries are capped until
 tomorrow. Counts: 362 transcribed / 3 unavailable / 365 comment-videos / 21,751+ comments / digests vol. 1–10 /
 distilled 171.
+
+### 2026-08-27 23:30 UTC — auto-resume tick #5: classification refreshed, COMMENT COMPLETENESS PROVEN
+Daemon alive, quota backoff still holding (work4 capped until the daily reset). Digests mirrored both ways (12 files:
+vol. 1–10 complete + vol. 11/12 partials, both empty because the quota hit before the first answer).
+classify.py --pull re-run: +26 comments → **21,124 classified from 325 videos**; audience-needs.md regenerated (22
+topics, 19 needs). The 325-vs-365 gap is NOT loss: **40 of the 365 videos genuinely have zero comments**, and every
+video with comments is mirrored locally (0 missing).
+Completeness proof against YouTube itself: stored 21,777 = YouTube's own reported total 21,777 across all videos,
+**0 videos short of their yt_count**. The comments layer is complete by the source's own numbers.
+Distillation still blocked (hybrid batch begins with NLM extraction; quota resets tomorrow). Counts: 362 transcribed /
+3 unavailable / 365 videos with comments collected / distilled 171.
