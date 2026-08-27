@@ -450,3 +450,10 @@ all 15 transcripts. Awaiting user's decision before any NLM-distilled text enter
 - 2026-08-27 19:28 UTC NLM query `takeaways` over "SMB comments archive vol. 9" (source 1a11b60b, purpose: takeaways layer of audience-needs.md): answered in 60s, 5793 chars
 - 2026-08-27 19:30 UTC NLM query `questions` over "SMB comments archive vol. 9" (source 1a11b60b, purpose: questions layer of audience-needs.md): answered in 113s, 3913 chars
 - 2026-08-27 19:32 UTC NLM query `needs` over "SMB comments archive vol. 9" (source 1a11b60b, purpose: needs layer of audience-needs.md): answered in 78s, 6961 chars
+
+### 2026-08-27 21:15 UTC — comment rounds 7–9 done (36 queries), audience-needs source refreshed, final rounds 10–12 launched
+Pacer ran vol. 7 (18:05), vol. 8 (18:49), vol. 9 (19:32), all rc=0 → 9 digests = 36 work4 queries; audience-needs.md
+regenerated after each (commits a6b1f50 / 5e98009 / 608896c). "SMB audience needs vol. 1" replaced with the current
+living doc → new source c441cbfa (old deleted by cmd_needs). Final rounds vol. 10–12 launched 21:15 — after them the
+whole comments corpus (12 archive volumes, 21,751 comments) will have been analysed by NotebookLM = 48 queries.
+Distillation stays paused pending the user's decision on the NLM-vs-Claude trial verdict (see 18:00 entry).
