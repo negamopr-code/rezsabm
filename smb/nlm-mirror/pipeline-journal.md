@@ -349,3 +349,7 @@ Next: distill batch 7 (backlog 230), rounds vol. 4 and 5 spaced ~30–40 min, vo
 - 2026-08-27 07:08 UTC NLM query `takeaways` over "SMB comments archive vol. 4" (source 1dfb081a, purpose: takeaways layer of audience-needs.md): answered in 56s, 5758 chars
 - 2026-08-27 07:10 UTC NLM query `questions` over "SMB comments archive vol. 4" (source 1dfb081a, purpose: questions layer of audience-needs.md): answered in 93s, 3954 chars
 - 2026-08-27 07:12 UTC NLM query `needs` over "SMB comments archive vol. 4" (source 1dfb081a, purpose: needs layer of audience-needs.md): answered in 92s, 5512 chars
+- 2026-08-27 07:50 UTC NLM query `concerns` over "SMB comments archive vol. 5" (source 9d51472b, purpose: concerns layer of audience-needs.md): answered in 66s, 5954 chars
+- 2026-08-27 07:52 UTC NLM query `takeaways` over "SMB comments archive vol. 5" (source 9d51472b, purpose: takeaways layer of audience-needs.md): answered in 96s, 7044 chars
+- 2026-08-27 07:54 UTC NLM query `questions` over "SMB comments archive vol. 5" (source 9d51472b, purpose: questions layer of audience-needs.md): answered in 103s, 3878 chars
+- 2026-08-27 07:56 UTC NLM query `needs` over "SMB comments archive vol. 5" (source 9d51472b, purpose: needs layer of audience-needs.md): answered in 98s, 5623 chars
