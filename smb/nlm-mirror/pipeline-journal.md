@@ -316,3 +316,13 @@ xrCSOh4WEGY l7BHgd2PO6A 8u89hMA2was qabKcPmwjEA LwZ9s2ud68s cSI1eXFW6Ms dU3eKVXl
 volume 45,044 → 49,995 words, ledger 116 → 131 videos; commit e7776f1. Distill backlog 335 − 131 = 204 (+ the
 ~26 still harvesting). Volume upload ("SMB Options vol. 1", replace-by-title, old id 6f972687) QUEUED for the
 harvester gap (R5). Round vol. 2: `concerns` answered 05:31; remaining 3 questions in flight.
+
+### 2026-08-27 05:55 UTC — HARVEST COMPLETE 361/364; archives final; vol. 1 uploaded; classify 21,098; round vol. 2 done
+Final chunk ended ~05:40 → ledger 361 transcribed / 3 unavailable (no-subtitle) / 0 pending = 364. audit_transcripts ok 361 /
+0 suspect. sync_archives: transcripts vol. 3 = 49 videos (312,761 chars); vol. 1–2 unchanged → 361 verbatim transcripts in
+3 volumes. "SMB Options vol. 1" (131 videos, 49,995 words) replaced: new 3e064d92, old 6f972687 deleted; notebook = 17
+sources. Harvest heartbeat → done. Comments: round vol. 2 answered 4/4 (05:31–05:36, concerns/takeaways/questions/needs);
+classify.py --pull tagged 16,216 new → 21,098 classified from 324 videos (the rest of 21,751 = videos with 0 comments /
+replies without text); report.py regenerated audience-needs.md (22 topics, 19 needs) → uploaded "SMB audience needs vol. 1".
+Cadence per user (08-26, progressive): round vol. 3 at ~06:10, vol. 4 ~06:45, vol. 5 ~07:20, then stop for the day;
+vols 6–12 tomorrow. Distill backlog: 361 − 131 = 230 videos (batch 7+ in later sessions).
