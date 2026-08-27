@@ -734,9 +734,9 @@ PART B — Spoken Numbers Table
 | **Capital Yield Target** | SPY Put Selling Campaign (1-year duration) | Target cash inflow of "**as close as possible to a one percent**" (1%) of capital level each month |
 | **May Trade Entry & Capital** | SPY cash-secured put. Sold 10 contracts at 410 strike. Expiry May 21st. | Credit received: "**four thousand five hundred twenty dollars**" (also spoken as "**45 20**"); capital requirement: "**410 000**" in cash |
 | **May Trade Settlement** | SPY put expiration (May 21st) | SPY closed at "**4 14 94**"; puts expired worthless; net profit kept: "**45 20**" (\$4,520) |
-| **June Trade Entry & Capital** | SPY cash-secured put. Sold 10 contracts at 400 strike expiring June 18th (third Friday in June). | Put option price: "**3.78**"; cash premium collected: "**37.80**" (representing \$3,780 **⚠unverified**) |
-| **June Trade Settlement** | SPY put expiration (June 18th) | SPY closed at "**right under 415**"; puts expired worthless; net profit kept: "**37.80**" (\$3,780 **⚠unverified**) |
-| **1-Year Campaign Totals** | SPY cash-secured put campaign (April 2021 to April, 12 months) | Won "**all 12 months**"; total cash profit: "**53 610**" dollars; average capital tied up: "**four hundred twenty two thousand five hundred dollars**" (\$422,500 **⚠unverified**); return on capital: "**over twelve percent**" (12%); buy-and-hold SPY return baseline: "**4.92**" (options campaign return was "**more than two and a half times**" the stock return) |
+| **June Trade Entry & Capital** | SPY cash-secured put. Sold 10 contracts at 400 strike expiring June 18th (third Friday in June). | Put option price: "**3.78**"; cash premium collected: "**37.80**" (representing \$3,780 **⚠derived** (transcript says price 3.78 / premium 37.80; ×100 not spoken)) |
+| **June Trade Settlement** | SPY put expiration (June 18th) | SPY closed at "**right under 415**"; puts expired worthless; net profit kept: "**37.80**" (\$3,780 **⚠derived** (transcript says price 3.78 / premium 37.80; ×100 not spoken)) |
+| **1-Year Campaign Totals** | SPY cash-secured put campaign (April 2021 to April, 12 months) | Won "**all 12 months**"; total cash profit: "**53 610**" dollars; average capital tied up: "**four hundred twenty two thousand five hundred dollars**" (\$422,500 ✓verified (spoken: "four hundred twenty two thousand five hundred dollars")); return on capital: "**over twelve percent**" (12%); buy-and-hold SPY return baseline: "**4.92**" (options campaign return was "**more than two and a half times**" the stock return) |
 
 ### [goK0QOsQRvQ] If you want to win at Options trading, enter and exit like this (27,000 views)
 
@@ -759,7 +759,7 @@ PART A — handbook chapter content
 
 ### Stated Edge or Statistics
 *   **Baseline Unmanaged Campaign**: Over a 3-month period, a static "set it and forget it" campaign allowed to expire produced **\$2,440** in profit [3].
-*   **Managed Campaign**: Using the quartile profit matrix over the exact same period and asset produced a final profit of **\$3,050 **⚠unverified**** [7].
+*   **Managed Campaign**: Using the quartile profit matrix over the exact same period and asset produced a final profit of **\$3,050 **⚠unverified** (absent from transcript in any spoken form) (absent from transcript in any spoken form)** [7].
 *   **Return Boost**: The active management approach generated **25% more profit** than the unmanaged expiration technique [7].
 
 ### Caveats
@@ -784,7 +784,7 @@ PART B — a markdown table of every CONCRETE NUMBER spoken
 | **Managed Campaign: Trade 4** | TLT ETF, Cash Secured Put, March 7th trade [7] | Closed in the third week; exceeded the **75%** minimum profit requirement; net profit of **\$700** [7] |
 | **Managed Campaign: Trade 5** | TLT ETF, Cash Secured Put, March 28th trade [7] | Received **680** upfront; closed within the week under the **50%** minimum week-one requirement; net profit of **370** [7] |
 | **Managed Campaign: Trade 6** | TLT ETF, Cash Secured Put, April 4th trade cut short to March 21st [7] | Truncated trade; net profit of **just \$250** [7] |
-| **Managed Campaign Totals & Contrast** | TLT ETF, Managed 6-trade campaign vs Unmanaged [7] | Managed campaign final profit of **\$3,050 **⚠unverified****; generated **25%** more profit than the unmanaged technique [7] |
+| **Managed Campaign Totals & Contrast** | TLT ETF, Managed 6-trade campaign vs Unmanaged [7] | Managed campaign final profit of **\$3,050 **⚠unverified** (absent from transcript in any spoken form) (absent from transcript in any spoken form)**; generated **25%** more profit than the unmanaged technique [7] |
 
 ### [EYA6mxeZmzg] How to Make $1,000/month owning certain dividend stocks (and options) (27,000 views)
 
@@ -807,7 +807,7 @@ PART A — handbook chapter content
 
 ### Stated Edge or Statistics
 *   **Income Enhancement**: Combining naturally modest dividend yields with monthly covered call premium payments allows investors to achieve monthly cash goals much faster [5].
-*   **Campaign Metrics**: On an initial holding of **700 shares** of UPS valued at **\$92,700 **⚠unverified**** [6]:
+*   **Campaign Metrics**: On an initial holding of **700 shares** of UPS valued at **\$92,700 **⚠inferred** (transcript garbled: "worth $927"; 700 sh × ~$132)** [6]:
     *   *Dividend income*: A dividend of **a163** (garbled/as spoken) per share [6] paid out **\$1,141** quarterly, translating to roughly **\$380 per month** [6].
     *   *The Shortfall*: To reach a **\$1,000 monthly goal**, the portfolio faced a **\$620 monthly shortfall** [6].
     *   *Premiums captured*: Selling 7 contracts yielded **\$665** in Month 1 (expiring worthless with UPS at **12855** [garbled/as spoken]) [2, 7], **\$644** in Month 2 (expiring worthless with UPS at **13125** [garbled/as spoken]) [4], and **\$784** in Month 3 (expiring worthless with UPS at **13405** [garbled/as spoken]) [4].
@@ -825,7 +825,7 @@ PART A — handbook chapter content
 | theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
 | :--- | :--- | :--- |
 | **Portfolio Goal & Target** | Covered call & dividend campaign, cash income focus | Target cash income: **\$1,000 a month** or more [5, 6] |
-| **Share Baseline & Sizing** | UPS stock shares owned as of August 1st close | August 1st close: **13.58** (garbled/as spoken) [1]; **700 shares** owned [6]; total value: **\$92,700 **⚠unverified**** [6]; raised dividend for **22 years** in a row [6]; dividend aristocrat benchmark: **at least 25 straight years** [6]; dividend issued May 10th: **a163** (garbled/as spoken) per share [6] |
+| **Share Baseline & Sizing** | UPS stock shares owned as of August 1st close | August 1st close: **13.58** (garbled/as spoken) [1]; **700 shares** owned [6]; total value: **\$92,700 **⚠inferred** (transcript garbled: "worth $927"; 700 sh × ~$132)** [6]; raised dividend for **22 years** in a row [6]; dividend aristocrat benchmark: **at least 25 straight years** [6]; dividend issued May 10th: **a163** (garbled/as spoken) per share [6] |
 | **Portfolio Cash Shortfall** | UPS stock quarterly dividend vs. monthly cash goal | Total quarterly dividend collected: **\$1,141** [6]; monthly average: **roughly \$380** per month [6]; monthly shortfall: **\$620** [6] |
 | **Month 1 Covered Call Entry** | UPS Stock, covered call. Owned 700 shares, sold 7 calls at 136 strike. August 1st entry, August 30th expiry. | Price target: **at least 90** cents [2]; call priced at: **95** cents [2]; contract size: **100 shares** per contract [2]; sold: **seven** calls [2]; cash inflow: **\$665** [7]; monthly shortfall: **\$620** [7] |
 | **Month 1 Expiration & P&L** | UPS Stock, covered call at August 30th expiration | Expiration close: **12855** (garbled/as spoken) [7]; calls expired worthless; net profit: **\$665** [7] |

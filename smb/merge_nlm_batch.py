@@ -20,6 +20,31 @@ HEAD = '\n## CHAPTER: NLM-extracted videos (hybrid pipeline — NotebookLM extra
        'adjudicates it). Claude did not read these transcripts.\n'
 
 
+WORD = {'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9,'ten':10,
+        'eleven':11,'twelve':12,'thirteen':13,'fourteen':14,'fifteen':15,'sixteen':16,'seventeen':17,
+        'eighteen':18,'nineteen':19,'twenty':20,'thirty':30,'forty':40,'fifty':50,'sixty':60,'seventy':70,
+        'eighty':80,'ninety':90}
+SCALE = {'hundred':100,'thousand':1000,'million':1000000,'billion':1000000000}
+
+
+def spoken_numbers(text):
+    """Every number a transcript states in words, as integers (handles 'four hundred twenty two
+    thousand five hundred')."""
+    out, cur, tot = set(), 0, 0
+    for tok in re.findall(r"[a-z]+", text.lower()):
+        if tok in WORD:
+            cur += WORD[tok]
+        elif tok == 'hundred':
+            cur = (cur or 1) * 100
+        elif tok in SCALE:
+            tot += (cur or 1) * SCALE[tok]; cur = 0
+        else:
+            if tot or cur: out.add(tot + cur)
+            cur = tot = 0
+    if tot or cur: out.add(tot + cur)
+    return out
+
+
 def norm(s): return re.sub(r'[,\s$%]', '', s).rstrip('.')
 
 
@@ -66,7 +91,12 @@ def main():
         ans = open(f'{TRIAL}/nlm-b9-{vid}.md').read().strip()
         tx = transcript(vid); txn, txl = norm(tx), tx.lower()
         figs = sorted(set(FIG.findall(ans)), key=len, reverse=True)
-        bad = [f for f in figs if norm(f) not in txn and not any(w in txl for w in spoken(f))]
+        sp = spoken_numbers(txl)
+        def ok(f):
+            if norm(f) in txn or any(w in txl for w in spoken(f)): return True
+            try: return int(float(norm(f))) in sp
+            except ValueError: return False
+        bad = [f for f in figs if not ok(f)]
         for f in bad:                                    # flag in place, longest first (no double-tagging)
             ans = ans.replace(f, f'{f} **⚠unverified**')
         m = meta.get(vid, {})

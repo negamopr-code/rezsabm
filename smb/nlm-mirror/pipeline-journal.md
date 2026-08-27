@@ -508,3 +508,18 @@ Cost of this batch: 0 NLM queries (already paid), 0 Claude tokens for extraction
 Pending: refresh "SMB Options vol. 1" in the notebook (needs the account, blocked behind the pacer) and adjudicate the
 4 flagged figures (cheap Claude work, next tick).
 - 2026-08-27 21:59 UTC NLM query `concerns` over "SMB comments archive vol. 11" (source ac6a3b70): NO ANSWER after 50s () → stop round, retry later (exit 75)
+
+### 2026-08-27 22:30 UTC — auto-resume tick #3: flagged figures adjudicated, gate taught compound spoken numbers
+Daemon alive (5413), still idle behind the lock. Pacer: round vol. 10 rc=0, **round vol. 11 rc=75 (empty answer, partial
+saved — retries later, no quota lost)**; round 12 pending, so no new NLM work this tick.
+Adjudicated the 4 figures the hybrid merge had flagged (zero NLM, cheap Claude):
+- **$422,500 → ✓VERIFIED**: spoken in the transcript as "four hundred twenty two thousand five hundred dollars" — a
+  false flag by the gate, not an NLM error.
+- **$3,780 → ⚠derived**: transcript states price "3.78" / premium "37.80"; the ×100 is arithmetic, never spoken.
+- **$92,700 → ⚠inferred**: the transcript is garbled ("700 shares of UPS… worth $927"); NLM reconstructed 700 × ~$132.
+- **$3,050 → ⚠unverified**: absent from the transcript in any digit or spoken form — the one genuine miss.
+Annotations rewritten inline in volume-1.md (✓verified / ⚠derived / ⚠inferred / ⚠unverified) so the distinction between
+"gate limitation" and "model invention" is visible to any future reader.
+Gate upgraded (zero tokens, permanent): `spoken_numbers()` now parses COMPOUND spoken numbers ("four hundred twenty two
+thousand five hundred" = 422,500) in both trial_verify_figures.py and merge_nlm_batch.py — batch-9 fidelity re-measured
+92.5% → **93.2%**, and future batches will stop false-flagging word-form figures.
