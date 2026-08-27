@@ -366,3 +366,7 @@ Long jobs must be started with the Bash tool's `run_in_background`. Also: `pkill
 from a pidfile or a /proc scan instead. Memory: feedback_background_jobs_run_in_background.md.
 11:15: heartbeats refreshed, pacer relaunched for rounds vol. 6, 7, 8 (36-min spacing), distill batch 7 agent re-spawned.
 Next: rounds 9–12 + "SMB audience needs vol. 1" upload; distill backlog 230 → batches 8+.
+- 2026-08-27 16:31 UTC NLM query `concerns` over "SMB comments archive vol. 6" (source 6fe14fe5, purpose: concerns layer of audience-needs.md): answered in 71s, 6555 chars
+- 2026-08-27 16:39 UTC NLM query `takeaways` over "SMB comments archive vol. 6" (source 6fe14fe5, purpose: takeaways layer of audience-needs.md): answered in 463s, 5401 chars
+- 2026-08-27 16:41 UTC NLM query `questions` over "SMB comments archive vol. 6" (source 6fe14fe5, purpose: questions layer of audience-needs.md): answered in 64s, 3828 chars
+- 2026-08-27 16:42 UTC NLM query `needs` over "SMB comments archive vol. 6" (source 6fe14fe5, purpose: needs layer of audience-needs.md): answered in 47s, 5768 chars
