@@ -507,3 +507,4 @@ tick spent itself on the already-paid extraction: of the 15 trial answers, 5 wer
 Cost of this batch: 0 NLM queries (already paid), 0 Claude tokens for extraction — only the merge script ran.
 Pending: refresh "SMB Options vol. 1" in the notebook (needs the account, blocked behind the pacer) and adjudicate the
 4 flagged figures (cheap Claude work, next tick).
+- 2026-08-27 21:59 UTC NLM query `concerns` over "SMB comments archive vol. 11" (source ac6a3b70): NO ANSWER after 50s () → stop round, retry later (exit 75)
