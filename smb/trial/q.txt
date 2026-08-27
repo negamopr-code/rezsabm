@@ -1,0 +1,9 @@
+Use ONLY the source "SMB transcripts archive vol. 2", and within it ONLY the transcript of the video with id [VDYG8LDIfGk] titled "How to Generate Income With High Yield Stocks (Options Tutorial)". Ignore every other transcript in the source.
+
+Produce two parts about THAT ONE video, no preamble:
+
+PART A — handbook chapter content: the setup (instrument, structure, strikes/deltas, DTE, entry trigger), the management and exit rules, the stated edge or statistics, and the caveats the presenter gives. Dense prose or tight bullets.
+
+PART B — a markdown table of every CONCRETE NUMBER spoken, columns: | theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |. One row per distinct trade or statistic.
+
+Rules: never invent, round or reconcile a figure that is not spoken; quote each exactly as said; if a number is garbled in the transcript write it as spoken and add "(garbled)"; if the video does not state something, omit it rather than guessing.

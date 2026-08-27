@@ -386,3 +386,55 @@ otherwise (transcripts v1–3, comments v1–12, audience needs v1, journal).
 launched 11:15 but the process resumed 16:30 when the session woke. Spacing is real but tracks session activity, not
 wall clock; for overnight pacing use a container-side cron instead.
 Next: rounds vol. 7–8 (pacer running), then 9–12; distill batches 9+ for the remaining 200.
+- 2026-08-27 16:57 UTC NLM query `trial-distill/chapters` over "SMB transcripts archive vol. 1" (source 0a263160, purpose: TRIAL NLM distillation of batch 9, 15 videos): NO ANSWER
+- 2026-08-27 17:13 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [-h1mAx67OxA] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 70s, 5522 chars
+- 2026-08-27 17:15 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [-Dfl8YyoP0E] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 83s, 6798 chars
+- 2026-08-27 17:16 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [-gGvWxd_iXc] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 67s, 4345 chars
+- 2026-08-27 17:18 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [-rwYS0Dq6Ro] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 69s, 7403 chars
+- 2026-08-27 17:19 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [-huhEgn9TRg] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 90s, 5585 chars
+- 2026-08-27 17:23 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [goK0QOsQRvQ] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 172s, 1433 chars
+- 2026-08-27 17:24 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [EYA6mxeZmzg] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 76s, 908 chars
+- 2026-08-27 17:25 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [j2PxP-o-M1E] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 60s, 794 chars
+- 2026-08-27 17:28 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [KBWUtGD1kwk] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 102s, 633 chars
+- 2026-08-27 17:30 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [cUfBqD03mTc] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 127s, 6378 chars
+- 2026-08-27 17:33 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [BPvBoQLupOQ] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 168s, 751 chars
+- 2026-08-27 17:35 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [YVPcw-xIUhs] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 83s, 1277 chars
+- 2026-08-27 17:36 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [xDaCtZ9GMl0] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 68s, 1968 chars
+- 2026-08-27 17:38 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [-wyjzl9zPfs] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 60s, 1390 chars
+- 2026-08-27 17:40 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 1" scoped to [VDYG8LDIfGk] (source 0a263160, purpose: TRIAL NLM distillation batch 9): answered in 94s, 650 chars
+- 2026-08-27 17:42 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [goK0QOsQRvQ] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 56s, 5387 chars
+- 2026-08-27 17:43 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [EYA6mxeZmzg] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 58s, 6673 chars
+- 2026-08-27 17:44 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [j2PxP-o-M1E] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 49s, 4905 chars
+- 2026-08-27 17:45 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [KBWUtGD1kwk] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 62s, 6439 chars
+- 2026-08-27 17:47 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [cUfBqD03mTc] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 49s, 5343 chars
+- 2026-08-27 17:48 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [BPvBoQLupOQ] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 75s, 6946 chars
+- 2026-08-27 17:50 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [YVPcw-xIUhs] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 75s, 5992 chars
+- 2026-08-27 17:51 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [xDaCtZ9GMl0] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 71s, 7073 chars
+- 2026-08-27 17:54 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [-wyjzl9zPfs] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 121s, 5680 chars
+- 2026-08-27 17:56 UTC NLM query `trial-distill` over "SMB transcripts archive vol. 2" scoped to [VDYG8LDIfGk] (source 8ccf8c5e, purpose: TRIAL NLM distillation batch 9): answered in 110s, 6132 chars
+
+### 2026-08-27 18:00 UTC — TRIAL: batch 9 distilled by NotebookLM instead of a Claude subagent (user request)
+Question: can the distillation half of the pipeline run on NLM quota instead of Claude tokens (the comments half
+already does)? Trial = the next 15 undistilled videos (305k–25k views), `trial_distill_nlm.py`, output kept OUT of
+volume-1.md in `smb/trial/`.
+Findings:
+1. **One query per video is mandatory.** A single question covering 15 videos over a 2.4M-char archive source
+   returned an empty answer twice. Per-video source-scoped queries return 4.3k–7.4k chars each, chapter-grade.
+2. **My routing bug, not an NLM failure:** the first pass scoped all 15 to archive vol. 1 (the split reproduction had
+   a dead `and cur` guard + wrong ordering) — 8 of them live in vol. 2. NLM answered "transcript not available in the
+   provided passages" and offered web research instead of inventing: correct grounded behaviour. Split fixed to
+   videos.json order + real file sizes (vol. 1 = 141 videos, vol. 2 = 171, vol. 3 = 49); resume now treats a
+   "not available" answer as unpaid work. Cost of the bug: 8 wasted queries.
+3. **Figure fidelity 135/146 = 92.5%** (`trial_verify_figures.py`, zero tokens: every $ figure/percentage in an answer
+   must appear in the raw transcript as digits or spoken words). Spot-checks: $2,466 profit, $36,366 capital, "$1,200
+   average per week", Feb/Apr/Jun losing months, 6-lot 5350/5430/5270 iron fly — all exact.
+4. **Two real defects.** (a) Silent repair of a garbled figure: transcript says "36,3 66 in capital", answer says
+   $36,366 with no "(garbled)" flag though the prompt demanded one. (b) **Invented illustration**: a caveat reads
+   "$400 chump-change drawdown on a 1-lot becomes a $40,000 drawdown on a 10-lot" — "chump" appears 0× in the
+   transcript and the arithmetic is 100×, not 10×. That is exactly the failure the registry must not absorb.
+5. Cost/latency: 15 videos = 15 NLM queries, ~5–8 min each ⇒ ~1.5 h wall clock, **0 Claude tokens** (Claude batch 8 =
+   ~196k tokens, ~10 min). Trial spent 25 queries total (15 + 8 re-runs + 2 dead batch-wide).
+Verdict: NLM is good enough for PART A chapter prose as a first draft; it is NOT trustworthy unsupervised for the
+"Real numbers from the desk" registry. Recommended shape for batches 10+: NLM extracts (quota) → `trial_verify_figures.py`
+gates every figure (zero tokens) → Claude adjudicates only the handful of unmatched figures per batch instead of reading
+all 15 transcripts. Awaiting user's decision before any NLM-distilled text enters volume-1.md.
