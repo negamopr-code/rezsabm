@@ -493,3 +493,17 @@ Mirrored the 10 host-side digests INTO the container's digests/ dir — without 
 work4 queries re-analysing volumes 1–10 (it picks "lowest volume lacking a digest" from its own filesystem).
 audience-needs.md regenerated. Hybrid distill batch DEFERRED this tick: the pacer holds the account (one work4 job at
 a time); the next tick runs it once rounds 11–12 are done.
+
+### 2026-08-27 22:00 UTC — auto-resume tick #2: FIRST HYBRID MERGE (161 → 171 distilled, zero NLM, zero-token gate)
+Daemon alive (5413), still idle behind the lock (host pacer mid-round 11). No new NLM work possible this tick, so the
+tick spent itself on the already-paid extraction: of the 15 trial answers, 5 were videos Claude had distilled
+(head-to-head material) and **10 were genuinely undistilled** → merged by the new `merge_nlm_batch.py`:
+- every figure re-checked against the raw transcript (digits or spoken words); **82 figures, 4 flagged ⚠unverified**
+  ($422,500 and $3,780 in j2PxP-o-M1E, $3,050 in goK0QOsQRvQ, $92,700 in EYA6mxeZmzg) — flags are written INLINE next
+  to the figure, so nothing suspect is silently absorbed into the volume;
+- sections land in a clearly-labelled chapter "NLM-extracted videos (hybrid pipeline — NotebookLM extraction,
+  figure-gated)" stating that Claude did not read these transcripts, plus one index row per video;
+- distilled **171/361**, volume 76,492 words.
+Cost of this batch: 0 NLM queries (already paid), 0 Claude tokens for extraction — only the merge script ran.
+Pending: refresh "SMB Options vol. 1" in the notebook (needs the account, blocked behind the pacer) and adjudicate the
+4 flagged figures (cheap Claude work, next tick).

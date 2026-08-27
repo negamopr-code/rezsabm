@@ -694,6 +694,497 @@ Registry of every concrete number in the five videos (for backtest-realism param
 | 227 | SPX, May 23 2016 (channelling 2000–2100), Brexit referendum Jun 23; Jun 17 (pre) and Jun 30 (post) chains, 10 lots | Double calendar around a MACRO event, closed before it | Sell 10× Jun 17 2100C @5.25 (+$5,250) and 10× Jun 17 2000P @13.90 (+$13,900); buy 10× Jun 30 2100C @11.90 (−$11,900) and 10× Jun 30 2000P @23.85 (−$23,850) → debit $16,600 = max risk. Jun 16 12:30pm, SPX 2064 with 3.5 hours left (needs +36 or −64): sell longs $13,750 + $15,300, buy back shorts −$130 − $250 → +$12,070 = >72% in under a month, flat before the vote | [CNEYo3P-CRk] |
 | 228 | SPY, Friday Jul 9 (IQ bullish signal), open 432.72, close 435.51 (+2.79) | Deep-ITM 0-DTE call instead of 300 shares | 300 shares = $129,816; instead buy 3× 427C @5.78 = $1,734 (≈75× cheaper). At the close the call is worth its intrinsic 8.51 (exercise buys the shares for $128,100 vs $130,653) → sell for $2,553 → +$819 = >47% on capital, vs +$834 = 0.6% on $129,816 of stock. Reference: 300 shares at ~463 = $138,900 pays $300/point = 0.2% | [9pnSF-YE2DQ] |
 
+
+## CHAPTER: NLM-extracted videos (hybrid pipeline — NotebookLM extraction, figure-gated)
+
+> Extracted by NotebookLM from the verbatim transcript archives, then gated by `trial_verify_figures.py`: every figure below appears in the raw transcript unless marked **⚠unverified** (not found as digits or spoken words — treat as suspect until a human or Claude pass adjudicates it). Claude did not read these transcripts.
+
+### [j2PxP-o-M1E] A Simple Options Strategy for Monthly Income (27,000 views)
+
+PART A — Handbook Chapter Content
+
+### Setup
+*   **Instrument**: **SPY ETF** (iShares S&P 500 ETF, which mirrors the S&P 500 Index).
+*   **Structure**: **Cash-Secured Put Selling** (selling put options monthly while maintaining the cash required to buy the stock if assigned).
+*   **Strikes/Deltas**: Select out-of-the-money strike prices that yield a premium representing **as close as possible to a one percent return** on the cash-secured capital requirement. Examples include the **410 strike** and **400 strike** puts.
+*   **DTE (Days to Expiration)**: Approximately **one month**, targeting options chains that expire on the **third Friday** of each month.
+*   **Entry Trigger**: Initiated as a systematic, recurring monthly campaign. This strategy is deployed when a trader expects the equity market to take a breather or digest a major run-up, or during a projected decade of market underperformance/decelerated growth where broad market buy-and-hold returns are expected to be anemic.
+
+### Management and Exit Rules
+*   **Expiration worthless**: If the stock closes above the sold put strike price at expiration, the puts expire worthless ("die and go to options heaven"). The trader simply walks away keeping the entire upfront premium cash flow as net profit.
+*   **Capital Security Requirement**: The trader must maintain sufficient cash in the account to cover the full obligation of buying the underlying shares should the puts expire in-the-money. For a 10-lot trade at a 410 strike, the trader must tie up **410 000** in cash.
+*   **Assignment Resolution**: If the stock closes below the put strike on expiration day, the trader is assigned and must buy 100 shares of SPY per contract. This position is then managed using **the wheel strategy** (selling covered calls to eventually dispose of the assigned shares).
+
+### Stated Edge or Statistics
+*   **Broad Index Diversification**: Broad indexes like SPY lack single-stock earnings events and individual corporate scandals (such as CEOs getting cuffed) that can cause catastrophic price gaps, making them much safer and more consistent for systematic premium selling.
+*   **12-Month Campaign Performance**: A 12-month campaign starting in April 2021 achieved a **100% win rate**, winning all 12 monthly trades and collecting a total cash profit of **53 610** dollars.
+*   **Return on Capital Outperformance**: Tying up an average capital level of **four hundred twenty two thousand five hundred dollars** in the program yielded a return of **over twelve percent**. This return was **more than two and a half times** the buy-and-hold SPY return of **4.92** over the same period.
+
+### Caveats
+*   **Heavy Capital Allocation**: To safely run a cash-secured put campaign without taking on leverage, significant capital must be tied up (e.g., **410 000** to trade 10 contracts of 410 puts), capping the monthly return on absolute capital at around 1%.
+*   **Downside Assignment Risk**: If the market enters an aggressive bearish trend, the put strikes will be breached, forcing the trader to buy the shares at the strike and experience unrealized paper losses on the stock until it recovers or is wheeled out.
+
+***
+
+PART B — Spoken Numbers Table
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Option Contract Terms** | Put Option Contract | Entitles the buyer to sell **100** shares of stock per contract |
+| **Capital Yield Target** | SPY Put Selling Campaign (1-year duration) | Target cash inflow of "**as close as possible to a one percent**" (1%) of capital level each month |
+| **May Trade Entry & Capital** | SPY cash-secured put. Sold 10 contracts at 410 strike. Expiry May 21st. | Credit received: "**four thousand five hundred twenty dollars**" (also spoken as "**45 20**"); capital requirement: "**410 000**" in cash |
+| **May Trade Settlement** | SPY put expiration (May 21st) | SPY closed at "**4 14 94**"; puts expired worthless; net profit kept: "**45 20**" (\$4,520) |
+| **June Trade Entry & Capital** | SPY cash-secured put. Sold 10 contracts at 400 strike expiring June 18th (third Friday in June). | Put option price: "**3.78**"; cash premium collected: "**37.80**" (representing \$3,780 **⚠unverified**) |
+| **June Trade Settlement** | SPY put expiration (June 18th) | SPY closed at "**right under 415**"; puts expired worthless; net profit kept: "**37.80**" (\$3,780 **⚠unverified**) |
+| **1-Year Campaign Totals** | SPY cash-secured put campaign (April 2021 to April, 12 months) | Won "**all 12 months**"; total cash profit: "**53 610**" dollars; average capital tied up: "**four hundred twenty two thousand five hundred dollars**" (\$422,500 **⚠unverified**); return on capital: "**over twelve percent**" (12%); buy-and-hold SPY return baseline: "**4.92**" (options campaign return was "**more than two and a half times**" the stock return) |
+
+### [goK0QOsQRvQ] If you want to win at Options trading, enter and exit like this (27,000 views)
+
+PART A — handbook chapter content
+
+### Setup
+*   **Instrument**: **TLT ETF** (iShares 20+ Year Treasury Bond ETF) [1].
+*   **Structure**: **Cash secured put selling** [1, 2].
+*   **Strikes/Deltas**: **Nearly 30 Delta puts** [3]. Strike selection examples include the **86 put, 87 put, and 88 put** [3-5].
+*   **DTE (Days to Expiration)**: **One month** [6].
+*   **Entry Trigger**: Continuous reloading campaign on a high-liquidity stock or ETF you are willing to own at the strike price [2, 3, 6].
+
+### Management and Exit Rules
+*   **The Velocity of Capital Matrix**: Split the trade's duration into time-based quartiles to take profits early and reload rather than holding blindly to expiration [4, 6]:
+    *   **Week 1**: Take profit if the trade reaches **50% of the maximum 100% profit** (original credit collected) [6, 7].
+    *   **Week 2**: Take profit if the put price shrinks to **40% of its original price**, capturing a **60% profit** [5, 6].
+    *   **Week 3**: Take profit if the trade exceeds a **75% minimum profit requirement** of the original cash flow [7].
+    *   **Week 4**: Hold to expiration morning, cashing out for a **90% profit** when the option gets down to **10% of its original price** [4].
+*   **The Reload Rule**: Immediately start a new trade and redeploy capital at a full premium once a profit target is hit, avoiding late-stage capital stagnation [5, 6].
+
+### Stated Edge or Statistics
+*   **Baseline Unmanaged Campaign**: Over a 3-month period, a static "set it and forget it" campaign allowed to expire produced **\$2,440** in profit [3].
+*   **Managed Campaign**: Using the quartile profit matrix over the exact same period and asset produced a final profit of **\$3,050 **⚠unverified**** [7].
+*   **Return Boost**: The active management approach generated **25% more profit** than the unmanaged expiration technique [7].
+
+### Caveats
+*   **Increased Workload**: Active management requires "more work" than a simple unmanaged approach [7].
+*   **Assignment Risk**: If the stock drops and closes below the short strike, the trader will be assigned and must come up with the capital to purchase **10,000 shares of TLT** (or 100 shares per contract) [3, 8].
+*   **Languishing Capital**: Holding a trade near expiration for the remaining tiny premium yields a slow profit pace, unnecessarily tying up valuable capital [6, 7].
+
+***
+
+PART B — a markdown table of every CONCRETE NUMBER spoken
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Unmanaged Baseline: Month 1** | TLT ETF, Cash Secured Put, 86 put strike [3] | Stock closed **\$3.61 61 cents** above strike; pocketed **\$1,30** (as spoken) in put premium [3] |
+| **Unmanaged Baseline: Month 2** | TLT ETF, Cash Secured Put, 88 put strike [3] | Put sold at **nearly 30 deltas** for **65 cents**; brought in **\$650** [3] |
+| **Unmanaged Baseline: Month 3** | TLT ETF, Cash Secured Put, 88 strike [3], expired March 21st (the third Friday in March) | Stock closed at **9070** (as spoken); win of **\$650** [3]; assignment requires owning **10,000 shares of TLT** [3] |
+| **Unmanaged Baseline Campaign Totals** | TLT ETF, Cash Secured Puts, 3-month campaign [3] | Produced a final profit of **\$2,440** [3] |
+| **Exit Matrix Matrix Benchmarks** | One-month options trade duration split into quartiles [6] | First week profit target: **50%** of maximum **100%** profit; second week option target: put shrinks to **40%** of original price for a **60%** profit [6] |
+| **Managed Campaign: Trade 1** | TLT ETF, Cash Secured Put, 87 put strike [4], TLT trading at 8831 | Sold put for **76** (76 cents), collecting **\$760**; held to expiration morning; put dropped to **10%** of original price; closed for **90%** profit; paid **6 cents** to buy back for a final profit of **\$700** [4] |
+| **Managed Campaign: Trade 2** | TLT ETF, Cash Secured Put, 86 put strike [5], TLT trading at 8742 | Sold **30 delta puts** priced at **86** (86 cents), collecting **\$860**; moved forward **12 days** to January 29th; put trading at **34 cents** (**40%** of original price); buyback triggered at **60%** profit; net profit of **\$520** [5] |
+| **Managed Campaign: Trade 3** | TLT ETF, Cash Secured Put, 87 put strike ("30 delta calls" as spoken [5]), expires February 28th | Collected **\$860** positive cash flow; waited **a week** to the morning of February 5th; TLT opens up **a\$ 13** (as spoken); put dropped to **35 cents** (**less than 50%** of original price of 86); closed for profit of **510** (more than 50% in first week) [7, 9] |
+| **Managed Campaign: Trade 4** | TLT ETF, Cash Secured Put, March 7th trade [7] | Closed in the third week; exceeded the **75%** minimum profit requirement; net profit of **\$700** [7] |
+| **Managed Campaign: Trade 5** | TLT ETF, Cash Secured Put, March 28th trade [7] | Received **680** upfront; closed within the week under the **50%** minimum week-one requirement; net profit of **370** [7] |
+| **Managed Campaign: Trade 6** | TLT ETF, Cash Secured Put, April 4th trade cut short to March 21st [7] | Truncated trade; net profit of **just \$250** [7] |
+| **Managed Campaign Totals & Contrast** | TLT ETF, Managed 6-trade campaign vs Unmanaged [7] | Managed campaign final profit of **\$3,050 **⚠unverified****; generated **25%** more profit than the unmanaged technique [7] |
+
+### [EYA6mxeZmzg] How to Make $1,000/month owning certain dividend stocks (and options) (27,000 views)
+
+PART A — handbook chapter content
+
+### Setup
+*   **Instrument**: **UPS stock (United Parcel Service)**. The strategy is designed to perform best on solid, long-term high-yield dividend stocks that have experienced some recent sell-off [1].
+*   **Structure**: **Covered Call** (owning stock and selling 1 call contract for each 100 shares owned) [2].
+*   **Strikes/Deltas**: Select out-of-the-money call options located as high as possible on the options chain that yield a premium price of **at least 90 cents** to meet the monthly income target [2, 3].
+    *   *Month 1*: **136 strike** call option (with stock closing at **13.58** [garbled/as spoken] on August 1st) [1, 2].
+    *   *Month 2*: **136 strike** call option [4].
+    *   *Month 3*: **145 strike** call option [4].
+*   **DTE (Days to Expiration)**: Approximately **one month** (e.g., August 30th options chain [2]; October 4th options chain expiring in **35 days** [3]; November 1st options chain expiring in **about 30 more days** [4]).
+*   **Entry Trigger**: Continuous monthly execution targeting a specific monthly portfolio cash goal (e.g., **\$1,000 a month**) by combining quarterly dividend cash flows with monthly call premiums [5, 6]. Stock selection prioritizes companies with consistent histories of dividend growth, such as UPS (which raised its dividend for **22 years in a row**) [6].
+
+### Management and Exit Rules
+*   **Expiration worthless**: If the stock closes below the sold call strike price at expiration, the calls expire worthless with zero value [7]. The trader simply pockets the upfront premium cash flow as net profit and re-opens a new covered call position about a month out [3, 7].
+*   **Broker requirements**: The trader must hold the physical shares of stock in the account so the broker can deliver them to the call buyer should the call buyer choose to exercise the options at the strike price [8].
+*   **Protection against losses**: Never sell covered calls at a strike price lower than the initial acquisition cost basis of the stock [9]. This avoids being assigned and forced to sell the shares below cost, which would permanently lock in a realized capital loss on the shares [9].
+
+### Stated Edge or Statistics
+*   **Income Enhancement**: Combining naturally modest dividend yields with monthly covered call premium payments allows investors to achieve monthly cash goals much faster [5].
+*   **Campaign Metrics**: On an initial holding of **700 shares** of UPS valued at **\$92,700 **⚠unverified**** [6]:
+    *   *Dividend income*: A dividend of **a163** (garbled/as spoken) per share [6] paid out **\$1,141** quarterly, translating to roughly **\$380 per month** [6].
+    *   *The Shortfall*: To reach a **\$1,000 monthly goal**, the portfolio faced a **\$620 monthly shortfall** [6].
+    *   *Premiums captured*: Selling 7 contracts yielded **\$665** in Month 1 (expiring worthless with UPS at **12855** [garbled/as spoken]) [2, 7], **\$644** in Month 2 (expiring worthless with UPS at **13125** [garbled/as spoken]) [4], and **\$784** in Month 3 (expiring worthless with UPS at **13405** [garbled/as spoken]) [4].
+    *   *Total return*: The campaign generated a total of **\$3,234** in 3 months (premiums plus the dividend payment), averaging **\$1,078 per month** and successfully exceeding the monthly cash target [8].
+
+### Caveats
+*   **Upside Cap**: If the stock rallies dramatically past the call strike, the shares are called away, capping the stock's capital gains potential [8].
+*   **Unprotected Downside**: If the underlying stock drops significantly, the capital loss on the stock will normally be much greater than the monthly income earned from selling calls [9].
+*   **The Loss-Locking Trap**: If the stock drops too much, the investor might be forced to sell covered calls below their initial acquisition price to meet monthly income needs, exposing them to a realized capital loss if the stock rallies back above the strike [9].
+
+***
+
+### PART B — Spoken Numbers Table
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Portfolio Goal & Target** | Covered call & dividend campaign, cash income focus | Target cash income: **\$1,000 a month** or more [5, 6] |
+| **Share Baseline & Sizing** | UPS stock shares owned as of August 1st close | August 1st close: **13.58** (garbled/as spoken) [1]; **700 shares** owned [6]; total value: **\$92,700 **⚠unverified**** [6]; raised dividend for **22 years** in a row [6]; dividend aristocrat benchmark: **at least 25 straight years** [6]; dividend issued May 10th: **a163** (garbled/as spoken) per share [6] |
+| **Portfolio Cash Shortfall** | UPS stock quarterly dividend vs. monthly cash goal | Total quarterly dividend collected: **\$1,141** [6]; monthly average: **roughly \$380** per month [6]; monthly shortfall: **\$620** [6] |
+| **Month 1 Covered Call Entry** | UPS Stock, covered call. Owned 700 shares, sold 7 calls at 136 strike. August 1st entry, August 30th expiry. | Price target: **at least 90** cents [2]; call priced at: **95** cents [2]; contract size: **100 shares** per contract [2]; sold: **seven** calls [2]; cash inflow: **\$665** [7]; monthly shortfall: **\$620** [7] |
+| **Month 1 Expiration & P&L** | UPS Stock, covered call at August 30th expiration | Expiration close: **12855** (garbled/as spoken) [7]; calls expired worthless; net profit: **\$665** [7] |
+| **Dividend Payment Event** | UPS stock quarterly dividend payout | Paid August 19th [3]; collected: **\$1,141** arising from **700 shares** [3] |
+| **Month 2 Covered Call Entry** | UPS Stock, covered call. Owned 700 shares, sold 7 of the 136 calls expiring October 4th. | Oct 4th chain duration: **expires in 35 days** [3]; call premium priced at: **92** cents [4]; cash produced: **\$644** [4] |
+| **Month 2 Expiration & P&L** | UPS Stock, covered call at October 4th expiration | Expiration close: **13125** (garbled/as spoken) [4]; calls expired worthless; net profit: **\$644** [4] |
+| **Month 3 Covered Call Entry** | UPS Stock, covered call. Owned 700 shares, sold 7 of the 145 calls expiring November 1st. | November 1st chain duration: **expires in about 30 more days** [4]; call premium priced at: **a112** (garbled/as spoken) [4]; positive cash flow: **\$784** [4] |
+| **Month 3 Expiration & P&L** | UPS Stock, covered call at November 1st expiration | Expiration close: **13405** (garbled/as spoken) [4]; calls expired worthless; net profit: **\$784** [4] |
+| **3-Month Campaign Totals** | UPS Stock, total collected over 3 months | Total collected: **\$3,234** [8]; average monthly cash flow: **\$1,078 per month** [8] |
+
+### [BPvBoQLupOQ] Huge Options Blunders: If I think A Stock Is Going Up, I’ll Just Buy A Call, It’s Cheaper (ep 8) (26,000 views)
+
+PART A — handbook chapter content: "Huge Options Blunders: If I think A Stock Is Going Up, I’ll Just Buy A Call, It’s Cheaper (ep 8)"
+
+### Setup
+*   **Instruments**: Chipotle Mexican Grill (CMG) stock [1] (also illustrated with a hypothetical XYZ stock example) [2].
+*   **Structure**: Long Call option (buying an out-of-the-money call option) [2, 3].
+*   **Strikes/Deltas**: 
+    *   *CMG*: **860 strike** call option, which is located **about 10 points** above CMG's all-time high [1]. 
+    *   *XYZ*: **105 strike** call option, when the stock is trading at **100** [2].
+    *   *Deltas*: Not explicitly stated in the transcript for this video.
+*   **DTE (Days to Expiration)**: 
+    *   *CMG*: Expiring in the first week of the new year on **January 3rd** [1]. 
+    *   *XYZ*: Expiring **30 days out** [2].
+*   **Entry Trigger**: Directional price confirmation. The trade is initiated when a speculator develops a highly bullish directional opinion that a stock will rally significantly and blast through its previous all-time highs [1].
+
+### Management and Exit Rules
+*   **Expiration worthless**: If the stock's closing price is at or below the call option strike price on expiration day, the option expires completely worthless [2]. The option seller pockets the premium, and the option buyer suffers a **100% loss of their premium capital** [3].
+*   **In-the-Money Expiration Exercise**: If the stock closes above the short strike price on expiration day, the call option buyer is assigned the shares and can flip them immediately in the open market at the higher trading price to capture a profit [3, 4].
+*   **The Profit Hurdle Rule**: To generate a net profit, the stock's closing price must exceed the strike price by **at least the cost of the option itself** [4]. If it does not, the speculator will lose money on the transaction even if they timed the move perfectly and correctly predicted the direction and magnitude of the stock's advance [2, 4].
+
+### Stated Edge or Statistics
+*   **The Leverage Illusion**: Speculating with long calls offers spectacular theoretical returns on small capital compared to buying equities outright [1, 3]. 
+    *   *CMG Stock Purchase Return*: Buying **100 shares** of CMG at **810** requires an investment of roughly **81 thousand dollars** [1]. If the stock rallies to **900** by January 3rd, selling the shares yields a profit of **90 thousand dollars** (a **10.2 percent return**) [1].
+    *   *CMG Call Option Return*: Buying the **860 strike call** for **666 dollars** [1]. If the stock rallies to **900**, exercising at 860 and flipping them "1 second later" for 900 yields a **\$40 per share** profit on **100 shares**—netting **\$4,000 in total** (over a **500 percent gain** on the option cost) [1].
+*   **Net Selling Reality**: While buying calls can be used strategically at the right time, the team at SMB prefers acting as net options sellers who collect options time premium, taking advantage of the high probability that out-of-the-money options will decay to zero [5].
+
+### Caveats
+*   **The "Technical Genius" Trap**: It is a common blunder to brilliantly time the direction, magnitude, and timeframe of a stock move and still lose money on the option [2, 4]. For example, if CMG rallies to **865** (exceeding the **860 strike** target by **five points**), the trader is assigned and makes **500 dollars** on the share flip, but because they paid **666 dollars** (spoken as "paid 666 dollars for the shares"), they still realize a net loss on the trade [4].
+*   **A Decaying Asset**: Unlike equities where a trader only has to be right about the stock's direction, options require being right about direction, magnitude, *and* timing before time decay erodes the option's value [4, 6].
+
+***
+
+PART B — Spoken Numbers Table
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Series Context** | Huge Options Trading Blunders series | Episode "**8**" (8th) in a "**10**" part series (contextual) [7] |
+| **XYZ Baseline Stock** | XYZ Stock, purchase | Stock trading at "**100**" [2] |
+| **XYZ Call Option Pricing** | XYZ Stock, Long Call, 105 strike, 30-day options chain | Option costs "**80 cents**" per share; total cost to buyer is "**\$80**" [2, 3]; represents the right to buy "**100**" shares; buy cost calculated as "**100**" times "**80 cents**" which is "**\$80**" [3] |
+| **XYZ Option Expiration (Worthless)** | XYZ Stock, Long Call, 105 strike, 30 days to expiration | Option expires after "**30**" days; stock closes at "**105 or less**"; buyer loses "**\$80**"; seller pockets "**\$80**" [3] |
+| **XYZ Option Expiration (In-the-Money)** | XYZ Stock, Long Call, 105 strike, 30 days to expiration | Stock trades up to "**107**"; seller required to sell shares to buyer for "**105**" even though trading at "**107**"; buyer paid "**80 cents**" for the option [3] |
+| **Blunder #8 Definition** | Options vs. Equities structural comparison | Blunder "**8**" [2, 3]; buying a call is considered cheaper than buying "**100**" shares of stock [3] |
+| **CMG Target speculation** | Chipotle Mexican Grill (CMG) stock or options, expiring January 3rd | Speculator targets stock to get to "**700**" (or "**900**") by "**January 3rd**" [1] |
+| **CMG Option Setup** | CMG Stock, Long Call, 860 strike, expiring January 3rd | Option strike is "**860**", which is "**about 10 points**" above all-time highs; sold for "**six dollars and sixty six cents**" (\$6.66) per contract; total purchase cost is "**666 dollars**" to control "**100**" shares [1] |
+| **CMG Stock Purchase Comparison** | CMG Stock, outright purchase of 100 shares held until January 3rd | Shelled out roughly "**81 thousand dollars**" for "**100**" shares; sell them for "**90 thousand dollars**" on "**January 3rd**"; return is "**10 point 2 percent**" if correct [1] |
+| **CMG Best-Case Call Option Payoff** | CMG Stock, Long Call, 860 strike, expiring January 3rd | Option purchased for "**666 dollars**"; right to buy at "**860**" when trading at "**900 dollars**"; sell "**1 second**" later for "**900 dollars**" for a "**\$40**" per share profit on "**100**" shares; total profit: "**\$4,000**" (representing "**over a 500 percent**" gain) [1] |
+| **CMG Actual Expiration & Options Loss** | CMG Stock, Long Call, 860 strike, expiring January 3rd | Stock exceeded target by "**five**" points (closing at 865); call entitles to "**100**" shares; flipped immediately for "**865 dollars per share**" after buying them for "**860 per share**"; made "**500 dollars**" from selling shares; paid "**666 dollars for the shares**" (spoken error for option premium); transaction resulted in a net loss [4] |
+
+***
+
+📊 I can turn this options pricing math into a custom visual payoff diagram comparing stock ownership to call options at expiration so you can easily analyze the exact breakeven curves.
+
+### [KBWUtGD1kwk] The Hidden Key that Makes Options Trading Profitable (26,000 views)
+
+PART A — handbook chapter content
+
+### Setup
+*   **Instrument**: **Amazon (AMZN) stock**.
+*   **Structure**: This strategy utilizes **implied volatility spikes** as the "secret sauce" to execute three core structures:
+    1.  **Cash-Secured Put**: Selling a single out-of-the-money put at a multi-year low strike price.
+    2.  **Put Credit Spread**: Selling a put option and simultaneously buying a protective put option at a lower strike price (e.g., five strikes lower) to define risk.
+    3.  **Iron Condor**: Surrounding the market price by combining a put credit spread below the market and a call credit spread above the market (e.g., short strikes at 145 and 190).
+*   **Strikes/Deltas**: 
+    *   *Short Put strike*: Set deep out of the money at a multi-year low support level, specifically the **145 put** strike (when the stock is trading at 16732). 
+    *   *Protective Put strike*: Set at the **120 put** strike.
+    *   *Short Call strike*: Set above the market at the **190 call** strike.
+*   **DTE (Days to Expiration)**: Long-term duration expiring "a little less than a year later," specifically **333 days later** (on March 20th, 2026).
+*   **Entry Trigger**: A massive **spike in the VIX index** (the fear index). Professional traders enter these positions when fear pumps up options premiums to extreme overvalued levels, such as when VIX jumps to **33.82 82** (representing a **14% increase** in a single day) following major geopolitical trade war/tariff announcements.
+
+### Management and Exit Rules
+*   **Expiration Worthless**: Puts are only activated if the stock closes below the strike on expiration day. If the underlying stock remains above the short strike, the options expire completely worthless, and the seller retains the entire upfront positive cash flow as pure net profit.
+*   **Capital Allocation**: For cash-secured puts, the trader must maintain sufficient cash in the account to purchase **100 shares of Amazon at 145** per contract sold (tying up **145** in capital).
+*   **Spread Risk Definition**: By purchasing a protective put at a lower strike (e.g., 120 put), the trader defines their maximum loss. The broker recognizes this stop-loss protection, which drastically reduces the capital margin requirement to **\$1,877** instead of the full cash-secured requirement.
+*   **Condor Range Management**: If the stock closes within the range of all options (between the short put 145 and short call 190), all four options expire worthless. The trader pockets the maximum gain of **\$1,385**.
+
+### Stated Edge or Statistics
+*   **Volatility Premium Edge**: Implied volatility tends to overestimate the actual realized movement of the stock. Spikes in fear allow premium sellers to collect dramatically higher credits.
+*   **Yield Comparison (High vs. Low Volatility)**:
+    *   *Cash-Secured Put*: In a high VIX environment (VIX of 33.82 82), selling the 145 put for **\$198** yields a **8.26%** return on capital. In a low VIX environment (VIX in the 15 to 20 range), the same 145 put sells for only **808**, significantly decreasing the yield.
+    *   *Put Credit Spread*: Selling the 145 put and buying the 120 put for **120** in high volatility drops cash flow to **623** but yields a **33.1%** return on a small capital requirement of **\$1,877**.
+    *   *Iron Condor*: Surrounding Amazon between 145 and 190 in high volatility generates **\$1,385** in premium for a best-case return of **124.2%** against a capital requirement of **,5** (garbled). In low volatility, the same condor yields only **\$1,158** in premium and a smaller **86.9%** potential return. The high-volatility condor offers a **42.9% better** potential return.
+
+### Caveats
+*   **Extreme Downside Exposure**: For cash-secured puts, a massive down move below the short strike forces the trader to buy the shares at the strike price, incurring significant unrealized paper losses on the equity.
+*   **Defined Risk Expiration**: With spreads, if the market moves aggressively past the short strikes, the trade will realize a maximum loss, which can occur much faster if there is a rapid market drop before expiration.
+*   **Increased Risk in Volatility**: High VIX environment premiums are inflated precisely because the market is pricing in a higher expectation of large, violent swings, making the probability of a strike being breached higher.
+
+***
+
+PART B — a markdown table of every CONCRETE NUMBER spoken
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Firm History** | N/A | Founded "since 2005" |
+| **Volatility Context (Low Vol)** | N/A | VIX living in "15 to 20 range" for the first "two months of the year" |
+| **Volatility Event (High Vol)** | S&P Index, April 21st | S&P closed at "5158.20" down "124 points"; VIX closed at "33.82 82" (representing a "14%" increase over Friday close) |
+| **Asset Baseline (High Vol)** | Amazon (AMZN) Stock, April 21st | Amazon rallied from "145" in "early January of 2024"; closed at "16732" on April 21st |
+| **Cash-Secured Put (High Vol)** | AMZN, Cash-Secured Put, 145 strike put, March 20th 2026 expiration | Option expiration "333 days later" (about a year); sold put at "price of \$198" collecting "\$1,198" or "1198 of cash flow"; capital requirement: must come up with "145" (if stock closes below 145); yield on capital: "8.26%" ("8.26% 26%") |
+| **Cash-Secured Put (Low Vol)** | AMZN, Cash-Secured Put, 145 strike put, February 20th 2024 entry | Put option sold for "808" in lower volatility environment |
+| **Put Credit Spread (High Vol)** | AMZN, Put Credit Spread. Short 145 put, Long 120 put, March 20th 2026 | Paid for protective put "120"; net cash flow "drops to 623"; required capital margin: "\$1,877" ("\$1877"); maximum potential return: "33.1%" |
+| **Iron Condor (High Vol)** | AMZN, Iron Condor. Short range between 145 and 190 strikes, March 20th 2026 | Cash flow collected: "\$1,385"; return on required capital: "124.2%" against capital of ",5" (garbled) |
+| **Iron Condor (Low Vol)** | AMZN, Iron Condor. Short range between 145 and 190 strikes, February 2024 entry | Net premium collected: "\$1,158"; potential return on trade: "86.9%" |
+| **Volatility Yield Edge** | High Volatility vs. Low Volatility Iron Condor comparison | High volatility Condor yields "42.9% better" return potential than the low volatility trade |
+
+### [cUfBqD03mTc] How to TRIPLE Your Options Income (Easily) (26,000 views)
+
+PART A — handbook chapter content
+
+### Setup
+*   **Instrument**: **SPY ETF** (S&P 500 ETF).
+*   **Structure**: **Short Strangle** (selling an out-of-the-money call and an out-of-the-money put) written against an existing long stock position. This setup is designed to "get paid by the market" while waiting for shares sitting on large unrealized losses to recover.
+*   **Strikes/Deltas**: 
+    *   **Short Call**: Strike price set slightly above the original stock purchase cost basis, specifically the **330 call** (with original stock entry at **324** and the market trading at around **275**).
+    *   **Short Put**: Strike price set below the lowest close of the market crash to ensure safety, specifically the **220 put** (where the lowest crash close was **222**).
+*   **DTE (Days to Expiration)**: Approximately **six months out** (specifically utilizing the September options chain on a trade entered on April 13th).
+*   **Entry Trigger**: Deployed after a major market crash (such as the bear market in the **first half of 2022** or the **beginning of 2020** crash) when a trader holds underwater shares and expects a consolidation or gradual recovery bounce.
+
+### Management and Exit Rules
+*   **Holding to Expiration (Full Recovery)**: If the market rallies past the short call strike at expiration (e.g., stock is over **334** on expiration day), the puts expire worthless. The shares are automatically assigned and called away at the short call strike of **330**. The trader collects the capped stock sale proceeds plus the entire strangle premium.
+*   **Early Profit Take**: If the market bounces back rapidly near all-time highs (e.g., by **August 4th**), the trader can choose to exit the stock and options early to book a smaller, modest profit (e.g., taking a **600** dollar win) rather than holding to expiration.
+*   **Wiggle Room / Sideways Resolution**: If the stock remains within the wide strangle boundaries (between **220 and 330**) at expiration, both the short call and the short put expire worthless. The trader retains the entire premium and can reload by selling a new strangle to continue generating income.
+
+### Stated Edge or Statistics
+*   **Triple Income Potential**: Owning the shares and allowing them to simply recover to the **330** level yields a profit of only **600** bucks. By contrast, writing the strangle yields a final profit of **1746 dollars in total**, which is **nearly three times** the profit of a simple unhedged stock sale.
+*   **Significant Cash Flow Generation**: The strangle generates substantial positive cash flow upfront to finance the hold, collecting **238** for the call option and **908** dollars for the put option, for a **total positive cash flow of 1146**.
+
+### Caveats
+*   **Capped Upside**: Selling the call option caps the stock's appreciation potential. If the stock rallies significantly past the strike price (e.g., past 330 to **334**), the investor does not participate in the gains above the call strike.
+*   **Downside Put Obligation**: If the market enters a secondary severe decline and breaks below the short put strike of **220**, the trader is obligated to buy more shares at that strike price, which could lead to additional paper losses if the stock continues to drop.
+
+***
+
+PART B — a markdown table of every CONCRETE NUMBER spoken
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Market Correction Context** | SPY ETF broad market performance | Down "**over 10 percent**" for this calendar year following the bear market of the "**first half of 2022**" |
+| **Hedged Position Entry** | SPY ETF, 100 shares purchased in the "**beginning of 2020 before the crash**" | Original stock purchase price: "**324**"; stock price at hedge entry: "**around 275**" on "**april 13th late in the afternoon**" |
+| **Strangle Call Leg** | SPY ETF, September options chain ("**about six months out**"). Sold short call up at 330 (which is "**about six points**" above the original stock buy price of 324) | Call option premium: "**2.38 cents**"; contract represents "**100**" shares; positive cash flow received: "**238**" |
+| **Strangle Put Leg** | SPY ETF, September options chain ("**about six months out**"). Sold put at 220 (which is below the lowest close of the crash where SPY closed at "**222 on march 23rd**") | Put option premium: "**nine dollars and eight cents**"; contract represents "**100**" shares; positive cash flow received: "**908**" dollars |
+| **Upfront Strangle Cash Flow** | SPY ETF, short strangle (330 call & 220 put) | Upfront "**total positive cash flow of 1146**" |
+| **Early Stock Exit Scenario** | SPY ETF, unhedged 100 shares sold early on a market bounce | Exited on "**august 4th**"; stock trading back near all-time highs; cashing out at "**330**" strike; modest win: "**600**" bucks |
+| **Strangle Expiration Outcome** | SPY ETF, 100 shares + short strangle held to expiration. Stock rallies past call strike. | Stock closes "**over 334**"; receive "**33 000**" for selling shares at the "**330**" strike; put "**220**" expires worthless; subtract out "**32-4**" (original share cost); total profit: "**1746 dollars in total**" (which is "**nearly three times**" the unhedged stock profit of "**600**" bucks) |
+
+### [-wyjzl9zPfs] The Top 3 Options Trading Strategies That Anyone Can Learn (25,000 views)
+
+PART A — handbook chapter content
+
+### Setup
+*   **Instrument**: S&P 500 Index (SPX) [1, 2].
+*   **Structure**: 
+    *   *Strategy 1*: **Put Credit Spread** (selling a put close to the market and simultaneously buying a further out-of-the-money put) [1].
+    *   *Strategy 2*: **Call Credit Spread** (selling a call close to the market and simultaneously buying a further out-of-the-money call) [3].
+    *   *Strategy 3*: **Iron Condor** (a combination of a put credit spread below the market and a call credit spread above the market) [4].
+*   **Strikes/Deltas**:
+    *   *Put Credit Spread*: Short put at the **4750 strike** (selected as the closest strike to a **20 Delta**), protected by a long put at the **4700 put** strike (**50 points below**) [1].
+    *   *Call Credit Spread*: Short call at the **6250 strike** (selected at an **18.9 Delta**, which is closest to a **20 Delta** and located **more than 160 points above** the index price); protected by a long call at the **6300 strike** (**50 points above**) [3].
+    *   *Iron Condor*: The call side consists of the **6150 and 6200 calls** [2]. The put side is located **quite a bit below** the market [2]. Shorts are systematically located around **20 Deltas** [4].
+*   **DTE (Days to Expiration)**: Approximately **one month** (e.g., September 6th options chain for the put spread [1]; December 2nd to January 3rd, 2025 for the call spread [3]; Iron Condor expiring in **just a month** [2]).
+*   **Entry Trigger**: Directional and range-bound signals utilizing momentum indicators. A common trigger is the **RSI indicator** (RSI reading **under 30** indicates oversold conditions ripe for a bullish put credit spread [1, 5]; RSI reading **above 70** indicates overbought conditions ripe for a bearish call credit spread [3, 5]; listless, range-bound, or channeling market environments are ideal for the Iron Condor [4, 5]).
+
+### Management and Exit Rules
+*   **Expiration Worthless**: The primary objective is to allow all short options to expire out of the money. If the index settles below the call strikes or above the put strikes at expiration, the options expire worthless, allowing the trader to keep the entire initial premium as pure profit [2, 4].
+*   **Risk Capping**: Buying the further out-of-the-money put (e.g., 4700 put) or call (e.g., 6300 call) serves as insurance to define the maximum loss before the trade is ever entered [1, 3].
+*   **Margin Efficiency (Iron Condor Advantage)**: Because the market cannot simultaneously expire above the call strikes and below the put strikes, the broker requires less capital margin to hold an Iron Condor than the two credit spreads separately [2]. This reduction in the capital denominator dramatically increases the percentage return on capital [2].
+
+### Stated Edge or Statistics
+*   **Statistical Margin of Safety**: Locating short options at **20 Deltas** provides a very high mathematical probability of success, as there is an **80% statistical likelihood** that the options will expire completely worthless [1, 4].
+*   **Strategy 2 Performance**: The December call credit spread yielded a net profit of **\$725** in initial cash flow, representing a **16.9% return** [4].
+*   **Strategy 3 Performance**: The monthly Iron Condor achieved an impressive **46.4% return** when the SPX settled at **6061** at expiration, causing the 6150/6200 calls and the puts to all expire completely worthless [2].
+
+### Caveats
+*   **Complexity Misconception**: Traders are often falsely intimidated by options, believing they need a "doctorate degree" to execute these high-probability structures [6, 7].
+*   **Capped Returns**: High-probability credit spreads trade off massive directional gains for consistent, capped income [2]. 
+*   **Probability is Not Certainty**: High probability represents an edge over a large sample of trades, not a guarantee on any single trade [4].
+
+***
+
+PART B — a markdown table of every CONCRETE NUMBER spoken
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Firm History** | SMB Capital firm overview | Founded since **2005** |
+| **Strategy General Scope** | Easiest option strategies for beginners | **Top 3** easiest option strategies |
+| **Indicator Benchmarks** | RSI momentum indicator overbought/oversold levels | Overbought: **above 70**; Oversold: **under 30** |
+| **Strategy 1: Put Credit Spread** | S&P 500 Index (SPX), Put Credit Spread, Sept 6th expiry (about a month out) | Short strike: **4750 put**; Short premium credit: **6965**; Long strike: **4700 put** (positioned **50 points below**); Long premium debit: **5975**; Target Delta: **20 Delta** (also spoken as **20 Deltas**) |
+| **Strategy 2: Call Credit Spread Entry** | S&P 500 Index (SPX), Call Credit Spread, entered Dec 2nd 2024, expiring Jan 3rd 2025 | S&P 500 index close: **60 8649** (as spoken); Target Delta: **20 Delta**; Short strike: **6250 call** with a Delta of **18.9** (located **more than 160 points above** the index); Short premium credit: **1540**; Long strike: **6300 call** (positioned **50 points above**) |
+| **Strategy 2: Call Credit Spread P&L** | S&P 500 Index (SPX), Call Credit Spread campaign outcome | Net profit / initial cash flow: **\$725**; Return on capital: **16.9% return**; Target Delta: **20 Deltas** |
+| **Strategy 3: Iron Condor Expiration** | S&P 500 Index (SPX), Iron Condor expiring in **just a month**, entered shortly after Jan 6th | Call side options strikes: **6150 and 6200 calls**; SPX closing price: **6061**; Worthless options: **all four options**; Return on capital: **46.4% return** |
+
+### [VDYG8LDIfGk] How to Generate Income With High Yield Stocks (Options Tutorial) (25,000 views)
+
+PART A — handbook chapter content
+
+### Setup
+*   **Instrument**: Altria (trading symbol: **MO**), a consistently high-yielding cigarette stock [1].
+*   **Structure**: Covered call position, which involves buying shares of stock and simultaneously selling call options of the same stock [2].
+*   **Strikes/Deltas**: 
+    *   **Short Call Strike**: Set slightly above the stock price, specifically the **45 strike** for the initial trade [1].
+    *   **March Roll Strike**: Short March calls set at the **45 strike** [3].
+    *   **June Roll Strike**: Short June calls set at the **45 strike** [3].
+    *   *Deltas*: Not explicitly stated in the transcript for this video.
+*   **DTE (Days to Expiration)**: Expiring about **four months later** (specifically, the November options chain entered on **July 22nd, 2022**) [1].
+*   **Entry Trigger**: Strategic cash generation on high-yield stocks in a falling interest rate environment, specifically when the Fed signals cutting interest rates and money market fund yields (previously over **5%** with close to no risk) are coming to an end [4]. It is deployed when a high-yielding dividend stock has experienced a pullback, such as when MO rallied to **57** in the first **five** months of 2022, but dropped to around **43** by July [1].
+
+### Management and Exit Rules
+*   **Dividend Collection**: Hold the underlying shares (1,000 shares) to collect the quarterly dividend of **94 cents** per share [1, 5].
+*   **Assignment Protection Roll Rule**: If the stock trades above the call strike near expiration (e.g., MO trading around **46** just before March calls expire), execute a roll to prevent assignment and maintain the campaign [3]. Close the short March calls by buying them back at a price of **a122** (garbled/as written) and simultaneously sell calls expiring in June at the **45 strike** for **233** (garbled/as written) [3].
+*   **Stock Ownership Requirement**: The short calls are fully covered by the physical ownership of **1,000 shares** of stock, with each contract representing **100** shares [2, 5].
+
+### Stated Edge or Statistics
+*   **Yield Supercharging**: Covered calls can boost returns to capture up to **24%** in a single year compared to low single-digit returns [6].
+*   **Campaign Outperformance**: Over a one-year campaign, the traditional dividend collection approach (inclusive of capital gains) yielded a return of **11.3%** [7]. Under the covered call approach, the total return skyrockets to 10 points higher, achieving a fantastic **21.5%** return [7].
+*   **Upfront Positive Cash Flow**: Entering the position brings in an upfront credit of **\$1,490** from selling 10 calls at **a149** (garbled/as written), offsetting the initial stock purchase cost of **\$42,988** (buying 1,000 shares at **42.98** per share) [1, 2, 5].
+
+### Caveats
+*   **Uncertain Interest Rate Regime**: Deployed specifically because of shifting yields as the Fed cuts interest rates, ending easy yield on cash [4].
+*   **Capital Risk**: Buying shares of stock still carries standard equity downside risk, though partially buffered by the options premium [2].
+*   **Clerical Discrepancies**: Transcribed values contain obvious numerical errors and garbles, such as stating a quarterly dividend payment of 94 cents per share on 1,000 shares resulted in a cash deposit of "94" (garbled/truncated) [5], and citing the total campaign profit of the covered call strategy as only "\$926" (garbled/truncated) for the entire campaign [7].
+
+***
+
+PART B — a markdown table of every CONCRETE NUMBER spoken
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Covered Call Annual Potential** | High-yield covered call campaign, 1-year duration | Return of up to **24%** in a single year [6] |
+| **Proprietary Firm History** | Firm foundation and performance | Founded since **2005** [6]; developed "**seven**" and even "**e (garbled)**" figure per year traders [6] |
+| **Interest Rate Baseline** | Money market fund interest rates | Get over **5%** with close to no risk [4] |
+| **Asset Dividend Rate** | Altria (MO) quarterly dividend (2022) | Paying a dividend of **94 cents** a share every quarter [1] |
+| **Stock Pullback Context** | Altria (MO) stock performance tracking (2022) | Rallied in the first "**five**" months [1]; reached as high as **57** at "**one**" point [1]; dropped to around **43** by July [1] |
+| **Initial Stock Purchase** | Altria (MO) stock purchase, July 22nd | Bought "**1,000**" shares for **42.98** per share [1]; total cost: **\$42,988** [2] |
+| **Initial Option Sale** | Altria (MO) short call, November expiration (about four months later), July 22nd | Sold "**10**" calls at the **45** strike price [1]; sold at a price of "**a149 (garbled)**" [1] / "**a do 49 (garbled)**" [2, 5]; contract represents **100** shares of stock [2, 5]; received total cash premium: **\$1,490** [2, 5] |
+| **First Dividend Payout** | Altria (MO) stock quarterly dividend, paid October 11th | Paid **94 cents** (implied); resulted in a cash deposit of "**94 (garbled/truncated)**" [5] |
+| **Second Dividend Payout** | Altria (MO) stock quarterly dividend, paid January 10th | Cash deposit of **\$940** [3] |
+| **March Position Roll (Buyback)** | Altria (MO) short March call, closed near expiration | Stock trading at around **46** [3]; closed short March **45** calls [3]; buyback price: **a122 (garbled)** [3] |
+| **March Position Roll (Sale)** | Altria (MO) short June call, opened near March expiration | Sold June **45** calls [3]; premium credit: **233 (garbled)** [3] |
+| **Campaign Totals** | Altria (MO) covered call campaign total yield | Total of "**\$926 (garbled/truncated)**" for the entire campaign [7] |
+| **Campaign Performance Compare** | Traditional dividend collection vs. Covered call approach, 1-year duration | Traditional return: **11.3%** [7]; covered call return: **21.5%** [7]; return skyrockets to **10** points higher [7] |
+| **Workshop Training** | Webinar options strategies | Teaches **three** more option strategies [8] |
+
+### [YVPcw-xIUhs] Before Trading Options You Need to Learn This (Greeks for Beginners) (25,000 views)
+
+PART A — handbook chapter content
+
+### Setup
+*   **Instrument**: **Meta stock** [1, 2].
+*   **Structure**: 
+    *   **Long Call**: A bullish directional trade structured by buying an at-the-money call option [3, 4].
+    *   **Cash-Secured Put**: A high-probability premium-selling strategy where a trader sells an out-of-the-money put option to collect premium, intending for it to expire worthless while maintaining the obligation to buy the shares at the strike price if it is breached [2].
+*   **Strikes/Deltas**:
+    *   *Long Call*: The at-the-money **680 call** strike (closest available option to a **60 Delta**, with an actual delta of **61.48**) [4].
+    *   *Cash-Secured Put*: The out-of-the-money **470 put** strike (additionally referred to in context as the "**475 price**") selected at a **30 Delta** [2, 5].
+*   **DTE (Days to Expiration)**:
+    *   *Long Call*: Approximately **one year** (expires on **June 18th, 2026** on a trade entered on Monday, June 23rd) [1, 4].
+    *   *Cash-Secured Put*: Entered on June 24th, 2024 (exact DTE to expiration not specified) [2].
+*   **Entry Trigger**:
+    *   *Long Call*: A highly bullish directional viewpoint where the trader expects the stock to rise [3].
+    *   *Cash-Secured Put*: A bullish but conservative outlook where the trader wants a safety buffer ("room for error") [2]. The entry is made by choosing a **30 Delta** strike, which mathematically yields a high probability of expiring out-of-the-money [2, 5].
+
+### Management and Exit Rules
+*   **The Profit Hurdle for Buyers**: To realize a net profit on a long call, the underlying stock price must rise above the strike price by **at least the cost of the option premium** [3, 6]. Otherwise, options pricing variables can cause the trader to lose money on the call even if the stock goes up [3, 7].
+*   **Put Expiration worthless**: If the stock closes above the short put strike at expiration, the put expires completely worthless, leaving the option seller with **100% of the upfront premium** as net profit [2, 5].
+*   **Assignment Obligation**: If the stock closes below the put strike on expiration day, the put seller is assigned the shares and is obligated to purchase the stock at the strike price [2].
+*   **Time Decay Capture**: Options income traders manage positions to capture **Theta (time decay)**, which is their "best friend" [8]. The core technique is to hold short options to profit as the premium decays and the option value falls over time [8].
+*   **Gamma Monitoring**: Gamma acts as the "**gas pedal**" of Delta [5]. When Gamma is high, the option's Delta will increase or decrease quickly as the stock price moves, rapidly changing the trade's directional exposure [5].
+
+### Stated Edge or Statistics
+*   **Delta as Probability of Expiration**: Options Delta is mathematically utilized as a close approximation of the probability that the option will expire in-the-money [2].
+    *   A **30 Delta option** possesses a **30% statistical chance** of expiring in-the-money, giving the put seller a **70% probability** that the option will expire completely worthless to secure a win [2, 5].
+*   **Predictability of Theta**: Time decay is highly modeled and mathematically predictable [8]. For instance, Theta calculations predict that **7 days** passing at **21 cents a day** of decay will reduce an option's premium value by **\$147** (dropping a model-predicted price of **653** to an actual market price of **650**) [8].
+
+### Caveats
+*   **The Directional Option Trap**: Trading options purely based on a directional thesis without understanding the Greeks is highly dangerous [3, 9]. A trader can be correct on direction (the stock rises after buying a call, or falls after buying a put) and still lose money anyway due to the unchecked drag of time decay (Theta) or volatility changes (Vega) [3].
+*   **Delta is Dynamic**: Delta is not a constant number [5]. It shifts continuously as the stock price moves—accelerated by Gamma—which means the trade's directional risk and probability of expiring in-the-money fluctuate constantly [5].
+
+***
+
+PART B — a markdown table of every CONCRETE NUMBER spoken
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Professional Performance** | SMB proprietary trading desk overview | Desk houses numerous "**seven**" and even "**eight**" figure per year traders [9] |
+| **At-the-Money Long Call Entry** | Meta stock, Long Call, 680 strike, expires June 18th 2026. Entered Monday, June 23rd. | Meta stock open price: "**68030**" (spoken/as written); strike: "**680 call**" (at-the-money); target Delta: "**60 delta**"; actual Delta: "**61.48**"; call option premium price: "**10977**" (spoken/as written) [1, 4] |
+| **Cash-Secured Put Entry** | Meta stock, Cash-Secured Put, 470 put strike (referred to as "475 price" as spoken). Entered June 24th 2024. | Meta stock trading price: "**50326**" (spoken/as written); strike: "**470 put**" with "**30 delta**"; "**475 price**" (as spoken) is "**more than 33 points**" below where Meta is trading; probability of expiring in-the-money: "**30% chance**"; probability of expiring worthless (win rate): "**70% chance**" [2, 5] |
+| **Theta Decay Model** | Option time-decay prediction example (Theta) | Time elapsed: "**7 days**"; daily time decay rate: "**21 cents a day**"; total time decay value: "**\$147**"; model-predicted final price: "**653**"; actual final market price: "**650**" [8] |
+| **Delta Movement Basis** | General option delta definition | Underlying stock price move of "**exactly one point**" [1] |
+| **The Greeks Overview** | Four major Greeks | "**four major Greeks**" / "**big four Greeks**" (Delta, Gamma, Theta, Vega) [1, 8] |
+
+***
+
+📊 I can turn this options pricing math into a custom visual payoff diagram comparing stock ownership to call options at expiration so you can easily analyze the exact breakeven curves.
+
+### [xDaCtZ9GMl0] Top 3 Options Strategies to Catch Reversals (25,000 views)
+
+PART A — Handbook Chapter Content
+
+### Setup
+*   **Instrument**: Tech-heavy NASDAQ 100 Index (NDX).
+*   **Structure**: This reversal strategy covers three distinct options structures:
+    1.  **High-Probability Put Credit Spread**: A conservative defined-risk play consisting of a short out-of-the-money put and a lower-strike long protective put [1].
+    2.  **Modified Risk Reversal**: A highly bullish, asymmetric structure combining a put credit spread below the market with a long out-of-the-money call option expiring in the same month [2, 3].
+    3.  **Out-of-the-Money Long Call**: A simple, highly leveraged directional bet consisting of a single long out-of-the-money call option [4].
+*   **Strikes/Deltas**:
+    *   *High-Probability Put Credit Spread*: Short put at a **20 Delta** (specifically the **16200 put** strike), protected by a long put at the **16025 put** strike (positioned over 800 points below the index's trading level) [1].
+    *   *Modified Risk Reversal*: Short put set near the money at a **44 Delta** (the **17325 strike**), a long protective put 150 points lower at the **1717 strike** (also referred to as **17175**), and a long call at the **19300 strike** (selected because its premium is slightly less than the credit generated by the put spread) [2, 3].
+    *   *Simple Long Call*: Bought at a **20 Delta** (specifically the **18650 call** strike) [4].
+*   **DTE (Days to Expiration)**: Entered approximately **two months out** (specifically utilizing the **June 21st** options chain) [1].
+*   **Entry Trigger**: Technical chart oversold signal, specifically when the **RSI indicator hits 30 or below** on daily charts, indicating the intense tech sell-off is near its end [5, 6].
+
+### Management and Exit Rules
+*   **Holding to Expiration**: Positions are designed to run to expiration to capture full value decay or structural payoffs [7].
+*   **High-Probability Credit Spread Resolution**: If the index closes above the short put strike at expiration, all options expire worthless, and the trader retains the net credit collected at entry [7].
+*   **Modified Risk Reversal Multi-Scenario Outcomes**:
+    *   *Sideways / Modest Move*: If the market consolidates and settles between the short put strike (**17375** / **17325**) and the long call strike (**19300**), all options expire completely worthless. The trader walks away keeping the net cash credit (e.g., **\$690**) [7].
+    *   *Upside Reversal (Best-Case Payoff)*: If the index rallies aggressively past the long call strike, the puts expire worthless and the long call pays off in cash at a rate of **\$100 per point** above the **19300 strike** [7].
+*   **Simple Long Call Resolution**: Hold the option to capture explosive upside. If the market fails to rally past the strike price, the call expires worthless, resulting in a **100% loss of the premium paid** [4].
+
+### Stated Edge or Statistics
+*   **Statistical Cushion**: Out-of-the-money options at **20 Delta** possess an **80% statistical chance** of expiring worthless, providing a very wide margin of safety [1, 4].
+*   **Modified Risk Reversal Win Rate**: The near-the-money put spread leg starts with a **56% probability of success** based on the short put's **44 Delta** [2, 4].
+*   **Leverage Squeeze**: Selecting high-delta options or combinations allows traders to replicate huge equity positions with massive capital efficiency. For example, the modified risk reversal yielded a massive **320% return on original capital** at expiration [7].
+
+### Caveats
+*   **Timing Difficulty**: Attempting to time the exact bottom of an intense sell-off is notoriously "very difficult" [8].
+*   **Win Rate vs. Payoff Trade-Off**: The modified risk reversal has a lower statistical win probability (**56%**) compared to the **80% probability** of the 20 Delta put credit spread [2, 4].
+*   **The Option Buyer's Decay Trap**: Buying out-of-the-money calls is a very low-probability trade with an **80% statistical chance of expiring completely worthless** and losing 100% of the invested premium [4].
+
+***
+
+PART B — Markdown Table of Spoken Numbers
+
+| theme | trade (instrument, structure, strikes, DTE, dates) | numbers (premium/debit/credit, capital or max risk, P&L, win rate, percentages) |
+| :--- | :--- | :--- |
+| **Market Sell-Off Duration** | Tech-heavy NASDAQ 100 Index (NDX) correction | Sell-off lasting for the last "**six weeks**" |
+| **Correction Magnitude** | NASDAQ 100 Index (NDX) vs. Broader Market | NASDAQ 100 off "**13.6 6%**" from its highs in "**midFebruary**"; broader market off "**under 10%**" |
+| **Strategy Presentation** | General overview of reversal options setups | "**three**" different strategies for playing the end of a sell-off |
+| **Reversal Technical Signal** | RSI Indicator Oversold Benchmark | Reversal signaled when RSI indicator hits "**30 or below**"; occurred on "**March 10th**" |
+| **Historical Reversal Baseline** | NASDAQ 100 Index (NDX) historical reference point | Entered trade "**almost a year ago**" on "**April 19th of 2024**"; index closed at "**1703765**" that day |
+| **Strategy 1: Put Spread Setup** | NDX 20 Delta put credit spread, June 21st options chain | Entered "**about two months out**"; short put strike "**16200**" placed "**over 800 points below**" the index; sold short put for a price of "**\$20055**"; bought protective long put at "**16025**" strike for "**\$17,240**" (referred to as a "**20 delta**" put credit spread) |
+| **Strategy 2: Put Spread Leg-In** | NDX modified risk reversal put credit spread, June expiration | Short put has a "**44 delta**" at the "**17325 strike price**"; long protective put is "**150 points below**" at the "**1717**" strike price (also referred to as "**17175**"); sold short put for "**51140**"; bought protective put for "**45270**"; trade has a "**56% chance of this trade winning**" |
+| **Strategy 2: Call Option Leg-In** | NDX modified risk reversal long call, June expiration | Bought protective long call at "**19300**" strike for "**5180**" |
+| **Strategy 2: Spread Cash Flow** | NDX modified risk reversal entry cash flow | Put credit spread brought in "**\$5,870**"; net credit after buying call is positive by "**\$690**" |
+| **Strategy 2: Expiration Settlement** | NDX modified risk reversal expiration on June 20th | Options stopped trading on "**June 20th**"; index closed at "**1975270**" that day; index closed "**45230**" above the call's "**193**" (19300) strike price; short put strike referenced at "**17375**" |
+| **Strategy 2: Expiration P&L** | NDX modified risk reversal final returns | Call payoff is "**45230* 100 or 45,230**"; total net profit is "**45,920**"; return of "**320%**" on original capital |
+| **Strategy 3: Long Call Entry** | NDX long out-of-the-money call, June expiration | Bought "**20 delta call**" at the "**18650 call**" strike; "**20% likelihood**" of expiring with value; "**80% chance**" of expiring with no value |
+| **Strategy 3: Long Call Expiration** | NDX long out-of-the-money call final payoff | Made "**770**"; return of "**662%**" off original risk |
+
 ## LEDGER OF DISTILLED VIDEOS
 
 | id | title | views | chapters contributed to |
@@ -859,3 +1350,13 @@ Registry of every concrete number in the five videos (for backtest-realism param
 | WSsXl8Nh3PM | The Easy Options Strategy That Can 2X Your Stock Returns | 29,000 | Small-account strategies (rolling deep-ITM NFLX LEAPS campaign 2019–2025); Real numbers |
 | CNEYo3P-CRk | Options Secret to Trading Major Market Events (WITHOUT being in a trade during the event) | 28,000 | Calendar spreads & overnight trades (Brexit double calendar closed before the vote); Real numbers |
 | 9pnSF-YE2DQ | You can supercharge your small account returns with this simple options strategy | 28,000 | Small-account strategies (deep-ITM 0-DTE SPY call instead of 300 shares); Real numbers |
+| j2PxP-o-M1E | A Simple Options Strategy for Monthly Income | 27,000 | NLM-extracted (hybrid); Real numbers; 2 unverified figure(s) |
+| goK0QOsQRvQ | If you want to win at Options trading, enter and exit like this | 27,000 | NLM-extracted (hybrid); Real numbers; 1 unverified figure(s) |
+| EYA6mxeZmzg | How to Make $1,000/month owning certain dividend stocks (and options) | 27,000 | NLM-extracted (hybrid); Real numbers; 1 unverified figure(s) |
+| BPvBoQLupOQ | Huge Options Blunders: If I think A Stock Is Going Up, I’ll Just Buy A Call, It’s Cheaper (ep 8) | 26,000 | NLM-extracted (hybrid); Real numbers |
+| KBWUtGD1kwk | The Hidden Key that Makes Options Trading Profitable | 26,000 | NLM-extracted (hybrid); Real numbers |
+| cUfBqD03mTc | How to TRIPLE Your Options Income (Easily) | 26,000 | NLM-extracted (hybrid); Real numbers |
+| -wyjzl9zPfs | The Top 3 Options Trading Strategies That Anyone Can Learn | 25,000 | NLM-extracted (hybrid); Real numbers |
+| VDYG8LDIfGk | How to Generate Income With High Yield Stocks (Options Tutorial) | 25,000 | NLM-extracted (hybrid); Real numbers |
+| YVPcw-xIUhs | Before Trading Options You Need to Learn This (Greeks for Beginners) | 25,000 | NLM-extracted (hybrid); Real numbers |
+| xDaCtZ9GMl0 | Top 3 Options Strategies to Catch Reversals | 25,000 | NLM-extracted (hybrid); Real numbers |
