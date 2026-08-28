@@ -589,3 +589,15 @@ Heartbeat set to `blocked` with the ETA so the Slot Manager shows why nothing is
 transcribed / 3 unavailable / 365 videos' comments (21,777) / digests vol. 1–10 / distilled 171. Distillation stays
 blocked on the same cap (NLM extraction first); the only alternative is token-heavy Claude distillation, which the
 standing target says to avoid.
+
+### 2026-08-28 07:06 UTC — auto-resume tick #8: quota detection was blind (wrapper swallowed the API error) — fixed
+Symptom: after the 07:01 retry the backoff stamp had NOT been refreshed (age 25,371 s > the 25,200 s window), so the
+daemon would have retried every 30 min forever without ever recording why.
+Root cause: `comments_sync.py cmd_query` parsed the CLI's JSON, took `value.answer` (absent on error) and printed
+`{"answer": "", "rc": 1}` — dropping the `error` field entirely. `analyze_local.py` therefore never saw the string
+RESOURCE_EXHAUSTED and treated a hard quota block as a transient empty answer.
+Fix (zero tokens, both container and host mirror): cmd_query now attaches `err` (the API's own error text, or raw
+stdout/stderr) whenever the answer is empty. Verified end-to-end: `analyze_local.py 11` now returns
+`{"volume": 11, "answered": 0, "quota": "exhausted"}`, re-stamps the backoff (age reset to 0) and journals the reason.
+Next automatic attempt ~14:06 UTC; the rolling-window hypothesis still points at ~16:30 UTC for real capacity.
+Counts unchanged: 362 transcribed / 3 unavailable / 365 videos' comments (21,777) / digests vol. 1–10 / distilled 171.

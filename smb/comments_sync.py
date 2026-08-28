@@ -220,8 +220,13 @@ def cmd_query(sid, qfile, timeout=240):
     try:
         d = json.loads(r.stdout)
         v = d.get('value', {})
-        print(json.dumps({'answer': v.get('answer') or '', 'sources_used': v.get('sources_used'),
-                          'rc': r.returncode}))
+        ans = v.get('answer') or ''
+        # surface the API error text when there is no answer — otherwise RESOURCE_EXHAUSTED
+        # (daily quota) is indistinguishable from a transient empty answer upstream
+        out = {'answer': ans, 'sources_used': v.get('sources_used'), 'rc': r.returncode}
+        if not ans:
+            out['err'] = (d.get('error') or (r.stdout + r.stderr))[-600:]
+        print(json.dumps(out))
     except Exception:
         print(json.dumps({'answer': '', 'rc': r.returncode, 'err': (r.stdout + r.stderr)[-600:]}))
 
