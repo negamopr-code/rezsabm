@@ -564,3 +564,13 @@ Completeness proof against YouTube itself: stored 21,777 = YouTube's own reporte
 **0 videos short of their yt_count**. The comments layer is complete by the source's own numbers.
 Distillation still blocked (hybrid batch begins with NLM extraction; quota resets tomorrow). Counts: 362 transcribed /
 3 unavailable / 365 videos with comments collected / distilled 171.
+
+### 2026-08-28 00:02 UTC — auto-resume tick #6: work4 quota does NOT reset at UTC midnight → time-based backoff
+Probed the CLI one minute past midnight UTC: still `RESOURCE_EXHAUSTED`. So the daily cap is on Google's own clock
+(Pacific, or a rolling 24 h window) — not the UTC date. The date-based marker had just "expired", which would have made
+the daemon retry and fail every 30 minutes all night.
+Fix (zero tokens): `quota_exhausted` now stores an EPOCH timestamp and both `analyze_local.py` and `smb_daemon.sh` use
+a **7-hour** time-based backoff (covers a Pacific-midnight reset ≈ 07:00–08:00 UTC). Daemon restarted; it re-listed the
+channel immediately and will attempt round vol. 11 after the backoff, resuming from the saved partials.
+Counts unchanged: 362 transcribed / 3 unavailable, 365 videos' comments (21,777 = YouTube's own total), digests vol.
+1–10, distilled 171. Distillation still blocked on the same quota.
