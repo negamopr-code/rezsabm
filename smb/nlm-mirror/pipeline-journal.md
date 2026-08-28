@@ -574,3 +574,18 @@ a **7-hour** time-based backoff (covers a Pacific-midnight reset ≈ 07:00–08:
 channel immediately and will attempt round vol. 11 after the backoff, resuming from the saved partials.
 Counts unchanged: 362 transcribed / 3 unavailable, 365 videos' comments (21,777 = YouTube's own total), digests vol.
 1–10, distilled 171. Distillation still blocked on the same quota.
+
+### 2026-08-28 07:05 UTC — auto-resume tick #7: host slept 00:02→06:57; quota still capped past PT midnight
+The whole machine was suspended overnight (no daemon cycle, no cron tick between 00:02 and 06:57; /proc shows the
+daemon's sleep child re-created at 06:57). Nothing lost — the daemon resumed by itself and re-listed the channel
+(2,022 videos / 365 options / 0 pending).
+Quota: the 7-hour backoff expired at 07:01, round vol. 11 was attempted and still returned `RESOURCE_EXHAUSTED`, and a
+bare CLI probe confirmed it. So the cap is NOT a PT-midnight reset either (07:00 UTC = 00:00 PDT). Working hypothesis:
+a **rolling 24 h window** — heavy use began ~16:30 UTC on 08-27 (65+ queries: 40 rounds + 25 trial extractions), so
+capacity should return ~16:30 UTC today; the error text also mentions "account-level restrictions on programmatic
+access", i.e. exceeding the daily norm may trigger a longer cooldown. The daemon re-stamped and will retry ~14:01 UTC,
+then every 7 h; partials for vol. 11/12 are preserved so nothing is re-paid.
+Heartbeat set to `blocked` with the ETA so the Slot Manager shows why nothing is moving. Counts unchanged: 362
+transcribed / 3 unavailable / 365 videos' comments (21,777) / digests vol. 1–10 / distilled 171. Distillation stays
+blocked on the same cap (NLM extraction first); the only alternative is token-heavy Claude distillation, which the
+standing target says to avoid.
