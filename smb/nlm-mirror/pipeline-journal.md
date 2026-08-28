@@ -601,3 +601,16 @@ stdout/stderr) whenever the answer is empty. Verified end-to-end: `analyze_local
 `{"volume": 11, "answered": 0, "quota": "exhausted"}`, re-stamps the backoff (age reset to 0) and journals the reason.
 Next automatic attempt ~14:06 UTC; the rolling-window hypothesis still points at ~16:30 UTC for real capacity.
 Counts unchanged: 362 transcribed / 3 unavailable / 365 videos' comments (21,777) / digests vol. 1–10 / distilled 171.
+
+### 2026-08-28 07:30 UTC — auto-resume tick #9: distillation EXTRACTION moved into the daemon (fully token-free pipeline)
+Quota still capped (backoff holding, next attempt ~14:06). Used the blocked window to close the last Claude dependency:
+`distill_local.py` now runs INSIDE awf-monitor-runner — it picks the highest-view transcribed videos that are neither
+in volume-1.md nor already extracted, maps each to the transcripts archive volume that really contains it (videos.json
+order + real file sizes + 2.4M roll — the same split sync_archives uses), asks ONE source-scoped question per video and
+stores the answer in `distill/<id>.md`. It aborts and stamps the backoff the moment RESOURCE_EXHAUSTED appears, so a
+capped day costs at most one wasted query.
+Wired into the daemon as step 5b (up to 10 videos per cycle, skipped while the quota backoff is active). Net effect:
+**extraction and analysis now consume NLM quota with zero Claude tokens**; Claude ticks only run the figure gate and
+`merge_nlm_batch.py` to fold verified answers into volume-1.md — script work, a few seconds each.
+Backlog to extract: 190 videos ≈ 190 queries, i.e. ~4 days at the observed ~50/day cap, running unattended.
+Counts unchanged: 362 transcribed / 3 unavailable / 365 videos' comments (21,777) / digests vol. 1–10 / distilled 171.
