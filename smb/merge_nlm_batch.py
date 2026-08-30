@@ -6,7 +6,7 @@ Sections land in a clearly-labelled NLM chapter; the video index gets one row pe
 Usage: merge_nlm_batch.py [--dry]"""
 import json, os, re, subprocess, sys
 
-SMB = '/workspace/smb'; TRIAL = f'{SMB}/trial'; CACHE = '/tmp/tx'
+SMB = '/workspace/smb'; TRIAL = f'{SMB}/trial'; DISTILL = f'{SMB}/distill'; CACHE = '/tmp/tx'
 VOL = f'{SMB}/volume-1.md'
 FIG = re.compile(r'\$ ?[0-9][0-9,\.]*|\b[0-9]+(?:\.[0-9]+)?%')
 ONES = {1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine',10:'ten',11:'eleven',
@@ -81,14 +81,19 @@ def main():
     dry = '--dry' in sys.argv
     vol = open(VOL).read()
     meta = {x['id']: x for x in ledger()}
-    todo = sorted([f[7:-3] for f in os.listdir(TRIAL) if f.startswith('nlm-b9-') and f.endswith('.md')],
-                  key=lambda i: -(meta.get(i, {}).get('views') or 0))
+    # two producers: the 2026-08-27 pilot batch (trial/nlm-b9-<id>.md) and the container daemon
+    # (distill/<id>.md, written by distill_local.py and rsynced from awf-monitor-runner)
+    src = {f[7:-3]: f'{TRIAL}/{f}' for f in os.listdir(TRIAL)
+           if f.startswith('nlm-b9-') and f.endswith('.md')}
+    if os.path.isdir(DISTILL):
+        src.update({f[:-3]: f'{DISTILL}/{f}' for f in os.listdir(DISTILL) if f.endswith('.md')})
+    todo = sorted(src, key=lambda i: -(meta.get(i, {}).get('views') or 0))
     todo = [i for i in todo if i not in vol]
     if not todo:
         print(json.dumps({'merged': 0, 'reason': 'nothing new'})); return
     secs, index, stats = [], [], []
     for vid in todo:
-        ans = open(f'{TRIAL}/nlm-b9-{vid}.md').read().strip()
+        ans = open(src[vid]).read().strip()
         tx = transcript(vid); txn, txl = norm(tx), tx.lower()
         figs = sorted(set(FIG.findall(ans)), key=len, reverse=True)
         sp = spoken_numbers(txl)
