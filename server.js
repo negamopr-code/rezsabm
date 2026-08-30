@@ -43,6 +43,52 @@ const server = http.createServer((req, res) => {
 
   if (url.pathname === '/api/health') return send(res, 200, { ok: true, tool: 'REZSABM' });
 
+  // ── Exit advisor: picture → rolling PDF → SABM notebook (the brain) → exit verdict ──
+  if (url.pathname === '/api/advisor/status') {
+    const sabm = require('./lib/sabm');
+    const claude = require('./lib/claude');
+    return send(res, 200, {
+      notebook: sabm.NOTEBOOK, quota: sabm.quotaState(), busy: sabm.lockHeld(),
+      claude: claude.credsStatus(), model: claude.model(),
+      consults: require('./lib/advisor').history().length,
+    });
+  }
+
+  if (url.pathname === '/api/advisor/history') {
+    return send(res, 200, require('./lib/advisor').history().slice(-40).reverse());
+  }
+
+  if (url.pathname === '/api/advisor/consult' && req.method === 'POST') {
+    const chunks = [];
+    let size = 0;
+    req.on('data', c => {
+      size += c.length;
+      if (size > 12e6) { req.destroy(); return; }              // the page downscales before sending
+      chunks.push(c);
+    });
+    req.on('end', async () => {
+      let body;
+      try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+      catch { return send(res, 400, { error: 'bad JSON body' }); }
+      if (!body.imageBase64) return send(res, 400, { error: 'no picture' });
+      try {
+        return send(res, 200, await require('./lib/advisor').consult(body));
+      } catch (e) {
+        const quota = e.constructor && e.constructor.name === 'QuotaError';
+        return send(res, quota ? 429 : 502, { error: e.message, quota: quota || undefined });
+      }
+    });
+    return;
+  }
+
+  if (url.pathname.startsWith('/advisor/')) {
+    const advisor = require('./lib/advisor');
+    const rel = path.normalize(url.pathname.replace('/advisor/', '')).replace(/^(\.\.[\\/])+/, '');
+    const target = path.join(advisor.DIR, rel);
+    if (!target.startsWith(advisor.DIR)) return send(res, 403, 'forbidden', 'text/plain');
+    return serveFile(res, target);
+  }
+
   if (url.pathname === '/api/run-open' && req.method === 'POST') {
     const sl = parseFloat(url.searchParams.get('sl') || '0.2');
     if (!(sl >= 0.05 && sl <= 5)) return send(res, 400, { error: 'sl must be 0.05..5 (%)' });

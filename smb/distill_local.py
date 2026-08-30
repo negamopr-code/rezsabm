@@ -55,6 +55,13 @@ def main():
     src = {s.get('title'): s['id'] for s in cs.sources()}
     got = 0
     for x in todo:
+        # yield to an interactive work4 job (the REZSABM exit advisor takes this lock while a
+        # user waits on a chart verdict) — the daemon only checked it once per cycle, which is
+        # too coarse for a 10-video batch that runs for half an hour
+        lk = os.path.join(W, 'nlm_external.lock')
+        if os.path.exists(lk) and time.time() - os.path.getmtime(lk) < 7200:
+            journal(f'- {time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())} DISTILL: paused, external NLM job holds the lock')
+            break
         vol = vmap.get(x['id'])
         title = f'SMB transcripts archive vol. {vol}'
         sid = src.get(title)

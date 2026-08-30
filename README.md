@@ -28,3 +28,35 @@ container restart (server) or a page reload (front-end).
 Working mode (user 2026-08-23): tasks are split across agents — a **SABM-auditor** checks
 every change against the original course PDF; a **video agent** owns the entry videos;
 mass renders are gated on the user's approval of a corrected sample.
+
+## Exit advisor (tab 2)
+
+Upload a screenshot of an open position; the **NotebookLM notebook "SABM — Sortir au Bon
+Moment"** (work4) says where to exit. The brain is the notebook — this app only carries the
+picture there and renders the answer.
+
+How the picture reaches a text-only notebook, **without spending Claude tokens**:
+
+1. `scripts/chart_pdf.py` folds the picture into ONE rolling PDF (`data/advisor/charts.pdf`),
+   newest page last, each page stamped with consult id, UTC date/time and the trader's note.
+2. That PDF replaces the single source titled **"REZSABM chart uploads"** in the notebook —
+   replace-by-title, so no matter how many charts are analysed the notebook keeps 3 sources
+   and the 50-source cap never moves.
+3. NotebookLM reads the image itself and answers from the SABM course, quoting it.
+
+Optional **precise mode** adds a Claude vision pass that transcribes the chart into neutral
+facts (no advice) before asking — for charts whose levels are not printed on the axes. That
+one costs Claude tokens; the default path costs none.
+
+Measured limits (first real consults, 2026-08-30): printed text, axis labels and dates are
+read exactly; levels the model must *infer from pixels* (an unlabelled swing low, a gridline
+step) can be invented. Put your real entry/stop/current price in the notes field.
+
+Serialisation: work4 runs one job at a time. A consult takes
+`state/smb-options/nlm_external.lock`; the SMB pipeline daemon idles while it exists, and
+`distill_local.py` now checks it between videos, so an interactive question never waits for a
+10-video extraction batch.
+
+Extra mounts this needs (see `scripts/serve.sh`): the Docker socket (to run the `nlm` CLI
+inside `awf-monitor-runner`, where the work4 cookies live), `/nlmwork` (shared dir — the PDF
+crosses the container boundary through it) and `/seed:ro` (Claude OAuth, precise mode only).
