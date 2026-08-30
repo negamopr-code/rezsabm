@@ -143,6 +143,11 @@
           <input id="precise" type="checkbox"> precise mode (Claude reads the chart first — costs tokens)</label>
         <span class="sub" id="askstat"></span>
       </div>
+      <div class="filters" style="margin:0">
+        <a id="dlpdf" href="/api/advisor/pdf" download
+           style="text-decoration:none;background:#101724;border:1px solid #223148;border-radius:6px;padding:5px 10px;color:#ddeef6"
+           title="the exact PDF the notebook reads — every chart, every follow-up picture and the whole discussion, rebuilt at the moment you click">⬇ download the PDF the notebook reads</a>
+      </div>
       <div class="sub" id="advstat" style="border-top:1px solid #1a2535;padding-top:8px"></div>
     </div>
     <div style="flex:1 1 520px">
@@ -543,6 +548,10 @@ async function advisorStatus() {
     if (s.busy) bits.push('⏳ another NLM job is running');
     bits.push(`precise mode: ${s.claude.present ? s.model : 'no Claude credentials'}`);
     el('advstat').innerHTML = bits.join(' · ');
+    el('dlpdf').style.opacity = s.consults ? '1' : '0.45';
+    el('dlpdf').title = s.consults
+      ? `the exact PDF the notebook reads — ${s.consults} chart(s) with their whole discussion, rebuilt at the moment you click`
+      : 'nothing uploaded yet';
   } catch { el('advstat').textContent = 'status unavailable'; }
 }
 

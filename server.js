@@ -19,6 +19,7 @@ const MIME = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.webp': 'image/webp',
+  '.pdf': 'application/pdf',
   '.svg': 'image/svg+xml',
 };
 
@@ -75,6 +76,7 @@ const server = http.createServer((req, res) => {
         return send(res, 200, await require('./lib/advisor').consult(body));
       } catch (e) {
         const quota = e.constructor && e.constructor.name === 'QuotaError';
+        console.error(`[advisor] ${new Date().toISOString()} ${quota ? 'QUOTA' : 'ERROR'}: ${e.message}`);
         return send(res, quota ? 429 : 502, { error: e.message, quota: quota || undefined });
       }
     });
@@ -93,6 +95,7 @@ const server = http.createServer((req, res) => {
         return send(res, 200, await require('./lib/advisor').chat(body.id, body.message));
       } catch (e) {
         const quota = e.constructor && e.constructor.name === 'QuotaError';
+        console.error(`[advisor] ${new Date().toISOString()} ${quota ? 'QUOTA' : 'ERROR'}: ${e.message}`);
         return send(res, quota ? 429 : 502, { error: e.message, quota: quota || undefined });
       }
     });
@@ -112,6 +115,7 @@ const server = http.createServer((req, res) => {
         return send(res, 200, await require('./lib/advisor').addImage(body.id, body));
       } catch (e) {
         const quota = e.constructor && e.constructor.name === 'QuotaError';
+        console.error(`[advisor] ${new Date().toISOString()} ${quota ? 'QUOTA' : 'ERROR'}: ${e.message}`);
         return send(res, quota ? 429 : 502, { error: e.message, quota: quota || undefined });
       }
     });
@@ -124,6 +128,22 @@ const server = http.createServer((req, res) => {
     require('./lib/advisor').erase(id)
       .then(r => send(res, 200, r))
       .catch(e => send(res, 502, { error: e.message }));
+    return;
+  }
+
+  // The PDF the notebook reads, always freshly rebuilt from consults.json first, so what you
+  // download is exactly what the notebook sees — including an exchange whose background
+  // republish has not finished yet.
+  if (url.pathname === '/api/advisor/pdf') {
+    const advisor = require('./lib/advisor');
+    require('child_process').execFile('python3', ['scripts/chart_pdf.py', 'sync'], { cwd: ROOT }, () => {
+      const pdf = path.join(advisor.DIR, 'charts.pdf');
+      if (!fs.existsSync(pdf)) return send(res, 404, { error: 'no consults yet — nothing to download' });
+      const name = `rezsabm-charts-${new Date().toISOString().slice(0, 16).replace(/[-:]/g, '').replace('T', '-')}.pdf`;
+      res.writeHead(200, { 'Content-Type': 'application/pdf', 'Cache-Control': 'no-store',
+                           'Content-Disposition': `attachment; filename="${name}"` });
+      fs.createReadStream(pdf).pipe(res);
+    });
     return;
   }
 
