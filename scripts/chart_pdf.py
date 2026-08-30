@@ -1,111 +1,171 @@
 #!/usr/bin/env python3
-"""Rolling chart-upload PDF — the token-free eye of the exit advisor.
+"""Rolling chart+chat PDF — the token-free memory of the exit advisor.
 
-Every picture the user drops into the "Exit advisor" tab becomes one page of ONE PDF
-(data/advisor/charts.pdf), newest page LAST, each page stamped with a header line the
-notebook can quote back: consult id, UTC date/time, symbol/timeframe and the user's note.
-The whole PDF is rewritten on every upload and replaces the single "REZSABM chart uploads"
-source in the SABM notebook — so NotebookLM reads the picture itself (zero Claude tokens),
-always sees the history, and the notebook never accumulates sources.
+ONE PDF (data/advisor/charts.pdf). One consult = one section, headed by its id and UTC
+timestamp, containing EVERYTHING about that chart in chronological order: the first picture,
+the notebook's verdict, any follow-up picture the trader draws questions on, and every message
+either side sent. Follow-up pictures stay inside the same section — same id, same discussion —
+which is what tells NotebookLM they are the same position, not a new one.
 
-Usage: chart_pdf.py add <image> <id> <iso-utc> <caption>   -> rewrites the PDF, prints JSON
-       chart_pdf.py list                                    -> pages currently in the PDF
+The whole file is rebuilt from data/advisor/consults.json on every change, so upload, chat and
+erase all go through one path; the rebuilt PDF then replaces the single "REZSABM chart uploads"
+source in the notebook.
+
+Usage: chart_pdf.py sync   -> rebuild charts.pdf from consults.json, print JSON
 """
 import json
 import os
 import sys
+import textwrap
 
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR = os.path.join(ROOT, 'data', 'advisor')
 PDF = os.path.join(DIR, 'charts.pdf')
-INDEX = os.path.join(DIR, 'pages.json')
-SHOTS = os.path.join(DIR, 'shots')
-MAX_PAGES = int(os.environ.get('REZ_MAX_CHART_PAGES', '40'))
-MAX_W = 1600          # NotebookLM re-rasterises anyway; keep the file small and the text crisp
-HEADER_H = 96
+CONSULTS = os.path.join(DIR, 'consults.json')
+RAW = os.path.join(DIR, 'raw')
+
+MAX_CONSULTS = int(os.environ.get('REZ_MAX_CHART_PAGES', '40'))
+W = 1600                     # page width; pictures are scaled into it
+HEADER_H = 104
+PAD = 24
+LINE_H = 26
+PAGE_MAX_H = 2600            # split a long section into continuation pages
 
 
-_DEFAULT_FONT = [None]
+def font(size, bold=False):
+    base = '/usr/share/fonts/truetype/dejavu/DejaVuSans'
+    try:
+        return ImageFont.truetype(f'{base}-Bold.ttf' if bold else f'{base}.ttf', size)
+    except OSError:
+        return ImageFont.load_default()
 
 
-def _font(size):
-    for p in ('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-              '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'):
-        if os.path.exists(p):
-            try:
-                return ImageFont.truetype(p, size)
-            except OSError:
-                pass
-    _DEFAULT_FONT[0] = True     # PIL's built-in bitmap font is latin-1 only
-    return ImageFont.load_default()
+F_TITLE, F_META, F_ROLE, F_BODY = font(30, True), font(21), font(21, True), font(20)
 
 
-def _safe(text):
-    """The fallback bitmap font raises on any non-latin-1 character (em dashes, arrows, →)."""
-    if not _DEFAULT_FONT[0]:
-        return text
-    return text.encode('latin-1', 'replace').decode('latin-1')
+def _ascii(t):
+    """NLM answers are full of box-drawing and emoji that add nothing to a printed transcript
+    (and break PIL's fallback bitmap font outright)."""
+    return ''.join(c if ord(c) < 0x2500 else ' ' for c in t)
 
 
-def page(img_path, pid, when, caption):
-    """One PDF page: a white header carrying the stamp, then the picture."""
-    im = Image.open(img_path)
-    if getattr(im, 'n_frames', 1) > 1:      # animated webp/gif — the first frame is the chart
-        im.seek(0)
-    im = im.convert('RGB')
-    if im.width > MAX_W:
-        im = im.resize((MAX_W, round(im.height * MAX_W / im.width)), Image.LANCZOS)
-
-    out = Image.new('RGB', (im.width, im.height + HEADER_H), 'white')
-    d = ImageDraw.Draw(out)
-    f30, f22, f20 = _font(30), _font(22), _font(20)
-    d.text((16, 12), _safe(f'CHART UPLOAD {pid}'), fill='black', font=f30)
-    d.text((16, 50), _safe(f'uploaded {when} UTC'), fill='black', font=f22)
-    if caption:
-        d.text((16, 74), _safe(caption[:160]), fill='black', font=f20)
-    d.line([(0, HEADER_H - 1), (im.width, HEADER_H - 1)], fill='black', width=2)
-    out.paste(im, (0, HEADER_H))
+def wrap(text, chars=150):
+    out = []
+    for para in _ascii(text).replace('\r', '').split('\n'):
+        out.extend(textwrap.wrap(para, chars) or [''])
     return out
 
 
-def load_index():
+def load_picture(name):
+    p = os.path.join(RAW, name)
+    if not os.path.exists(p):
+        return None
+    im = Image.open(p)
+    if getattr(im, 'n_frames', 1) > 1:
+        im.seek(0)
+    im = im.convert('RGB')
+    if im.width != W - 2 * PAD:
+        w = W - 2 * PAD
+        im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+    return im
+
+
+def blocks_for(consult):
+    """The whole section as a flat block list: pictures and text, in the order they happened."""
+    blocks, shot = [], 0
+    for t in consult.get('turns', []):
+        if t.get('image'):
+            shot += 1
+            im = load_picture(t['image'])
+            label = f"PICTURE {shot} — uploaded {t.get('at', '')} UTC"
+            # label + picture are ONE block: a page break between them stranded the caption
+            blocks.append(('shot', (label, im)) if im else ('body', f'{label} [picture missing]'))
+        if (t.get('text') or '').strip():
+            who = 'TRADER' if t['role'] == 'user' else 'SABM NOTEBOOK'
+            blocks.append(('role', f"{who} — {t.get('at', '')} UTC"))
+            blocks.extend(('body', ln) for ln in wrap(t['text']))
+        blocks.append(('body', ''))
+    return blocks or [('body', '(no exchange yet)')]
+
+
+def height(block):
+    kind, val = block
+    if kind == 'shot':
+        return LINE_H + val[1].height + 8
+    return LINE_H
+
+
+def render_page(consult, blocks, cont):
+    h = HEADER_H + PAD + sum(height(b) for b in blocks) + PAD
+    page = Image.new('RGB', (W, h), 'white')
+    d = ImageDraw.Draw(page)
+    d.text((PAD, 14), _ascii(f"CHART UPLOAD {consult['id']}{'  (continued)' if cont else ''}"),
+           fill='black', font=F_TITLE)
+    d.text((PAD, 52), _ascii(f"opened {consult['when']} UTC"), fill='black', font=F_META)
+    if consult.get('notes'):
+        d.text((PAD, 76), _ascii(f"trader note: {consult['notes']}")[:190], fill='black', font=F_META)
+    d.line([(0, HEADER_H - 2), (W, HEADER_H - 2)], fill='black', width=2)
+
+    y = HEADER_H + PAD
+    for kind, val in blocks:
+        if kind == 'shot':
+            label, im = val
+            d.text((PAD, y), label, fill='black', font=F_ROLE)
+            y += LINE_H
+            page.paste(im, (PAD, y))
+            y += im.height + 8
+        else:
+            d.text((PAD, y), val, fill='#000000' if kind == 'role' else '#1a1a1a',
+                   font=F_ROLE if kind == 'role' else F_BODY)
+            y += LINE_H
+    return page
+
+
+def pages_for(consult):
+    pages, batch, used, cont = [], [], 0, False
+    room = PAGE_MAX_H - HEADER_H - 2 * PAD
+    for b in blocks_for(consult):
+        hb = height(b)
+        if batch and used + hb > room:
+            pages.append(render_page(consult, batch, cont))
+            batch, used, cont = [], 0, True
+        batch.append(b)
+        used += hb
+        if used > room:            # a tall screenshot alone can exceed a page — give it one
+            pages.append(render_page(consult, batch, cont))
+            batch, used, cont = [], 0, True
+    if batch:
+        pages.append(render_page(consult, batch, cont))
+    return pages
+
+
+def sync():
     try:
-        with open(INDEX) as f:
-            return json.load(f)
+        with open(CONSULTS) as f:
+            consults = json.load(f)
     except (OSError, ValueError):
-        return []
+        consults = []
+    consults = consults[-MAX_CONSULTS:]
 
+    pages = []
+    for c in consults:
+        pages.extend(pages_for(c))
+    if not pages:
+        if os.path.exists(PDF):
+            os.remove(PDF)
+        print(json.dumps({'pdf': None, 'consults': 0, 'pages': 0}))
+        return
 
-def cmd_add(img_path, pid, when, caption):
-    os.makedirs(SHOTS, exist_ok=True)
-    kept = os.path.join(SHOTS, f'{pid}.png')
-    page(img_path, pid, when, caption).save(kept)          # the composed page, reusable on rewrite
-
-    pages = [p for p in load_index() if p['id'] != pid]
-    pages.append({'id': pid, 'when': when, 'caption': caption, 'file': kept})
-    pages = pages[-MAX_PAGES:]
-    for p in load_index():                                  # drop the images that rolled off
-        if p not in pages and os.path.exists(p['file']) and p['file'] != kept:
-            try:
-                os.remove(p['file'])
-            except OSError:
-                pass
-
-    imgs = [Image.open(p['file']).convert('RGB') for p in pages]
-    imgs[0].save(PDF, save_all=True, append_images=imgs[1:], resolution=110)
-    with open(INDEX, 'w') as f:
-        json.dump(pages, f, indent=1)
-    print(json.dumps({'pdf': PDF, 'pages': len(pages), 'latest': pid,
-                      'bytes': os.path.getsize(PDF)}))
+    os.makedirs(DIR, exist_ok=True)
+    pages[0].save(PDF, save_all=True, append_images=pages[1:], resolution=110)
+    print(json.dumps({'pdf': PDF, 'consults': len(consults), 'pages': len(pages),
+                      'latest': consults[-1]['id'], 'bytes': os.path.getsize(PDF)}))
 
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 2 and sys.argv[1] == 'list':
-        print(json.dumps(load_index(), indent=1))
-    elif len(sys.argv) >= 5 and sys.argv[1] == 'add':
-        os.makedirs(DIR, exist_ok=True)
-        cmd_add(sys.argv[2], sys.argv[3], sys.argv[4], ' '.join(sys.argv[5:]))
+    if len(sys.argv) >= 2 and sys.argv[1] == 'sync':
+        sync()
     else:
         sys.exit(__doc__)

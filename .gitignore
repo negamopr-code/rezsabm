@@ -1,3 +1,4 @@
 data/results/*/videos/
 uploads/*.csv
 __pycache__/
+data/advisor/

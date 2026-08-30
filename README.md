@@ -37,12 +37,26 @@ picture there and renders the answer.
 
 How the picture reaches a text-only notebook, **without spending Claude tokens**:
 
-1. `scripts/chart_pdf.py` folds the picture into ONE rolling PDF (`data/advisor/charts.pdf`),
-   newest page last, each page stamped with consult id, UTC date/time and the trader's note.
+1. `scripts/chart_pdf.py` rebuilds ONE rolling PDF (`data/advisor/charts.pdf`) from
+   `data/advisor/consults.json`. One consult = one section, headed by its id and UTC time,
+   holding **everything about that position in order**: the picture, the verdict, any
+   follow-up picture, and every message either side sent.
 2. That PDF replaces the single source titled **"REZSABM chart uploads"** in the notebook —
    replace-by-title, so no matter how many charts are analysed the notebook keeps 3 sources
    and the 50-source cap never moves.
 3. NotebookLM reads the image itself and answers from the SABM course, quoting it.
+
+**Chat.** Every consult is a live NotebookLM conversation (`conversation_id`), so follow-ups
+keep the context: *"and if it closes below 623.58 tomorrow?"*. Each exchange is written back
+under its picture in the PDF, so the notebook re-reads its own earlier verdicts as a source.
+
+**Follow-up pictures.** Disagree with a verdict? Draw your objection on the chart and upload
+it again — it joins the **same** section, same id, same conversation, as PICTURE 2, 3, … The
+tool never files a picture silently: after every upload it asks *where does this picture
+belong* — a new chart, or a follow-up to one of the existing consults.
+
+**Erase.** 🗑 removes the consult, its pictures and its whole conversation; the PDF is rebuilt
+without that section and re-published, so the notebook stops seeing it too.
 
 Optional **precise mode** adds a Claude vision pass that transcribes the chart into neutral
 facts (no advice) before asking — for charts whose levels are not printed on the axes. That

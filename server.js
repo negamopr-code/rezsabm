@@ -81,6 +81,52 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (url.pathname === '/api/advisor/chat' && req.method === 'POST') {
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', async () => {
+      let body;
+      try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+      catch { return send(res, 400, { error: 'bad JSON body' }); }
+      if (!body.id || !body.message) return send(res, 400, { error: 'id and message required' });
+      try {
+        return send(res, 200, await require('./lib/advisor').chat(body.id, body.message));
+      } catch (e) {
+        const quota = e.constructor && e.constructor.name === 'QuotaError';
+        return send(res, quota ? 429 : 502, { error: e.message, quota: quota || undefined });
+      }
+    });
+    return;
+  }
+
+  if (url.pathname === '/api/advisor/add-image' && req.method === 'POST') {
+    const chunks = [];
+    let size = 0;
+    req.on('data', c => { size += c.length; if (size > 12e6) { req.destroy(); return; } chunks.push(c); });
+    req.on('end', async () => {
+      let body;
+      try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+      catch { return send(res, 400, { error: 'bad JSON body' }); }
+      if (!body.id || !body.imageBase64) return send(res, 400, { error: 'id and picture required' });
+      try {
+        return send(res, 200, await require('./lib/advisor').addImage(body.id, body));
+      } catch (e) {
+        const quota = e.constructor && e.constructor.name === 'QuotaError';
+        return send(res, quota ? 429 : 502, { error: e.message, quota: quota || undefined });
+      }
+    });
+    return;
+  }
+
+  if (url.pathname === '/api/advisor/erase' && req.method === 'POST') {
+    const id = url.searchParams.get('id');
+    if (!id) return send(res, 400, { error: 'id required' });
+    require('./lib/advisor').erase(id)
+      .then(r => send(res, 200, r))
+      .catch(e => send(res, 502, { error: e.message }));
+    return;
+  }
+
   if (url.pathname.startsWith('/advisor/')) {
     const advisor = require('./lib/advisor');
     const rel = path.normalize(url.pathname.replace('/advisor/', '')).replace(/^(\.\.[\\/])+/, '');

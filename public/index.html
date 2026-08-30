@@ -129,6 +129,11 @@
         <input id="file" type="file" accept="image/*" hidden>
       </div>
       <img id="preview" hidden style="max-width:100%;border:1px solid #1a2535;border-radius:8px">
+      <div id="belongs" hidden style="background:#101724;border:1px solid #223148;border-radius:8px;padding:10px 12px">
+        <div class="sub" style="margin-bottom:6px;color:#ddeef6">Where does this picture belong?</div>
+        <select id="belongsel" style="width:100%"></select>
+        <div class="sub" style="margin-top:6px">a follow-up joins that chart's section in the PDF and its running conversation — same position, not a new one</div>
+      </div>
       <label class="sub">What is this position? <span style="color:#7090a0">(the more numbers you give, the sharper the answer — entry, stop, current price)</span>
         <textarea id="notes" rows="3" placeholder="e.g. SPY 15m, long from 512.40, stop 511.10, price now 514.9 — holding since the open"
           style="width:100%;margin-top:4px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:7px 9px;font:inherit;resize:vertical"></textarea></label>
@@ -141,8 +146,18 @@
       <div class="sub" id="advstat" style="border-top:1px solid #1a2535;padding-top:8px"></div>
     </div>
     <div style="flex:1 1 520px">
-      <div id="answer" style="background:#101724;border:1px solid #1a2535;border-radius:8px;padding:12px 16px;min-height:120px;color:#cfe4ef;font-size:13.5px;line-height:1.55">
+      <div id="threadhead" class="filters" style="margin:0 0 6px" hidden>
+        <span class="sub" id="threadinfo"></span>
+        <button id="erase" style="margin-left:auto;border-color:#5a2634;color:#f0364a" title="removes this chart and its whole conversation from the PDF the notebook reads">🗑 erase this chart</button>
+      </div>
+      <div id="answer" style="background:#101724;border:1px solid #1a2535;border-radius:8px;padding:12px 16px;min-height:120px;max-height:62vh;overflow:auto;color:#cfe4ef;font-size:13.5px;line-height:1.55">
         <span class="sub">The verdict comes from the NotebookLM notebook <b>SABM — Sortir au Bon Moment</b>. This page only carries the picture there and brings the answer back.</span>
+      </div>
+      <div class="filters" id="composer" style="margin-top:8px" hidden>
+        <input id="msg" placeholder="ask the notebook about this chart… (e.g. and if it closes below 623.58 tomorrow?)"
+               style="flex:1 1 320px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:7px 9px;font:inherit">
+        <button id="send">send</button>
+        <span class="sub" id="chatstat"></span>
       </div>
       <div id="hist" style="margin-top:12px"></div>
     </div>
@@ -475,7 +490,25 @@ async function takeShot(file) {
   el('preview').src = SHOT.url;
   el('preview').hidden = false;
   el('askstat').textContent = `picture ready (${Math.round(SHOT.b64.length * 0.75 / 1024)} KB)`;
+  await fillBelongs();
 }
+
+/** A picture is never filed silently: the tool asks which chart it belongs to, so it knows
+ *  which section of the PDF to put it under. The open thread is offered first. */
+async function fillBelongs() {
+  const h = await (await fetch('/api/advisor/history')).json();
+  const sel = el('belongsel');
+  sel.innerHTML = '<option value="">a NEW chart — start its own section and conversation</option>' +
+    h.map(c => `<option value="${c.id}">follow-up to ${c.id} · ${c.when} · ${(c.notes || 'no notes').slice(0, 50)}</option>`).join('');
+  if (THREAD && h.some(c => c.id === THREAD.id)) sel.value = THREAD.id;
+  el('belongs').hidden = false;
+  el('ask').textContent = sel.value ? '🎯 add this picture to that conversation' : '🎯 Ask SABM where to exit';
+}
+document.addEventListener('change', e => {
+  if (e.target && e.target.id === 'belongsel') {
+    el('ask').textContent = e.target.value ? '🎯 add this picture to that conversation' : '🎯 Ask SABM where to exit';
+  }
+});
 
 el('drop').onclick = () => el('file').click();
 el('file').onchange = e => takeShot(e.target.files[0]);
@@ -528,18 +561,56 @@ async function loadHistory() {
   } catch {}
 }
 
-function showAnswer(c) {
-  // Measured on the first real consults: the notebook reads printed text and axis labels
-  // exactly, but numbers it derives from pixel geometry (an unlabelled low, a gridline
-  // spacing) can be invented. Say so next to every verdict rather than in a manual nobody reads.
-  el('answer').innerHTML =
-    `<div class="sub" style="margin-bottom:8px">consult ${c.id} · ${c.when} UTC · page ${c.pages} of the chart PDF` +
-    (c.precise ? ' · precise mode' : '') + `</div>` + md(c.answer) +
+let THREAD = null;   // the consult currently open in the panel
+
+function renderThread(c) {
+  THREAD = c;
+  el('threadhead').hidden = false;
+  el('composer').hidden = false;
+  el('threadinfo').innerHTML =
+    `consult <b>${c.id}</b> · ${c.when} UTC · ${c.turns.length} messages${c.precise ? ' · precise mode' : ''}` +
+    ` · <a href="/advisor/raw/${c.image}" target="_blank">picture</a>`;
+  el('answer').innerHTML = c.turns.map(t => t.role === 'user'
+    ? `<div style="margin:10px 0 4px;color:#00c8f0"><b>you</b> <span class="sub">${t.at}</span><div style="color:#ddeef6">${t.text.replace(/</g, '&lt;')}</div></div>`
+    : `<div style="margin:6px 0 14px;border-top:1px solid #1a2535;padding-top:8px">${md(t.text)}</div>`).join('') +
+    // Measured on the first real consults: the notebook reads printed text and axis labels
+    // exactly, but levels it derives from pixel geometry can be invented — say so next to
+    // every verdict rather than in a manual nobody reads.
     `<div class="sub" style="margin-top:10px;border-top:1px solid #1a2535;padding-top:8px">
-       ⚠ the notebook reads labels and axis numbers reliably, but any level it had to
-       <i>infer from the picture</i> (an unlabelled swing low, a gridline step) may be invented —
-       check those against your platform, or type the real numbers into the notes and ask again.</div>`;
+       ⚠ labels and axis numbers are read reliably; a level the notebook had to <i>infer from the picture</i>
+       may be invented — check it, or give the real number in your next message.</div>`;
+  el('answer').scrollTop = el('answer').scrollHeight;
 }
+
+el('send').onclick = async () => {
+  const m = el('msg').value.trim();
+  if (!m || !THREAD) return;
+  el('send').disabled = true;
+  el('chatstat').textContent = 'asking the notebook…';
+  try {
+    const r = await fetch('/api/advisor/chat', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: THREAD.id, message: m }) });
+    const j = await r.json();
+    if (!r.ok) el('chatstat').innerHTML = `<span style="color:#f0364a">${j.error}</span>`;
+    else { el('msg').value = ''; el('chatstat').textContent = ''; renderThread(j); loadHistory(); }
+  } catch (e) { el('chatstat').textContent = e.message; }
+  el('send').disabled = false;
+  advisorStatus();
+};
+el('msg').addEventListener('keydown', e => { if (e.key === 'Enter') el('send').click(); });
+
+el('erase').onclick = async () => {
+  if (!THREAD || !confirm(`Erase chart ${THREAD.id} and its whole conversation? It leaves the PDF the notebook reads.`)) return;
+  const r = await fetch(`/api/advisor/erase?id=${THREAD.id}`, { method: 'POST' });
+  const j = await r.json();
+  if (!r.ok) { el('chatstat').textContent = j.error; return; }
+  THREAD = null;
+  el('threadhead').hidden = true; el('composer').hidden = true;
+  el('answer').innerHTML = `<span class="sub">erased — ${j.remaining} consult(s) left in the PDF the notebook reads</span>`;
+  loadHistory(); advisorStatus();
+};
+
+function showAnswer(c) { renderThread(c); }
 
 el('ask').onclick = async () => {
   if (!SHOT) { el('askstat').textContent = 'drop or paste a chart first'; return; }
@@ -547,16 +618,23 @@ el('ask').onclick = async () => {
   el('askstat').textContent = 'uploading the picture to the notebook and asking…';
   el('answer').innerHTML = '<span class="sub">the notebook is reading the chart — this takes 1–3 minutes</span>';
   try {
-    const r = await fetch('/api/advisor/consult', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ imageBase64: SHOT.b64, mime: SHOT.mime,
-                             notes: el('notes').value.trim(), precise: el('precise').checked }),
-    });
+    const belongsTo = el('belongsel').value;
+    const r = belongsTo
+      ? await fetch('/api/advisor/add-image', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: belongsTo, imageBase64: SHOT.b64, mime: SHOT.mime,
+                                 message: el('notes').value.trim() }) })
+      : await fetch('/api/advisor/consult', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ imageBase64: SHOT.b64, mime: SHOT.mime,
+                                 notes: el('notes').value.trim(), precise: el('precise').checked }) });
     const j = await r.json();
     if (!r.ok) {
       el('answer').innerHTML = `<span style="color:#f0364a">${j.quota ? 'work4 NLM quota is spent for now — ' : ''}${j.error}</span>`;
     } else {
-      showAnswer(j);
+      SHOT = null;
+      el('preview').hidden = true; el('belongs').hidden = true; el('notes').value = '';
+      renderThread(j);
       loadHistory();
     }
   } catch (e) {
