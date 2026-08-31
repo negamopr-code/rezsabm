@@ -62,6 +62,23 @@ Optional **precise mode** adds a Claude vision pass that transcribes the chart i
 facts (no advice) before asking — for charts whose levels are not printed on the axes. That
 one costs Claude tokens; the default path costs none.
 
+**Why the first verdict used to be wrong.** The opening ETHUSD consult (2026-08-30) applied the
+generic *"après R2 → trendline break → trail to the first creux"* rule and named the wrong exit.
+The moment the trader pointed at the **speed** of the move, the notebook produced the right
+rule with a course quote it had had all along: price reached R3 on the first session after the
+breakout, which the course treats as a violent arrival demanding *"la sortie ... en intraday"*.
+The knowledge was in the corpus; the question never made it look. So now:
+
+- **Qualifying facts gate** — before it may name a rule, the notebook must answer the course's
+  own preconditions (sessions to R1/R2/R3, violent vs gradual, intraday vs close, phase,
+  whether a trendline may be drawn yet) and say *"not visible"* rather than guess. Section 2 of
+  every answer. `POST /api/advisor/refresh-criteria` spends ONE query to let the course
+  restate that checklist in its own words (`data/advisor/criteria.md`); until then a
+  built-in fallback list is used.
+- **Standing corrections** — 📌 on any answer where you pushed back and it conceded stores the
+  lesson (`data/advisor/corrections.json`) and prepends it to every future verdict, so the
+  same class of miss does not recur on the next chart. Listed in the tab, removable with ✕.
+
 Measured limits (first real consults, 2026-08-30): printed text, axis labels and dates are
 read exactly; levels the model must *infer from pixels* (an unlabelled swing low, a gridline
 step) can be invented. Put your real entry/stop/current price in the notes field.

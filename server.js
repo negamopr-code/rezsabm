@@ -122,6 +122,29 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (url.pathname === '/api/advisor/corrections') {
+    const a = require('./lib/advisor');
+    return send(res, 200, { corrections: a.corrections(), criteria: a.criteria() });
+  }
+
+  if (url.pathname === '/api/advisor/correction' && req.method === 'POST') {
+    const a = require('./lib/advisor');
+    try {
+      if (url.searchParams.get('remove') !== null) {
+        return send(res, 200, { corrections: a.removeCorrection(parseInt(url.searchParams.get('remove'), 10)) });
+      }
+      return send(res, 200, { corrections: a.addCorrection(url.searchParams.get('id'),
+                                                           parseInt(url.searchParams.get('turn'), 10)) });
+    } catch (e) { return send(res, 400, { error: e.message }); }
+  }
+
+  if (url.pathname === '/api/advisor/refresh-criteria' && req.method === 'POST') {
+    require('./lib/advisor').refreshCriteria()
+      .then(r => send(res, 200, r))
+      .catch(e => send(res, 502, { error: e.message }));
+    return;
+  }
+
   if (url.pathname === '/api/advisor/erase' && req.method === 'POST') {
     const id = url.searchParams.get('id');
     if (!id) return send(res, 400, { error: 'id required' });

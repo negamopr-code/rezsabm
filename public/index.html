@@ -164,6 +164,7 @@
         <button id="send">send</button>
         <span class="sub" id="chatstat"></span>
       </div>
+      <div id="corr" style="margin-top:12px;background:#101724;border:1px solid #1a2535;border-radius:8px;padding:8px 12px"></div>
       <div id="hist" style="margin-top:12px"></div>
     </div>
   </div>
@@ -469,7 +470,7 @@ document.querySelectorAll('#modebar button[data-mode]').forEach(b => b.onclick =
   el('view-advisor').hidden = m !== 'advisor';
   el('modedesc').textContent = MODEDESC[m];
   try { localStorage.setItem('rezsabm_mode', m); } catch {}
-  if (m === 'advisor') { advisorStatus(); loadHistory(); }
+  if (m === 'advisor') { advisorStatus(); loadHistory(); loadCorrections(); }
 });
 
 /** NotebookLM re-rasterises anyway — 1600px keeps axis labels legible and the PDF small. */
@@ -579,16 +580,40 @@ function renderThread(c) {
   el('threadinfo').innerHTML =
     `consult <b>${c.id}</b> · ${c.when} UTC · ${c.turns.length} messages${c.precise ? ' · precise mode' : ''}` +
     ` · <a href="/advisor/raw/${c.image}" target="_blank">picture</a>`;
-  el('answer').innerHTML = c.turns.map(t => t.role === 'user'
+  el('answer').innerHTML = c.turns.map((t, i) => t.role === 'user'
     ? `<div style="margin:10px 0 4px;color:#00c8f0"><b>you</b> <span class="sub">${t.at}</span><div style="color:#ddeef6">${t.text.replace(/</g, '&lt;')}</div></div>`
-    : `<div style="margin:6px 0 14px;border-top:1px solid #1a2535;padding-top:8px">${md(t.text)}</div>`).join('') +
+    : `<div style="margin:6px 0 14px;border-top:1px solid #1a2535;padding-top:8px">${md(t.text)}
+         <div class="sub" style="margin-top:6px"><a href="#" data-pin="${i}" title="you pushed back and it changed its answer — keep this lesson in front of every future verdict">📌 remember this correction</a></div></div>`).join('') +
     // Measured on the first real consults: the notebook reads printed text and axis labels
     // exactly, but levels it derives from pixel geometry can be invented — say so next to
     // every verdict rather than in a manual nobody reads.
     `<div class="sub" style="margin-top:10px;border-top:1px solid #1a2535;padding-top:8px">
        ⚠ labels and axis numbers are read reliably; a level the notebook had to <i>infer from the picture</i>
        may be invented — check it, or give the real number in your next message.</div>`;
+  el('answer').querySelectorAll('[data-pin]').forEach(a => a.onclick = async e => {
+    e.preventDefault();
+    const r = await fetch(`/api/advisor/correction?id=${c.id}&turn=${a.dataset.pin}`, { method: 'POST' });
+    const j = await r.json();
+    el('chatstat').textContent = r.ok ? `remembered — ${j.corrections.length} standing correction(s)` : j.error;
+    loadCorrections();
+  });
   el('answer').scrollTop = el('answer').scrollHeight;
+}
+
+/** The standing corrections that now precede every verdict — visible and removable. */
+async function loadCorrections() {
+  const j = await (await fetch('/api/advisor/corrections')).json();
+  el('corr').innerHTML = j.corrections.length
+    ? `<div class="sub" style="margin-bottom:4px">standing corrections — sent with every new verdict</div>` +
+      j.corrections.map((c, i) => `<div class="sub" style="border-top:1px solid #141d2c;padding:4px 0">
+          <a href="#" data-del="${i}" style="color:#f0364a;text-decoration:none">✕</a>
+          <b>${c.at}</b> — "${c.trader.slice(0, 120).replace(/</g, '&lt;')}"</div>`).join('')
+    : '<div class="sub">no standing corrections yet — pin one with 📌 when the notebook concedes a point</div>';
+  el('corr').querySelectorAll('[data-del]').forEach(a => a.onclick = async e => {
+    e.preventDefault();
+    await fetch(`/api/advisor/correction?remove=${a.dataset.del}`, { method: 'POST' });
+    loadCorrections();
+  });
 }
 
 el('send').onclick = async () => {
