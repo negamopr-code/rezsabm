@@ -122,6 +122,42 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ── guided walk: the course's decision tree, one question at a time ──
+  if (url.pathname === '/api/advisor/tree') {
+    try { return send(res, 200, require('./lib/tree').load()); }
+    catch (e) { return send(res, 502, { error: e.message }); }
+  }
+
+  if (url.pathname === '/api/advisor/tree/refresh' && req.method === 'POST') {
+    require('./lib/tree').refresh()
+      .then(r => send(res, 200, r))
+      .catch(e => send(res, 502, { error: e.message }));
+    return;
+  }
+
+  if ((url.pathname === '/api/advisor/start' || url.pathname === '/api/advisor/step') && req.method === 'POST') {
+    const chunks = [];
+    let size = 0;
+    req.on('data', c => { size += c.length; if (size > 12e6) { req.destroy(); return; } chunks.push(c); });
+    req.on('end', async () => {
+      const a = require('./lib/advisor');
+      let body;
+      try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+      catch { return send(res, 400, { error: 'bad JSON body' }); }
+      try {
+        if (url.pathname === '/api/advisor/start') return send(res, 200, await a.start(body));
+        if (body.undo) return send(res, 200, a.undo(body.id));
+        if (body.conclude) return send(res, 200, await a.conclude(body.id));
+        return send(res, 200, a.answer(body.id, body.choice));
+      } catch (e) {
+        const quota = e.constructor && e.constructor.name === 'QuotaError';
+        console.error(`[advisor] ${new Date().toISOString()} ${quota ? 'QUOTA' : 'ERROR'}: ${e.message}`);
+        return send(res, quota ? 429 : 502, { error: e.message, quota: quota || undefined });
+      }
+    });
+    return;
+  }
+
   if (url.pathname === '/api/advisor/corrections') {
     const a = require('./lib/advisor');
     return send(res, 200, { corrections: a.corrections(), criteria: a.criteria() });

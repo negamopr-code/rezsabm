@@ -72,8 +72,34 @@ def load_picture(name):
     return im
 
 
+def walk_block(consult):
+    """The guided walk drawn as the tree it is: each question, the trader's answer indented one
+    step further, then the rule the course's tree lands on. This is what makes the PDF a
+    decision database rather than a pile of screenshots."""
+    w = consult.get('walk')
+    if not w:
+        return []
+    rows = [('role', 'SABM DECISION TREE — the trader walked the course\'s own questions')]
+    for i, p in enumerate(w.get('path', [])):
+        pad = '  ' * i
+        rows.append(('body', f'{pad}|- {p.get("q", "")}'))
+        rows.append(('body', f'{pad}|  ANSWER: {p.get("answer", "")}'))
+    pad = '  ' * len(w.get('path', []))
+    rows.append(('body', f'{pad}=> RULE: {w.get("rule", "")}'))
+    for ln in wrap(f'{pad}   EXIT: {w.get("exit", "")}'):
+        rows.append(('body', ln))
+    if w.get('quote'):
+        for ln in wrap(f'{pad}   COURSE: "{w["quote"]}"'):
+            rows.append(('body', ln))
+    if w.get('reading'):
+        rows.append(('role', 'THE NOTEBOOK READ THE SAME QUESTIONS FROM THE PICTURE AS'))
+        rows.extend(('body', ln) for ln in wrap(w['reading']))
+    rows.append(('body', ''))
+    return rows
+
+
 def blocks_for(consult):
-    """The whole section as a flat block list: pictures and text, in the order they happened."""
+    """The whole section as a flat block list: pictures, the decision walk and text, in order."""
     blocks, shot = [], 0
     for t in consult.get('turns', []):
         if t.get('image'):
@@ -87,6 +113,7 @@ def blocks_for(consult):
             blocks.append(('role', f"{who} — {t.get('at', '')} UTC"))
             blocks.extend(('body', ln) for ln in wrap(t['text']))
         blocks.append(('body', ''))
+    blocks = walk_block(consult) + blocks if consult.get('walk') else blocks
     return blocks or [('body', '(no exchange yet)')]
 
 

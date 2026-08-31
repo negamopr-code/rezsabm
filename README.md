@@ -79,6 +79,28 @@ The knowledge was in the corpus; the question never made it look. So now:
   lesson (`data/advisor/corrections.json`) and prepends it to every future verdict, so the
   same class of miss does not recur on the next chart. Listed in the tab, removable with ✕.
 
+**Guided walk (default for a new chart).** Instead of hoping the notebook checks the right
+things, the tool walks the course's own exit decision tree with you: one question at a time,
+each next question determined by your last answer, starting with the tempo of arrival at the R
+levels because the course makes that decisive. You answer what only you can see (your
+platform, the sessions, the intraday fill); the notebook is asked nothing until the walk ends,
+so a guided consult still costs **two** work4 queries however long the tree is:
+
+1. it answers the same questions **from the picture alone** — no course reasoning, "not
+   visible" allowed, guessing not;
+2. it then rules, with your answers, its own reading and any standing corrections in front of
+   it, and must list every **disagreement** first. Your answers are the facts of record; a
+   disagreement is a flag for you to resolve, never a silent override.
+
+`lib/tree_fallback.json` is a hand-written spine so the walker is never dead;
+`POST /api/advisor/tree/refresh` spends one query to have the course emit its own tree, which
+is validated (no dangling branch, every terminal quotes the course) before it is installed.
+The whole walk — every question, your answer, the rule it lands on, the course quote and the
+notebook's independent reading — is drawn into that chart's section of the PDF, so the
+decisions accumulate as a database the notebook reads on later consults.
+
+Optional `precise` adds Claude as a third reader answering the same tree questions.
+
 Measured limits (first real consults, 2026-08-30): printed text, axis labels and dates are
 read exactly; levels the model must *infer from pixels* (an unlabelled swing low, a gridline
 step) can be invented. Put your real entry/stop/current price in the notes field.

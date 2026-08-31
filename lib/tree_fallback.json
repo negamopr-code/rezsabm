@@ -1,0 +1,92 @@
+{
+ "source": "hand-written spine — replaced by the course's own tree via POST /api/advisor/tree/refresh",
+ "root": "tempo",
+ "nodes": {
+  "tempo": {
+   "q": "How fast did price reach the R levels after the breakout?",
+   "why": "The course makes the tempo of arrival decide the rule before anything else — a violent arrival is not managed like a gradual one.",
+   "options": [
+    { "a": "R3 (or beyond) reached in ONE session", "next": "violent" },
+    { "a": "R1 or R2 reached in one session, R3 not yet", "next": "fast" },
+    { "a": "The levels were reached gradually, over several sessions", "next": "phase" },
+    { "a": "Not visible on this chart", "next": "phase" }
+   ]
+  },
+  "violent": {
+   "terminal": true,
+   "rule": "Violent arrival — sortie intraday",
+   "exit": "Exit intraday on that session; if the session is already closed, place the stop under that session's low to stay closest to the tempo of the move.",
+   "quote": "la sortie la plus adaptée est clairement celle en intraday / il s'agissait de placer son stop sous [cette] séance pour coller au plus près au tempo de l'action"
+  },
+  "fast": {
+   "q": "Is the move still accelerating, or has it slowed since that fast leg?",
+   "why": "A fast leg that keeps accelerating is managed as a climax run; one that slows returns to the ordinary phase rules.",
+   "options": [
+    { "a": "Still accelerating, making new highs quickly", "next": "climax" },
+    { "a": "It has slowed / gone sideways", "next": "phase" }
+   ]
+  },
+  "climax": {
+   "terminal": true,
+   "rule": "Climax run — coller au tempo",
+   "exit": "Trail under every session's low, including sessions that are neither a deep nor a Dow low; the faster the acceleration, the tighter you stick.",
+   "quote": "Plus le mouvement s'accélère au-dessus de 3R, et plus on colle."
+  },
+  "phase": {
+   "q": "Where is price now, relative to the R levels measured from your entry and initial stop?",
+   "why": "The course manages the trade differently before R1, between R1 and R2, and after R2.",
+   "options": [
+    { "a": "Below R1 — the trade has not yet made 1R", "next": "beforeR1" },
+    { "a": "Between R1 and R2", "next": "r1r2" },
+    { "a": "Above R2", "next": "trendline" }
+   ]
+  },
+  "beforeR1": {
+   "terminal": true,
+   "rule": "Avant le R1 — TPG",
+   "exit": "The initial stop stays where it is; the trade is governed by the TPG course (transformer ses pertes en gains), not by trailing.",
+   "quote": "Avant le R1 il faut se reporter au cours de trading TPG – Transformer ses pertes en gains avec la coupe des trades."
+  },
+  "r1r2": {
+   "terminal": true,
+   "rule": "Avant le R2 — laisser respirer",
+   "exit": "No stop is moved. The initial stop stays at its level while the move breathes and the tempo becomes readable.",
+   "quote": "Avant le R2, le tempo peut ralentir et la trendline être cassée sans que cela ne remette en question la tendance. Il faut alors laisser respirer les cours et saisir le nouveau tempo des investisseurs. Aucun stop n'est remonté."
+  },
+  "trendline": {
+   "q": "Is a trendline drawable on two structural lows, and what has price done to it?",
+   "why": "After R2 the trendline becomes reliable, and its break is what authorises trailing to the first low.",
+   "options": [
+    { "a": "Drawable, and price has broken it to the downside", "next": "broken" },
+    { "a": "Drawable, and it is still intact", "next": "dow" },
+    { "a": "Not drawable yet — only one structural low", "next": "dow" }
+   ]
+  },
+  "broken": {
+   "terminal": true,
+   "rule": "Après R2 — cassure de la trendline",
+   "exit": "Move the stop to the first creux (low) that forms after the break. It does not need to be validated by a new high or a deep.",
+   "quote": "Après R2, si la trendline est cassée, le 1er creux qui se forme ensuite doit être repéré et le stop doit y être associé. Ce creux n'a pas besoin d'être validé par un plus haut (dow) ou par un deep pour que le stop soit remonté."
+  },
+  "dow": {
+   "q": "Has a new Dow structure formed — a new high followed by a higher low?",
+   "why": "With the trendline intact, the stop follows validated structure rather than every low.",
+   "options": [
+    { "a": "Yes, a new validated higher low exists", "next": "trailDow" },
+    { "a": "No new structure since the last one", "next": "hold" }
+   ]
+  },
+  "trailDow": {
+   "terminal": true,
+   "rule": "Trailing sur la structure de Dow",
+   "exit": "Trail the stop under the newest validated higher low.",
+   "quote": "(the course's Dow-structure trailing section)"
+  },
+  "hold": {
+   "terminal": true,
+   "rule": "Pas de nouveau creux validé",
+   "exit": "Leave the stop where it is until a new validated low or a trendline break appears.",
+   "quote": "(the course's rule that the stop only moves on a validated structure)"
+  }
+ }
+}

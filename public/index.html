@@ -139,6 +139,8 @@
           style="width:100%;margin-top:4px;background:#101724;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:7px 9px;font:inherit;resize:vertical"></textarea></label>
       <div class="filters" style="margin:0">
         <button id="ask">🎯 Ask SABM where to exit</button>
+        <label class="sub" title="Walk the course's decision tree question by question before the notebook rules. Costs no extra NLM query.">
+          <input id="guided" type="checkbox" checked> guided walk</label>
         <label class="sub" title="Adds a Claude vision pass that transcribes the chart into neutral facts before asking. Costs Claude tokens; the default path costs none.">
           <input id="precise" type="checkbox"> precise mode (Claude reads the chart first — costs tokens)</label>
         <span class="sub" id="askstat"></span>
@@ -151,6 +153,16 @@
       <div class="sub" id="advstat" style="border-top:1px solid #1a2535;padding-top:8px"></div>
     </div>
     <div style="flex:1 1 520px">
+      <div id="walk" hidden style="background:#101724;border:1px solid #00c8f0;border-radius:8px;padding:12px 16px;margin-bottom:10px">
+        <div class="sub" id="walkpath" style="margin-bottom:8px"></div>
+        <div id="walkq" style="font-size:14.5px;color:#ddeef6;margin-bottom:4px"></div>
+        <div class="sub" id="walkwhy" style="margin-bottom:8px"></div>
+        <div id="walkopts" class="filters" style="margin:0"></div>
+        <div class="filters" style="margin:8px 0 0">
+          <button id="walkundo" style="border-color:#223148">← back</button>
+          <span class="sub" id="walkstat"></span>
+        </div>
+      </div>
       <div id="threadhead" class="filters" style="margin:0 0 6px" hidden>
         <span class="sub" id="threadinfo"></span>
         <button id="erase" style="margin-left:auto;border-color:#5a2634;color:#f0364a" title="removes this chart and its whole conversation from the PDF the notebook reads">🗑 erase this chart</button>
@@ -646,6 +658,56 @@ el('erase').onclick = async () => {
 
 function showAnswer(c) { renderThread(c); }
 
+// ── guided walk: the course's own decision tree, one question at a time ────────────────
+// The trader answers what only he can see; the notebook is not asked anything until the walk
+// ends, so a consult still costs two work4 queries however many questions the tree asks.
+let WALKID = null;
+
+function renderStep(c) {
+  WALKID = c.id;
+  const st = c.step;
+  el('walk').hidden = false;
+  el('walkpath').innerHTML = (st.path || []).map((p, i) =>
+    `${i + 1}. ${p.q} → <b style="color:#00c8f0">${p.answer}</b>`).join('<br>') +
+    (st.derived === false ? '<br><i>walking the built-in spine — press “derive the tree from the course” to replace it</i>' : '');
+  el('walkundo').hidden = !(st.path || []).length;
+  if (st.done) {
+    el('walkq').innerHTML = `the tree ends at <b style="color:#00c8f0">${st.rule}</b>`;
+    el('walkwhy').textContent = st.exit || '';
+    el('walkopts').innerHTML = '';
+    const b = document.createElement('button');
+    b.textContent = '🎯 ask the notebook to check this and give the exit';
+    b.onclick = () => step({ id: c.id, conclude: true }, 'reading the chart itself and ruling — 1–3 minutes…');
+    el('walkopts').appendChild(b);
+    return;
+  }
+  el('walkq').textContent = st.q;
+  el('walkwhy').textContent = st.why || '';
+  el('walkopts').innerHTML = '';
+  (st.options || []).forEach(o => {
+    const b = document.createElement('button');
+    b.textContent = o;
+    b.onclick = () => step({ id: c.id, choice: o });
+    el('walkopts').appendChild(b);
+  });
+}
+
+async function step(body, busyMsg) {
+  el('walkstat').textContent = busyMsg || '';
+  el('walkopts').querySelectorAll('button').forEach(b => (b.disabled = true));
+  try {
+    const r = await fetch('/api/advisor/step', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body) });
+    const j = await r.json();
+    if (!r.ok) { el('walkstat').innerHTML = `<span style="color:#f0364a">${j.error}</span>`; return; }
+    el('walkstat').textContent = '';
+    if (j.step) renderStep(j);
+    else { el('walk').hidden = true; WALKID = null; renderThread(j); loadHistory(); advisorStatus(); }
+  } catch (e) { el('walkstat').textContent = e.message; }
+}
+
+el('walkundo').onclick = () => step({ id: WALKID, undo: true });
+
 el('ask').onclick = async () => {
   if (!SHOT) { el('askstat').textContent = 'drop or paste a chart first'; return; }
   el('ask').disabled = true;
@@ -653,6 +715,20 @@ el('ask').onclick = async () => {
   el('answer').innerHTML = '<span class="sub">the notebook is reading the chart — this takes 1–3 minutes</span>';
   try {
     const belongsTo = el('belongsel').value;
+    if (!belongsTo && el('guided').checked) {                 // new chart, guided (the default)
+      const r0 = await fetch('/api/advisor/start', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ imageBase64: SHOT.b64, mime: SHOT.mime,
+                               notes: el('notes').value.trim(), precise: el('precise').checked }) });
+      const j0 = await r0.json();
+      el('ask').disabled = false;
+      el('askstat').textContent = '';
+      if (!r0.ok) { el('answer').innerHTML = `<span style="color:#f0364a">${j0.error}</span>`; return; }
+      SHOT = null; el('preview').hidden = true; el('belongs').hidden = true; el('notes').value = '';
+      renderStep(j0);
+      el('answer').innerHTML = '<span class="sub">answer the course\'s questions above — the notebook is not asked anything until the walk ends</span>';
+      loadHistory();
+      return;
+    }
     const r = belongsTo
       ? await fetch('/api/advisor/add-image', {
           method: 'POST', headers: { 'content-type': 'application/json' },
