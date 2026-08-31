@@ -79,13 +79,19 @@ def walk_block(consult):
     w = consult.get('walk')
     if not w:
         return []
-    rows = [('role', 'SABM DECISION TREE — the trader walked the course\'s own questions')]
+    state = 'IN PROGRESS' if w.get('inProgress') else 'COMPLETED'
+    rows = [('role', f"SABM DECISION TREE ({state}) — the trader walked the course's own questions")]
     for i, p in enumerate(w.get('path', [])):
         pad = '  ' * i
         rows.append(('body', f'{pad}|- {p.get("q", "")}'))
-        rows.append(('body', f'{pad}|  ANSWER: {p.get("answer", "")}'))
+        unit = f' {p.get("unit")}' if p.get('kind') == 'number' and p.get('unit') else ''
+        rows.append(('body', f'{pad}|  ANSWER: {p.get("answer", "")}{unit}'))
     pad = '  ' * len(w.get('path', []))
-    rows.append(('body', f'{pad}=> RULE: {w.get("rule", "")}'))
+    if w.get('inProgress'):
+        rows.append(('body', f'{pad}=> (walk not finished — no rule reached yet)'))
+        rows.append(('body', ''))
+        return rows
+    rows.append(('body', f'{pad}=> RULE (provisional, from the local spine): {w.get("rule", "")}'))
     for ln in wrap(f'{pad}   EXIT: {w.get("exit", "")}'):
         rows.append(('body', ln))
     if w.get('quote'):
