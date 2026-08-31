@@ -684,6 +684,26 @@ function renderStep(c) {
   el('walkq').textContent = st.q;
   el('walkwhy').textContent = st.why || '';
   el('walkopts').innerHTML = '';
+  if (st.kind === 'number' || st.kind === 'text') {
+    // A quantity is typed as a quantity. Bucketing it ("1 session = violent") would be our
+    // threshold, not the course's — the raw value travels to the notebook, which classifies it.
+    const inp = document.createElement('input');
+    inp.type = st.kind === 'number' ? 'number' : 'text';
+    inp.placeholder = st.unit ? `number of ${st.unit}` : 'your answer';
+    inp.style.cssText = 'width:180px;background:#0b0f15;color:#ddeef6;border:1px solid #223148;border-radius:6px;padding:6px 9px;font:inherit';
+    const go = document.createElement('button');
+    go.textContent = 'answer →';
+    const sendIt = v => step({ id: c.id, choice: String(v).trim() });
+    go.onclick = () => inp.value.trim() && sendIt(inp.value);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && inp.value.trim()) sendIt(inp.value); });
+    const nv = document.createElement('button');
+    nv.textContent = "can't tell from this chart";
+    nv.style.borderColor = '#223148';
+    nv.onclick = () => sendIt('not visible');
+    el('walkopts').append(inp, go, nv);
+    setTimeout(() => inp.focus(), 0);
+    return;
+  }
   (st.options || []).forEach(o => {
     const b = document.createElement('button');
     b.textContent = o;

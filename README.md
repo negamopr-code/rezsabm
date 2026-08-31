@@ -92,6 +92,15 @@ so a guided consult still costs **two** work4 queries however long the tree is:
    it, and must list every **disagreement** first. Your answers are the facts of record; a
    disagreement is a flag for you to resolve, never a silent override.
 
+**Numbers stay numbers.** A question whose honest answer is a quantity — how many sessions to
+R1, to R3 — is typed as a quantity, never picked from ranges. Bucketing "R3 in 2 sessions" into
+violent-or-gradual would be *our* threshold; which scenario a tempo belongs to is the course's
+judgement, so the raw value travels to the notebook and section 2 of every verdict makes it say
+what the course does with that number, in its own words and with its own threshold if it states
+one. Numeric nodes therefore do not branch locally at all — only genuinely categorical facts
+(phase, trendline broken/intact, Dow structure) do, and the rule the local spine reaches is
+handed to the notebook as **provisional**, to confirm or overturn once the tempo is read.
+
 `lib/tree_fallback.json` is a hand-written spine so the walker is never dead;
 `POST /api/advisor/tree/refresh` spends one query to have the course emit its own tree, which
 is validated (no dangling branch, every terminal quotes the course) before it is installed.

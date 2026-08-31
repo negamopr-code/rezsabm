@@ -1,44 +1,41 @@
 {
  "source": "hand-written spine — replaced by the course's own tree via POST /api/advisor/tree/refresh",
- "root": "tempo",
+ "note": "Numeric questions collect the RAW number and never bucket it locally: which scenario a given tempo belongs to is the course's call, made by the notebook at the end, not a threshold invented here. Only genuinely categorical facts branch.",
+ "root": "sessR1",
  "nodes": {
-  "tempo": {
-   "q": "How fast did price reach the R levels after the breakout?",
-   "why": "The course makes the tempo of arrival decide the rule before anything else — a violent arrival is not managed like a gradual one.",
+  "sessR1": {
+   "type": "number",
+   "q": "How many sessions from the breakout to R1?",
+   "why": "The course reads the tempo of the move before anything else — the raw count goes to the notebook, which decides what that tempo means.",
+   "unit": "sessions",
+   "next": "sessR3"
+  },
+  "sessR3": {
+   "type": "number",
+   "q": "And how many sessions from the breakout to R3? (0 if R3 has not been reached)",
+   "why": "How fast the move covers 3R is what separates a violent arrival from an ordinary trend.",
+   "unit": "sessions",
+   "next": "reach"
+  },
+  "reach": {
+   "type": "choice",
+   "q": "Were those levels reached intraday, or on the close?",
+   "why": "The course treats an intraday spike differently from a close beyond the level.",
    "options": [
-    { "a": "R3 (or beyond) reached in ONE session", "next": "violent" },
-    { "a": "R1 or R2 reached in one session, R3 not yet", "next": "fast" },
-    { "a": "The levels were reached gradually, over several sessions", "next": "phase" },
+    { "a": "Intraday, the close stayed below", "next": "phase" },
+    { "a": "On the close", "next": "phase" },
     { "a": "Not visible on this chart", "next": "phase" }
    ]
   },
-  "violent": {
-   "terminal": true,
-   "rule": "Violent arrival — sortie intraday",
-   "exit": "Exit intraday on that session; if the session is already closed, place the stop under that session's low to stay closest to the tempo of the move.",
-   "quote": "la sortie la plus adaptée est clairement celle en intraday / il s'agissait de placer son stop sous [cette] séance pour coller au plus près au tempo de l'action"
-  },
-  "fast": {
-   "q": "Is the move still accelerating, or has it slowed since that fast leg?",
-   "why": "A fast leg that keeps accelerating is managed as a climax run; one that slows returns to the ordinary phase rules.",
-   "options": [
-    { "a": "Still accelerating, making new highs quickly", "next": "climax" },
-    { "a": "It has slowed / gone sideways", "next": "phase" }
-   ]
-  },
-  "climax": {
-   "terminal": true,
-   "rule": "Climax run — coller au tempo",
-   "exit": "Trail under every session's low, including sessions that are neither a deep nor a Dow low; the faster the acceleration, the tighter you stick.",
-   "quote": "Plus le mouvement s'accélère au-dessus de 3R, et plus on colle."
-  },
   "phase": {
+   "type": "choice",
    "q": "Where is price now, relative to the R levels measured from your entry and initial stop?",
    "why": "The course manages the trade differently before R1, between R1 and R2, and after R2.",
    "options": [
     { "a": "Below R1 — the trade has not yet made 1R", "next": "beforeR1" },
     { "a": "Between R1 and R2", "next": "r1r2" },
-    { "a": "Above R2", "next": "trendline" }
+    { "a": "Above R2", "next": "trendline" },
+    { "a": "Not sure", "next": "trendline" }
    ]
   },
   "beforeR1": {
@@ -54,12 +51,14 @@
    "quote": "Avant le R2, le tempo peut ralentir et la trendline être cassée sans que cela ne remette en question la tendance. Il faut alors laisser respirer les cours et saisir le nouveau tempo des investisseurs. Aucun stop n'est remonté."
   },
   "trendline": {
+   "type": "choice",
    "q": "Is a trendline drawable on two structural lows, and what has price done to it?",
    "why": "After R2 the trendline becomes reliable, and its break is what authorises trailing to the first low.",
    "options": [
     { "a": "Drawable, and price has broken it to the downside", "next": "broken" },
     { "a": "Drawable, and it is still intact", "next": "dow" },
-    { "a": "Not drawable yet — only one structural low", "next": "dow" }
+    { "a": "Not drawable yet — only one structural low", "next": "dow" },
+    { "a": "Not visible on this chart", "next": "dow" }
    ]
   },
   "broken": {
@@ -69,11 +68,13 @@
    "quote": "Après R2, si la trendline est cassée, le 1er creux qui se forme ensuite doit être repéré et le stop doit y être associé. Ce creux n'a pas besoin d'être validé par un plus haut (dow) ou par un deep pour que le stop soit remonté."
   },
   "dow": {
+   "type": "choice",
    "q": "Has a new Dow structure formed — a new high followed by a higher low?",
    "why": "With the trendline intact, the stop follows validated structure rather than every low.",
    "options": [
     { "a": "Yes, a new validated higher low exists", "next": "trailDow" },
-    { "a": "No new structure since the last one", "next": "hold" }
+    { "a": "No new structure since the last one", "next": "hold" },
+    { "a": "Not visible on this chart", "next": "hold" }
    ]
   },
   "trailDow": {
